@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}سفارش موفق - فروشگاه EXTIM{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto py-16 px-4">
+    <div class="bg-base-100 rounded-[2rem] p-8 md:p-12 shadow-sm border border-base-200 text-center relative overflow-hidden">
+        
+        <div class="absolute inset-0 bg-success/5 pointer-events-none z-0"></div>
+        
+        <div class="w-24 h-24 bg-success text-white rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg shadow-success/30 relative z-10 animate-bounce">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        
+        <h1 class="text-3xl font-black mb-4 text-success relative z-10">پرداخت با موفقیت انجام شد!</h1>
+        <p class="text-base-content/70 text-lg mb-8 leading-relaxed relative z-10">از خرید شما سپاسگزاریم. سفارش شما با موفقیت ثبت شد و به زودی پردازش خواهد شد.</p>
+        
+        <div class="bg-base-200/50 rounded-2xl p-6 mb-8 border border-dashed border-base-300 relative z-10">
+            <p class="m-0 mb-2 text-base-content/60 font-medium">شماره سفارش شما:</p>
+            <p class="m-0 text-3xl font-black tracking-widest text-base-content">#{{ order.id }}</p>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
+            <a href="{% url 'orders:tracking' order.id %}" class="btn btn-primary btn-lg rounded-2xl px-8 shadow-lg shadow-primary/30">پیگیری سفارش</a>
+            <a href="{% url 'catalog:home' %}" class="btn btn-outline btn-lg rounded-2xl px-8 border-2 hover:bg-base-200 hover:text-base-content hover:border-base-300">بازگشت به خانه</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

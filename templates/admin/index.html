@@ -1,0 +1,242 @@
+{% extends 'unfold/layouts/base.html' %}
+{% load i18n unfold %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block title %}
+    {% trans 'Dashboard' %} | {{ site_title|default:_('Django site admin') }}
+{% endblock %}
+
+{% block branding %}
+    <h1 id="site-name">
+        <a href="{% url 'admin:index' %}">
+            داشبورد مدیریت فروشگاه
+        </a>
+    </h1>
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-6 p-4 md:p-6">
+    
+    <!-- KPIs -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {% for card in kpi %}
+            <div class="bg-white dark:bg-base-800 border border-base-200 dark:border-base-700 rounded-xl p-5 shadow-sm transition-all hover:shadow-md">
+                <h3 class="text-base-500 dark:text-base-400 text-sm font-semibold mb-2">{{ card.title }}</h3>
+                <p class="text-3xl font-bold text-base-900 dark:text-white">{{ card.metric }}</p>
+                <p class="text-xs text-base-400 dark:text-base-500 mt-2">{{ card.footer }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Sales Growth -->
+        <div class="bg-white dark:bg-base-800 border border-base-200 dark:border-base-700 rounded-xl p-5 shadow-sm">
+            <h3 class="text-lg font-bold mb-4 text-base-900 dark:text-white">فروش ۳۰ روز اخیر (تومان)</h3>
+            <div class="relative h-72 w-full">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+        <!-- Product Categories -->
+        <div class="bg-white dark:bg-base-800 border border-base-200 dark:border-base-700 rounded-xl p-5 shadow-sm">
+            <h3 class="text-lg font-bold mb-4 text-base-900 dark:text-white">توزیع محصولات در دسته‌بندی‌ها</h3>
+            <div class="relative h-72 w-full flex justify-center items-center">
+                <canvas id="categoriesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tables -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Top Products -->
+        <div class="bg-white dark:bg-base-800 border border-base-200 dark:border-base-700 rounded-xl p-5 shadow-sm overflow-hidden">
+            <h3 class="text-lg font-bold mb-4 px-1 text-base-900 dark:text-white">محصولات پرطرفدار (پرفروش‌ترین‌ها)</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-right text-base-500 dark:text-base-400">
+                    <thead class="text-xs text-base-700 uppercase bg-base-50 dark:bg-base-700 dark:text-base-400 border-b border-base-200 dark:border-base-700">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 font-semibold">نام محصول (SKU)</th>
+                            <th scope="col" class="px-6 py-3 text-center font-semibold">تعداد فروش</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in top_products %}
+                            <tr class="bg-white border-b dark:bg-base-800 dark:border-base-700 hover:bg-base-50 dark:hover:bg-base-700 transition-colors">
+                                <td class="px-6 py-4 font-medium text-base-900 dark:text-white">{{ product.variant__product__name }} ({{ product.variant__sku }})</td>
+                                <td class="px-6 py-4 text-center font-bold text-primary">{{ product.total_sold }} عدد</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="2" class="px-6 py-4 text-center">محصولی یافت نشد</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Low Stock -->
+        <div class="bg-white dark:bg-base-800 border border-base-200 dark:border-base-700 rounded-xl p-5 shadow-sm overflow-hidden">
+            <h3 class="text-lg font-bold mb-4 px-1 text-base-900 dark:text-white flex items-center gap-2">
+                <span class="text-red-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                </span>
+                موجودی رو به اتمام
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-right text-base-500 dark:text-base-400">
+                    <thead class="text-xs text-base-700 uppercase bg-base-50 dark:bg-base-700 dark:text-base-400 border-b border-base-200 dark:border-base-700">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 font-semibold">کد کالا (SKU)</th>
+                            <th scope="col" class="px-6 py-3 text-center font-semibold">موجودی</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in low_stock_items %}
+                            <tr class="bg-white border-b dark:bg-base-800 dark:border-base-700 hover:bg-base-50 dark:hover:bg-base-700 transition-colors">
+                                <td class="px-6 py-4 font-medium text-base-900 dark:text-white" dir="ltr">{{ item.variant.sku }}</td>
+                                <td class="px-6 py-4 text-center font-bold text-red-500">{{ item.quantity }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="2" class="px-6 py-4 text-center text-emerald-500 font-medium">هیچ محصولی با موجودی کم وجود ندارد</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const getThemeColors = () => {
+            const isDark = document.documentElement.classList.contains('dark') || localStorage.theme === 'dark';
+            return {
+                textColor: isDark ? '#9ca3af' : '#4b5563',
+                gridColor: isDark ? '#374151' : '#e5e7eb'
+            };
+        };
+
+        let currentColors = getThemeColors();
+
+        Chart.defaults.color = currentColors.textColor;
+        Chart.defaults.font.family = "'Vazirmatn', sans-serif";
+
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        const salesGradient = salesCtx.createLinearGradient(0, 0, 0, 300);
+        salesGradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)');
+        salesGradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+
+        const salesChart = new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: {{ charts.sales_chart.labels|safe }},
+                datasets: [{
+                    label: 'میزان فروش (تومان)',
+                    data: {{ charts.sales_chart.data|safe }},
+                    borderColor: '#3b82f6',
+                    backgroundColor: salesGradient,
+                    borderWidth: 2,
+                    pointBackgroundColor: '#3b82f6',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#3b82f6',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        titleFont: { family: "'Vazirmatn', sans-serif" },
+                        bodyFont: { family: "'Vazirmatn', sans-serif" }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false, drawBorder: false },
+                        ticks: { color: currentColors.textColor, maxTicksLimit: 7 }
+                    },
+                    y: {
+                        grid: { color: currentColors.gridColor, drawBorder: false, borderDash: [5, 5] },
+                        ticks: { color: currentColors.textColor, precision: 0, padding: 10 }
+                    }
+                }
+            }
+        });
+
+        const catCtx = document.getElementById('categoriesChart').getContext('2d');
+        const catChart = new Chart(catCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ charts.categories_chart.labels|safe }},
+                datasets: [{
+                    label: 'تعداد محصولات',
+                    data: {{ charts.categories_chart.data|safe }},
+                    backgroundColor: [
+                        '#8b5cf6', 
+                        '#ec4899', 
+                        '#f59e0b', 
+                        '#10b981', 
+                        '#3b82f6', 
+                        '#6366f1'  
+                    ],
+                    borderWidth: 0,
+                    borderRadius: 6,
+                    barPercentage: 0.6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        titleFont: { family: "'Vazirmatn', sans-serif" },
+                        bodyFont: { family: "'Vazirmatn', sans-serif" }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false, drawBorder: false },
+                        ticks: { color: currentColors.textColor, font: {size: 11} }
+                    },
+                    y: {
+                        grid: { color: currentColors.gridColor, drawBorder: false, borderDash: [5, 5] },
+                        ticks: { color: currentColors.textColor, precision: 0, padding: 10 }
+                    }
+                }
+            }
+        });
+
+        // Watch for Unfold Theme Toggles (Dark/Light Mode)
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'class' || mutation.attributeName === 'data-theme') {
+                    const newColors = getThemeColors();
+                    
+                    // Update Line Chart
+                    salesChart.options.scales.x.ticks.color = newColors.textColor;
+                    salesChart.options.scales.y.ticks.color = newColors.textColor;
+                    salesChart.options.scales.y.grid.color = newColors.gridColor;
+                    salesChart.update();
+                    
+                    // Update Bar Chart
+                    catChart.options.scales.x.ticks.color = newColors.textColor;
+                    catChart.options.scales.y.ticks.color = newColors.textColor;
+                    catChart.options.scales.y.grid.color = newColors.gridColor;
+                    catChart.update();
+                }
+            });
+        });
+
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] });
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    });
+</script>
+{% endblock %}

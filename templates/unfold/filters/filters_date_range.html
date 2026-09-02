@@ -1,0 +1,46 @@
+{% load i18n %}
+
+{% with choices.0 as choice %}
+    <style>
+        .custom-date-filter-width input {
+            width: 66% !important;
+        }
+        .custom-date-filter-width input::placeholder {
+            color: transparent !important;
+            opacity: 0 !important;
+        }
+    </style>
+    <div class="flex flex-col custom-date-filter-width">
+        <h3 class="font-semibold mb-2 text-font-important-light dark:text-font-important-dark">{% blocktranslate with filter_title=title %} By {{ filter_title }} {% endblocktranslate %}</h3>
+
+        <div class="flex flex-col space-y-3 mt-3">
+            {% for field in choice.form %}
+                <div class="flex flex-row items-center justify-start gap-3 group relative{% if field.errors %} errors{% endif %}">
+                    {{ field }}
+                    <label class="text-xs text-font-important-light dark:text-font-important-dark whitespace-nowrap">
+                        {% if forloop.first %}از تاریخ :{% else %}تا تاریخ :{% endif %}
+                    </label>
+                    {% include "unfold/helpers/form_errors.html" with errors=field.errors %}
+                </div>
+            {% endfor %}
+        </div>
+        
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                setTimeout(() => {
+                    const inputs = document.querySelectorAll('.custom-date-filter-width input');
+                    inputs.forEach(input => {
+                        input.removeAttribute('placeholder');
+                        // For native date inputs in some browsers, this helps hide the default format text when empty
+                        if(input.type === 'date') {
+                            if(!input.value) input.style.color = 'transparent';
+                            input.addEventListener('focus', () => input.style.color = 'inherit');
+                            input.addEventListener('blur', () => { if(!input.value) input.style.color = 'transparent'; });
+                            input.addEventListener('change', () => { input.style.color = 'inherit'; });
+                        }
+                    });
+                }, 50);
+            });
+        </script>
+    </div>
+{% endwith %}

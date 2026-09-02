@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="bg-base-100 rounded-[2rem] p-8 lg:p-14 mb-12 shadow-sm border border-base-200 relative overflow-hidden flex flex-col-reverse md:flex-row items-center justify-between gap-10">
+    <!-- Background subtle blob -->
+    <div class="absolute -top-1/2 -left-[10%] w-1/2 h-[200%] bg-primary/5 blur-[100px] rounded-full pointer-events-none z-0"></div>
+    
+    <div class="flex-1 max-w-xl z-10 text-center md:text-right">
+        <span class="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-bold mb-6 border border-primary/20">
+            {% if banner %}{{ banner.tagline }}{% else %}🔥 کالکشن جدید ۲۰۲۶{% endif %}
+        </span>
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight tracking-tight">
+            {% if banner %}
+                {{ banner.title_main }} <br>
+                {% if banner.title_highlight %}
+                    <span class="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">{{ banner.title_highlight }}</span>
+                {% endif %}
+            {% else %}
+                تکنولوژی را به <br>
+                <span class="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">سبک خودت</span> زندگی کن
+            {% endif %}
+        </h1>
+        <p class="text-lg md:text-xl text-base-content/60 mb-8 leading-relaxed max-w-lg mx-auto md:mx-0">
+            {% if banner %}{{ banner.description }}{% else %}مجموعه‌ای دست‌چین شده از بهترین محصولات دیجیتال و هوشمند برای ارتقای کیفیت زندگی و کار شما. با ضمانت اصالت و بهترین قیمت.{% endif %}
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+            <a href="{% if banner %}{{ banner.button_link }}{% else %}#products{% endif %}" class="btn btn-primary btn-lg rounded-full px-8 shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-1 transition-all">
+                {% if banner %}{{ banner.button_text }}{% else %}خرید را شروع کنید{% endif %}
+            </a>
+            <a href="/search/" class="btn btn-outline btn-lg rounded-full px-8 border-2 hover:bg-transparent hover:border-primary hover:text-primary transition-colors flex items-center gap-2">
+                جستجوی پیشرفته
+            </a>
+        </div>
+    </div>
+    
+    <div class="flex-1 flex justify-center items-center relative z-10 w-full max-w-md mx-auto md:max-w-none mt-8 md:mt-0 min-h-[300px]">
+        {% if banner and banner.image %}
+            <div class="relative group">
+                <div class="absolute inset-0 bg-primary/20 blur-[60px] rounded-full group-hover:bg-primary/30 transition-all duration-500"></div>
+                <img src="{{ banner.image.url }}" alt="Banner Image" class="max-w-full h-auto max-h-[450px] object-contain relative z-10 drop-shadow-2xl -rotate-6 scale-110 group-hover:rotate-0 group-hover:scale-125 transition-all duration-500 ease-out">
+            </div>
+        {% elif products and products.0.image %}
+            <div class="relative group">
+                <div class="absolute inset-0 bg-primary/20 blur-[60px] rounded-full group-hover:bg-primary/30 transition-all duration-500"></div>
+                <img src="{{ products.0.image.url }}" alt="Featured Product" class="max-w-full h-auto max-h-[450px] object-contain relative z-10 drop-shadow-2xl -rotate-6 scale-110 group-hover:rotate-0 group-hover:scale-125 transition-all duration-500 ease-out">
+            </div>
+        {% else %}
+            <!-- Premium Placeholder -->
+            <div class="w-72 h-72 rounded-full bg-gradient-to-br from-primary/10 to-secondary/10 border border-white/20 flex justify-center items-center shadow-[0_20px_40px_rgba(0,0,0,0.05)] relative backdrop-blur-3xl animate-pulse">
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-primary opacity-50">
+                    <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                    <rect x="9" y="9" width="6" height="6"></rect>
+                    <line x1="9" y1="1" x2="9" y2="4"></line>
+                    <line x1="15" y1="1" x2="15" y2="4"></line>
+                    <line x1="9" y1="20" x2="9" y2="23"></line>
+                    <line x1="15" y1="20" x2="15" y2="23"></line>
+                    <line x1="20" y1="9" x2="23" y2="9"></line>
+                    <line x1="20" y1="14" x2="23" y2="14"></line>
+                    <line x1="1" y1="9" x2="4" y2="9"></line>
+                    <line x1="1" y1="14" x2="4" y2="14"></line>
+                </svg>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Trust Bar -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16 p-6 md:p-8 bg-base-100 rounded-[1.5rem] border border-base-200 shadow-sm">
+    <div class="flex flex-col md:flex-row items-center md:items-start text-center md:text-right gap-4">
+        <div class="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg>
+        </div>
+        <div class="pt-1">
+            <h4 class="font-bold text-lg md:text-base text-base-content mb-1">ضمانت اصالت</h4>
+            <p class="text-sm text-base-content/60">کالای اورجینال</p>
+        </div>
+    </div>
+    <div class="flex flex-col md:flex-row items-center md:items-start text-center md:text-right gap-4">
+        <div class="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+        </div>
+        <div class="pt-1">
+            <h4 class="font-bold text-lg md:text-base text-base-content mb-1">ارسال سریع</h4>
+            <p class="text-sm text-base-content/60">تحویل در کمترین زمان</p>
+        </div>
+    </div>
+    <div class="flex flex-col md:flex-row items-center md:items-start text-center md:text-right gap-4">
+        <div class="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center text-accent shrink-0">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+        </div>
+        <div class="pt-1">
+            <h4 class="font-bold text-lg md:text-base text-base-content mb-1">پشتیبانی ۲۴/۷</h4>
+            <p class="text-sm text-base-content/60">پاسخگویی همیشگی</p>
+        </div>
+    </div>
+    <div class="flex flex-col md:flex-row items-center md:items-start text-center md:text-right gap-4">
+        <div class="w-14 h-14 rounded-2xl bg-info/10 flex items-center justify-center text-info shrink-0">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        </div>
+        <div class="pt-1">
+            <h4 class="font-bold text-lg md:text-base text-base-content mb-1">پرداخت امن</h4>
+            <p class="text-sm text-base-content/60">درگاه‌های معتبر</p>
+        </div>
+    </div>
+</div>
+
+<!-- Categories Quick Links -->
+<div class="flex flex-nowrap gap-3 overflow-x-auto pb-6 mb-10 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+    <a href="/search/" class="btn btn-primary rounded-full px-8 shadow-md">همه محصولات</a>
+    {% for cat in categories %}
+    <a href="/search/?category={{ cat.slug }}" class="btn bg-base-100 hover:bg-base-200 border-base-300 hover:border-primary/50 text-base-content rounded-full px-8 shadow-sm transition-all whitespace-nowrap">{{ cat.name }}</a>
+    {% endfor %}
+</div>
+
+<!-- Products Section Header -->
+<div id="products" class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
+    <div>
+        <h3 class="text-3xl md:text-4xl font-black mb-1 tracking-tight">منتخب سردبیر</h3>
+        <p class="text-base-content/50 font-medium">برترین محصولات این هفته</p>
+    </div>
+    <a href="/search/" class="group flex items-center gap-2 text-primary font-bold hover:text-primary-focus transition-colors">
+        مشاهده همه 
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="group-hover:-translate-x-1 transition-transform"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+</div>
+
+<!-- Product Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+    {% for product in products %}
+    <div class="card bg-base-100 shadow-sm border border-base-200 hover:shadow-xl hover:border-primary/30 transition-all duration-300 group overflow-hidden">
+        <figure class="px-5 pt-5 relative aspect-[4/3] sm:aspect-square bg-base-100">
+            <a href="{% url 'catalog:product_detail' product.slug %}" class="w-full h-full block bg-base-200/50 rounded-[1.25rem] overflow-hidden relative">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
+                {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-base-content/20">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                    </div>
+                {% endif %}
+                
+                {% if product.variants.first and product.variants.first.get_discount_percent > 0 %}
+                <div class="absolute top-3 left-3 bg-error text-error-content text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm z-10 animate-bounce">
+                    {{ product.variants.first.get_discount_percent }}% تخفیف
+                </div>
+                {% endif %}
+                
+                {% if product.brand %}
+                <div class="absolute top-3 right-3 bg-base-100/90 backdrop-blur-sm text-base-content text-xs font-bold px-3 py-1 rounded-full shadow-sm z-10 border border-base-200/50">
+                    {{ product.brand.name }}
+                </div>
+                {% endif %}
+            </a>
+        </figure>
+        
+        <div class="card-body px-5 py-6 flex flex-col gap-0">
+            <a href="{% url 'catalog:product_detail' product.slug %}" class="hover:text-primary transition-colors">
+                <h2 class="card-title text-lg font-bold line-clamp-1 mb-1">{{ product.name }}</h2>
+            </a>
+            <p class="text-sm text-base-content/60 line-clamp-2 mb-6 leading-relaxed">{{ product.description }}</p>
+            
+            <div class="mt-auto pt-4 border-t border-base-200/60 flex justify-between items-end">
+                {% if product.has_stock %}
+                    <div class="flex flex-col">
+                        {% if product.variants.first.compare_at_price and product.variants.first.compare_at_price > product.variants.first.price %}
+                            <span class="text-xs text-base-content/40 line-through decoration-error/50 font-medium mb-0.5">{{ product.variants.first.compare_at_price }} تومان</span>
+                        {% endif %}
+                        <span class="text-xl font-black text-primary leading-none">{{ product.variants.first.price }} تومان</span>
+                        
+                        {% if product.total_available_quantity <= 5 %}
+                            <span class="text-[11px] text-error font-bold mt-1.5 flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                                تنها {{ product.total_available_quantity }} عدد باقیست
+                            </span>
+                        {% else %}
+                            <span class="text-[11px] text-success font-medium mt-1.5">موجود: {{ product.total_available_quantity }} عدد</span>
+                        {% endif %}
+                    </div>
+                    
+                    <form method="post" action="{% url 'cart:add' %}" hx-post="{% url 'cart:add' %}" hx-target="#side-cart-content" hx-swap="innerHTML" class="m-0 z-10 relative">
+                        {% csrf_token %}
+                        <input type="hidden" name="variant" value="{{ product.variants.first.sku }}">
+                        <button type="submit" class="btn btn-primary btn-circle shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300" title="افزودن به سبد">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                        </button>
+                    </form>
+                {% else %}
+                    <div class="flex flex-col justify-center">
+                        <span class="text-xl font-black text-base-content/30 leading-none">---</span>
+                        <span class="text-[11px] text-error/70 font-bold mt-1.5">ناموجود</span>
+                    </div>
+                    <button disabled class="btn btn-disabled btn-circle opacity-50 shadow-none">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-span-full py-20 bg-base-100 rounded-[2rem] border-2 border-dashed border-base-300 text-center flex flex-col items-center justify-center gap-5">
+        <div class="w-20 h-20 bg-base-200 rounded-full flex items-center justify-center text-base-content/30">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+        </div>
+        <p class="text-xl font-bold text-base-content/60">در حال حاضر محصولی موجود نیست.</p>
+    </div>
+    {% endfor %}
+</div>
+{% if products %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "itemListElement": [
+    {% for product in products %}
+    {
+      "@type": "ListItem",
+      "position": {{ forloop.counter }},
+      "item": {
+        "@type": "Product",
+        "name": "{{ product.name|escapejs }}",
+        "url": "{{ request.scheme }}://{{ request.get_host }}{% url 'catalog:product_detail' product.slug %}",
+        {% if product.image %}"image": "{{ request.scheme }}://{{ request.get_host }}{{ product.image.url }}",{% endif %}
+        {% if product.variants.first %}"sku": "{{ product.variants.first.sku|escapejs }}",{% endif %}
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "IRT",
+          "price": "{% if product.variants.first %}{{ product.variants.first.price }}{% else %}0{% endif %}",
+          "availability": "{% if product.has_stock %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}"
+        }
+      }
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endif %}
+{% endblock %}

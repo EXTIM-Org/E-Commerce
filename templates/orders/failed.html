@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}پرداخت ناموفق - فروشگاه EXTIM{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto py-16 px-4">
+    <div class="bg-base-100 rounded-[2rem] p-8 md:p-12 shadow-sm border border-base-200 text-center relative overflow-hidden">
+        
+        <div class="absolute inset-0 bg-error/5 pointer-events-none z-0"></div>
+        
+        <div class="w-24 h-24 bg-error text-white rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg shadow-error/30 relative z-10 animate-bounce">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </div>
+        
+        <h1 class="text-3xl font-black mb-4 text-error relative z-10">پرداخت ناموفق بود!</h1>
+        <p class="text-base-content/70 text-lg mb-8 leading-relaxed relative z-10">متأسفانه در فرآیند پرداخت مشکلی پیش آمد یا شما از پرداخت انصراف دادید. نگران نباشید، سفارش شما محفوظ است.</p>
+        
+        <div class="bg-base-200/50 rounded-2xl p-6 mb-8 border border-dashed border-base-300 relative z-10">
+            <p class="m-0 mb-2 text-base-content/60 font-medium">شماره سفارش شما:</p>
+            <p class="m-0 text-3xl font-black tracking-widest text-base-content">#{{ order.id }}</p>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
+            <a href="{% url 'payments:simulate' order.id %}" class="btn btn-error text-white btn-lg rounded-2xl px-8 shadow-lg shadow-error/30">تلاش مجدد برای پرداخت</a>
+            <a href="{% url 'catalog:home' %}" class="btn btn-outline btn-lg rounded-2xl px-8 border-2 hover:bg-base-200 hover:text-base-content hover:border-base-300">بازگشت به خانه</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}ورود / ثبت نام - فروشگاه EXTIM{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto py-16 px-4">
+    <div class="bg-base-100 rounded-[2.5rem] p-6 sm:p-10 shadow-2xl shadow-base-300/50 border border-base-200" x-data="{ tab: '{{ active_tab|default:'login' }}' }">
+        
+        <!-- Tab Selector -->
+        <div class="flex p-1.5 bg-base-200 rounded-2xl mb-8 relative z-10">
+            <button @click="tab = 'login'" 
+                    type="button"
+                    :class="tab === 'login' ? 'bg-base-100 text-base-content shadow-sm' : 'text-base-content/60 hover:text-base-content hover:bg-base-200/50'"
+                    class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all duration-300">
+                ورود
+            </button>
+            <button @click="tab = 'signup'" 
+                    type="button"
+                    :class="tab === 'signup' ? 'bg-base-100 text-base-content shadow-sm' : 'text-base-content/60 hover:text-base-content hover:bg-base-200/50'"
+                    class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all duration-300">
+                ثبت نام
+            </button>
+        </div>
+
+        <!-- Login Form -->
+        <div x-show="tab === 'login'" 
+             x-transition:enter="transition ease-out duration-300 delay-100" 
+             x-transition:enter-start="opacity-0 translate-y-4" 
+             x-transition:enter-end="opacity-100 translate-y-0"
+             style="display: none;">
+             
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-black text-base-content mb-2">خوش آمدید!</h2>
+                <p class="text-base-content/60 text-sm">لطفاً برای ورود اطلاعات خود را وارد کنید</p>
+            </div>
+            
+            <form method="post" action="{% url 'users:login' %}" class="flex flex-col gap-4">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="login">
+                
+                {% for field in login_form %}
+                <div class="form-control">
+                    <label class="label pb-1"><span class="label-text font-bold text-base-content/80">{{ field.label }}</span></label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <label class="label pt-1"><span class="label-text-alt text-error font-medium">{{ field.errors.0 }}</span></label>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                
+                <div class="flex justify-between items-center mt-2 mb-4">
+                    <label class="cursor-pointer label p-0 gap-2">
+                        <input type="checkbox" name="remember_me" class="checkbox checkbox-sm checkbox-primary rounded-md" />
+                        <span class="label-text text-xs font-bold text-base-content/70">مرا به خاطر بسپار</span>
+                    </label>
+                    <a href="#" class="text-xs font-bold text-primary hover:underline">فراموشی رمز عبور؟</a>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-full h-14 rounded-2xl text-lg font-bold shadow-lg shadow-primary/30 hover:-translate-y-1 transition-all">ورود به حساب</button>
+            </form>
+        </div>
+
+        <!-- Signup Form -->
+        <div x-show="tab === 'signup'" 
+             x-transition:enter="transition ease-out duration-300 delay-100" 
+             x-transition:enter-start="opacity-0 translate-y-4" 
+             x-transition:enter-end="opacity-100 translate-y-0"
+             style="display: none;">
+             
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-black text-base-content mb-2">ساخت حساب کاربری</h2>
+                <p class="text-base-content/60 text-sm">به جمع ما بپیوندید و از خرید لذت ببرید</p>
+            </div>
+            
+            <form method="post" action="{% url 'users:signup' %}" class="flex flex-col gap-4">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="signup">
+                
+                {% for field in signup_form %}
+                <div class="form-control">
+                    <label class="label pb-1"><span class="label-text font-bold text-base-content/80">{{ field.label }}</span></label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <label class="label pt-1"><span class="label-text-alt text-error font-medium">{{ field.errors.0 }}</span></label>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                
+                <button type="submit" class="btn btn-primary w-full h-14 rounded-2xl text-lg font-bold shadow-lg shadow-primary/30 hover:-translate-y-1 mt-4 transition-all">عضویت در فروشگاه</button>
+            </form>
+        </div>
+        
+    </div>
+</div>
+
+{% endblock %}

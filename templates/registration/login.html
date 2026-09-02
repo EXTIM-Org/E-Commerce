@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}ورود - فروشگاه EXTIM{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto py-16 px-4">
+    <div class="bg-base-100 rounded-[2.5rem] p-6 sm:p-10 shadow-2xl shadow-base-300/50 border border-base-200">
+        
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+            </div>
+            <h2 class="text-2xl font-black text-base-content mb-2">خوش آمدید! 👋</h2>
+            <p class="text-base-content/60 text-sm">لطفاً برای ورود اطلاعات خود را وارد کنید</p>
+        </div>
+        
+        <form method="post" class="flex flex-col gap-4">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-control">
+                <label class="label pb-1"><span class="label-text font-bold text-base-content/80">{{ field.label }}</span></label>
+                {{ field }}
+                {% if field.errors %}
+                    <label class="label pt-1"><span class="label-text-alt text-error font-medium">{{ field.errors.0 }}</span></label>
+                {% endif %}
+            </div>
+            {% endfor %}
+            
+            <button type="submit" class="btn btn-primary w-full h-14 rounded-2xl text-lg font-bold shadow-lg shadow-primary/30 hover:-translate-y-1 mt-4 transition-all">ورود به حساب</button>
+        </form>
+        
+        <p class="text-center mt-8 text-sm text-base-content/70 font-medium">
+            حساب کاربری ندارید؟ <a href="{% url 'users:signup' %}" class="text-primary hover:underline font-bold mr-1">ثبت نام</a>
+        </p>
+    </div>
+</div>
+
+<style>
+    form input:not([type="checkbox"]) {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        border: 1px solid var(--fallback-bc,oklch(var(--bc)/0.2));
+        background-color: var(--fallback-b2,oklch(var(--b2)/0.5));
+        transition: all 0.2s;
+    }
+    form input:focus {
+        outline: none;
+        border-color: var(--fallback-p,oklch(var(--p)/1));
+        background-color: var(--fallback-b1,oklch(var(--b1)/1));
+    }
+</style>
+{% endblock %}

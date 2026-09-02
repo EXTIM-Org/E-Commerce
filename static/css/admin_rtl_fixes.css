@@ -1,0 +1,35 @@
+/* Fix table headers and columns alignment for RTL (Persian) in Unfold admin */
+#result_list th, 
+#result_list td {
+    text-align: right !important;
+}
+
+/* Fix flex containers inside headers to align right */
+#result_list th .flex,
+#result_list th .flex-row {
+    justify-content: flex-start !important;
+}
+
+/* Ensure contents within td elements are also right-aligned */
+#result_list td > div,
+#result_list td > a,
+#result_list td > span {
+    text-align: right !important;
+    justify-content: flex-start !important;
+}
+
+/* Add padding to the action checkbox column so it doesn't stick to the edge */
+#result_list th.action-checkbox-column,
+#result_list td.action-checkbox {
+    padding-right: 1.5rem !important; /* Adjust padding for the right side in RTL */
+}
+
+/* Fix native select element dropdown colors in dark mode */
+html.dark select {
+    color-scheme: dark;
+}
+
+html.dark select option {
+    background-color: #1f2937 !important;
+    color: #f3f4f6 !important;
+}

@@ -1,0 +1,86 @@
+{% extends "users/profile_base.html" %}
+
+{% block title %}تاریخچه سفارشات - فروشگاه EXTIM{% endblock %}
+
+{% block profile_content %}
+<div class="bg-base-100 border border-base-200 rounded-[2rem] p-6 md:p-10 shadow-sm">
+    <div class="flex items-center gap-3 mb-8 pb-6 border-b border-base-200">
+        <div class="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        </div>
+        <h2 class="text-2xl md:text-3xl font-black m-0 tracking-tight">تاریخچه سفارشات</h2>
+    </div>
+    
+    {% if orders %}
+        <div class="flex flex-col gap-6">
+            {% for order in orders %}
+            <div class="border-2 border-base-200 rounded-2xl p-6 bg-base-100 hover:border-primary/30 transition-colors group">
+                <!-- Header -->
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4 pb-4 border-b border-base-200 border-dashed">
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-2">
+                            <span class="font-black text-xl text-base-content">سفارش #{{ order.id }}</span>
+                            
+                            {% if order.status == 'PENDING' %}
+                                <span class="badge badge-warning font-bold gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> در انتظار پرداخت</span>
+                            {% elif order.status == 'PAID' %}
+                                <span class="badge badge-info font-bold gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> پرداخت شده</span>
+                            {% elif order.status == 'SHIPPED' %}
+                                <span class="badge badge-primary font-bold gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon></svg> ارسال شده</span>
+                            {% elif order.status == 'DELIVERED' %}
+                                <span class="badge badge-success font-bold gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> تحویل شده</span>
+                            {% elif order.status == 'CANCELLED' %}
+                                <span class="badge badge-error font-bold gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> لغو شده</span>
+                            {% endif %}
+                        </div>
+                        <span class="text-base-content/50 font-medium text-sm flex items-center gap-1.5">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                            {{ order.created_at|date:"Y/m/d - H:i" }}
+                        </span>
+                    </div>
+                    <div class="text-left">
+                        <span class="text-base-content/60 text-sm font-medium">مبلغ کل:</span>
+                        <div class="font-black text-2xl text-primary leading-none mt-1">{{ order.total_amount }} تومان</div>
+                    </div>
+                </div>
+                
+                <!-- Items list summary -->
+                <div class="flex gap-2 overflow-x-auto pb-4 mb-4 [scrollbar-width:thin]">
+                    {% for item in order.items.all %}
+                        <div class="bg-base-200/50 border border-base-200 rounded-xl px-3 py-1.5 text-xs font-bold text-base-content/70 whitespace-nowrap flex items-center gap-1.5 shrink-0">
+                            <span class="bg-base-300 w-5 h-5 rounded-md flex items-center justify-center text-[10px] text-base-content">{{ item.quantity }}</span>
+                            {{ item.name_snapshot|truncatechars:20 }}
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex justify-end items-center gap-3">
+                    {% if order.status == 'PENDING' %}
+                        <form action="{% url 'orders:cancel' order.id %}" method="post" class="m-0">
+                            {% csrf_token %}
+                            <button type="submit" onclick="return confirm('آیا از لغو این سفارش مطمئن هستید؟')" class="btn btn-ghost btn-sm text-error hover:bg-error hover:text-white rounded-xl">لغو سفارش</button>
+                        </form>
+                        <a href="{% url 'payments:simulate' order.id %}" class="btn btn-primary btn-sm rounded-xl px-6 font-bold shadow-md shadow-primary/20">پرداخت</a>
+                    {% endif %}
+                    
+                    <a href="{% url 'orders:tracking' order.id %}" class="btn btn-outline btn-sm rounded-xl font-bold border-base-300 hover:bg-base-200 hover:text-base-content hover:border-base-300">
+                        جزئیات و پیگیری
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="mr-1 rotate-180"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="py-16 flex flex-col items-center justify-center text-center bg-base-200/30 rounded-2xl border-2 border-dashed border-base-300">
+            <div class="w-24 h-24 bg-base-200 rounded-full flex items-center justify-center text-base-content/30 mb-4">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+            </div>
+            <h3 class="text-xl font-bold mb-2">شما هنوز سفارشی ثبت نکرده‌اید</h3>
+            <p class="text-base-content/60 mb-6">به فروشگاه بروید و اولین خرید خود را انجام دهید!</p>
+            <a href="{% url 'catalog:home' %}" class="btn btn-primary rounded-xl px-8 shadow-md">مشاهده محصولات</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

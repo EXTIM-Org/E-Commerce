@@ -1,0 +1,127 @@
+{% extends "users/profile_base.html" %}
+
+{% block title %}پیگیری سفارش #{{ order.id }} - فروشگاه EXTIM{% endblock %}
+
+{% block profile_content %}
+<div class="bg-base-100 border border-base-200 rounded-[2rem] p-6 md:p-10 shadow-sm">
+    
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 pb-6 border-b border-base-200">
+        <div>
+            <h2 class="text-2xl md:text-3xl font-black m-0 mb-2">پیگیری سفارش #{{ order.id }}</h2>
+            <p class="text-base-content/60 font-medium m-0 flex items-center gap-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                ثبت شده در {{ order.created_at|date:"Y/m/d - H:i" }}
+            </p>
+        </div>
+        <a href="{% url 'orders:history' %}" class="btn btn-outline btn-sm rounded-xl font-bold hover:bg-base-200 hover:text-base-content border-base-300">
+            بازگشت به تاریخچه
+        </a>
+    </div>
+
+    {% if order.status == 'CANCELLED' %}
+        <div class="bg-error/10 border border-error/20 rounded-2xl p-8 text-center mb-10 flex flex-col items-center">
+            <div class="w-16 h-16 bg-error text-white rounded-full flex items-center justify-center mb-4 shadow-lg shadow-error/30">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </div>
+            <h3 class="text-xl font-bold text-error m-0 mb-2">این سفارش لغو شده است</h3>
+            <p class="text-base-content/70 font-medium m-0">شما این سفارش را در مرحله پرداخت لغو کرده‌اید.</p>
+        </div>
+    {% else %}
+        <!-- Stepper (DaisyUI) -->
+        <div class="w-full flex justify-center mb-12 overflow-x-auto pb-4">
+            <ul class="steps steps-horizontal w-full">
+                <!-- Step 1: PENDING -->
+                <li class="step step-primary font-bold">ثبت سفارش</li>
+                
+                <!-- Step 2: PAID (Processing) -->
+                <li class="step {% if order.status == 'PAID' or order.status == 'SHIPPED' or order.status == 'DELIVERED' %}step-primary font-bold{% else %}text-base-content/40{% endif %}">پردازش</li>
+                
+                <!-- Step 3: SHIPPED -->
+                <li class="step {% if order.status == 'SHIPPED' or order.status == 'DELIVERED' %}step-primary font-bold{% else %}text-base-content/40{% endif %}">ارسال</li>
+                
+                <!-- Step 4: DELIVERED -->
+                <li class="step {% if order.status == 'DELIVERED' %}step-success font-bold{% else %}text-base-content/40{% endif %}" data-content="✓">تحویل</li>
+            </ul>
+        </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        <!-- Shipping Info -->
+        <div class="bg-base-200/50 border border-base-200 rounded-2xl p-6">
+            <h4 class="text-lg font-bold mb-4 pb-3 border-b border-base-200/50 flex items-center gap-2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-primary"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                اطلاعات ارسال
+            </h4>
+            <div class="flex flex-col gap-3 text-sm font-medium">
+                <div class="flex justify-between items-center"><span class="text-base-content/60">گیرنده:</span> <span class="font-bold text-base-content">{{ order.user.get_full_name|default:order.user.email }}</span></div>
+                <div class="flex justify-between items-center"><span class="text-base-content/60">موبایل:</span> <span class="font-bold text-base-content" dir="ltr">{{ order.user.phone_number }}</span></div>
+                <div class="flex flex-col gap-1 mt-2">
+                    <span class="text-base-content/60">آدرس:</span>
+                    <span class="font-bold text-base-content leading-relaxed">{{ order.shipping_address.state }}، {{ order.shipping_address.city }}، {{ order.shipping_address.street }}</span>
+                </div>
+                <div class="flex justify-between items-center mt-2 pt-2 border-t border-base-200/50"><span class="text-base-content/60">کد پستی:</span> <span class="font-bold text-base-content tracking-widest">{{ order.shipping_address.postal_code }}</span></div>
+            </div>
+        </div>
+        
+        <!-- Financial Summary -->
+        <div class="bg-base-200/50 border border-base-200 rounded-2xl p-6">
+            <h4 class="text-lg font-bold mb-4 pb-3 border-b border-base-200/50 flex items-center gap-2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-primary"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                خلاصه مالی
+            </h4>
+            <div class="flex flex-col gap-3 text-sm font-medium">
+                <div class="flex justify-between items-center">
+                    <span class="text-base-content/60">مبلغ پایه:</span>
+                    <span class="font-bold">{{ order.subtotal_amount }} تومان</span>
+                </div>
+                <div class="flex justify-between items-center text-error">
+                    <span class="text-error/80">تخفیف اعمال شده:</span>
+                    <span class="font-bold text-base">- {{ order.discount_amount }} تومان</span>
+                </div>
+                <div class="flex justify-between items-end mt-4 pt-4 border-t border-base-200 border-dashed">
+                    <span class="font-bold text-base-content/80 text-base">مبلغ نهایی:</span>
+                    <span class="font-black text-2xl text-primary leading-none">{{ order.total_amount }} تومان</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Items List -->
+    <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-primary"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        اقلام سفارش
+    </h3>
+    <div class="border border-base-200 rounded-2xl overflow-hidden bg-base-100 flex flex-col">
+        {% for item in order.items.all %}
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center p-4 border-b border-base-200 last:border-0 gap-4 hover:bg-base-200/30 transition-colors">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-base-200 rounded-xl flex items-center justify-center border border-base-200 overflow-hidden shrink-0">
+                        {% if item.variant and item.variant.product.images.first %}
+                            <img src="{{ item.variant.product.images.first.image.url }}" alt="{{ item.name_snapshot }}" class="w-full h-full object-cover">
+                        {% else %}
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-base-content/20"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h4 class="m-0 font-bold text-base text-base-content mb-1">{{ item.name_snapshot }}</h4>
+                        <div class="flex gap-2 items-center text-xs font-medium text-base-content/60">
+                            <span class="bg-base-200 px-2 py-0.5 rounded-md">تعداد: {{ item.quantity }}</span>
+                            <span>فی: {{ item.price_snapshot }} تومان</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="font-black text-lg text-base-content sm:text-left">
+                    {% widthratio item.price_snapshot 1 item.quantity as item_total %}
+                    {{ item_total }} تومان
+                </div>
+            </div>
+        {% empty %}
+            <div class="p-10 text-center text-base-content/50 font-bold flex flex-col items-center gap-2">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                محصولی یافت نشد.
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

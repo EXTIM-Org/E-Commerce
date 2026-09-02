@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}تسویه حساب - فروشگاه EXTIM{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; padding: 4rem 2rem; text-align: center; background: var(--surface-color); backdrop-filter: blur(12px); border-radius: 1.5rem; border: 1px solid var(--border-color); box-shadow: var(--shadow-lg);">
+    <div style="width: 80px; height: 80px; background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem auto;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+    </div>
+    <h2 style="font-size: 2rem; margin-top: 0; margin-bottom: 1rem;">آماده برای پرداخت</h2>
+    <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+        سیستم پرداخت به زودی فعال می‌شود. اقلام شما با موفقیت در سبد خرید ثبت شده است.
+    </p>
+    <a href="{% url 'cart:detail' %}" class="btn" style="background: transparent; color: var(--text-main); border: 1px solid var(--border-color); box-shadow: none;">بازگشت به سبد خرید</a>
+</div>
+{% endblock %}
