@@ -1,12 +1,14 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { getPopularProducts } from "@/lib/recommender";
+import { getPopularProducts, getSpecialOffers, getNewArrivals } from "@/lib/recommender";
 import { getSession } from "@/lib/session";
 import { db } from "@/prisma/db";
 import { ProductCarousel } from "@/components/product/ProductCarousel";
 
 export default async function Home() {
   const popularProducts = await getPopularProducts(8);
+  const specialOffers = await getSpecialOffers(8);
+  const newArrivals = await getNewArrivals(8);
   
   const session = await getSession();
   let userWishlistProductIds = new Set<string>();
@@ -69,12 +71,34 @@ export default async function Home() {
           </Link>
         </div>
         
-        {/* Popular Products Carousel */}
-        {popularProducts.length > 0 && (
+        {/* Special Offers Carousel */}
+        {specialOffers.length > 0 && (
           <div className="w-full max-w-7xl mt-12">
             <ProductCarousel 
-              title="محبوب‌ترین محصولات" 
+              title="🔥 پیشنهادهای شگفت‌انگیز" 
+              products={specialOffers} 
+              userWishlistIds={userWishlistProductIds}
+            />
+          </div>
+        )}
+
+        {/* Popular Products Carousel */}
+        {popularProducts.length > 0 && (
+          <div className="w-full max-w-7xl mt-8">
+            <ProductCarousel 
+              title="⭐ پرفروش‌ترین‌ها" 
               products={popularProducts} 
+              userWishlistIds={userWishlistProductIds}
+            />
+          </div>
+        )}
+
+        {/* New Arrivals Carousel */}
+        {newArrivals.length > 0 && (
+          <div className="w-full max-w-7xl mt-8 mb-12">
+            <ProductCarousel 
+              title="✨ تازه‌ها" 
+              products={newArrivals} 
               userWishlistIds={userWishlistProductIds}
             />
           </div>

@@ -41,16 +41,16 @@ export function NewAddressForm() {
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#1a1a2e] border border-white/10 rounded-3xl p-6 w-full max-w-md relative shadow-2xl">
+          <div className="bg-white dark:bg-[#1a1a2e] border border-gray-200 dark:border-white/10 rounded-3xl p-6 w-full max-w-md relative shadow-xl dark:shadow-2xl">
             
             <button 
               onClick={() => setIsOpen(false)}
-              className="absolute top-4 left-4 p-2 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+              className="absolute top-4 left-4 p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 rounded-full transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
             
-            <h2 className="text-xl font-bold text-white mb-6">ثبت آدرس جدید</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">ثبت آدرس جدید</h2>
             
             <form action={formAction} className="flex flex-col gap-4">
               
@@ -61,33 +61,33 @@ export function NewAddressForm() {
               )}
 
               <div className="flex flex-col gap-2">
-                <label className="text-sm text-gray-300">عنوان آدرس (اختیاری - مثلا خانه)</label>
+                <label className="text-sm text-gray-700 dark:text-gray-300">عنوان آدرس (اختیاری - مثلا خانه)</label>
                 <input 
                   type="text" 
                   name="title"
-                  className="bg-black/30 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-purple-500"
+                  className="bg-gray-50 dark:bg-black/30 border border-gray-200 dark:border-white/10 rounded-xl p-3 text-gray-900 dark:text-white focus:outline-none focus:border-purple-500"
                   placeholder="منزل"
                 />
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-sm text-gray-300">آدرس دقیق پستی</label>
+                <label className="text-sm text-gray-700 dark:text-gray-300">آدرس دقیق پستی</label>
                 <textarea 
                   name="fullAddress"
                   required
                   rows={3}
-                  className="bg-black/30 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-purple-500 resize-none"
+                  className="bg-gray-50 dark:bg-black/30 border border-gray-200 dark:border-white/10 rounded-xl p-3 text-gray-900 dark:text-white focus:outline-none focus:border-purple-500 resize-none"
                   placeholder="تهران، خیابان..."
                 ></textarea>
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-sm text-gray-300">کد پستی (اختیاری)</label>
+                <label className="text-sm text-gray-700 dark:text-gray-300">کد پستی (اختیاری)</label>
                 <input 
                   type="text" 
                   name="postalCode"
                   dir="ltr"
-                  className="bg-black/30 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-purple-500 text-left"
+                  className="bg-gray-50 dark:bg-black/30 border border-gray-200 dark:border-white/10 rounded-xl p-3 text-gray-900 dark:text-white focus:outline-none focus:border-purple-500 text-left"
                   placeholder="1234567890"
                 />
               </div>

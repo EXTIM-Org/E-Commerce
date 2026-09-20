@@ -12,6 +12,30 @@ const checkoutSchema = z.object({
   postalCode: z.string().regex(/^\d{10}$/, "کد پستی باید دقیقاً ۱۰ رقم باشد.").optional().or(z.literal("")),
 });
 
+export async function getUserCheckoutData() {
+  const session = await getSession();
+  if (!session || !session.userId) return null;
+
+  const userId = session.userId as string;
+
+  // Get user details
+  const user = await db.orm.public.User.where({ id: userId }).first();
+  if (!user) return null;
+
+  // Get their latest address
+  const latestAddress = await db.orm.public.Address.where({ userId }).orderBy((a) => a.createdAt.desc()).first();
+  
+  // Get their latest order to extract the last used phone and receiver name
+  const latestOrder = await db.orm.public.Order.where({ userId }).orderBy((o) => o.createdAt.desc()).first();
+
+  return {
+    receiverName: latestOrder?.receiverName || user.name || "",
+    phone: latestOrder?.phone || "",
+    address: latestAddress?.fullAddress || "",
+    postalCode: latestAddress?.postalCode || "",
+  };
+}
+
 export async function processCheckout(prevState: any, formData: FormData) {
   try {
     const session = await getSession();

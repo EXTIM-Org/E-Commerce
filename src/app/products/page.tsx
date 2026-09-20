@@ -105,10 +105,10 @@ export default async function ProductsPage({ searchParams }: PageProps) {
       
       <div className="container mx-auto max-w-7xl">
         <div className="mb-12 text-center md:text-right">
-          <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-l from-white to-gray-400">
+          <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-l from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
             همه محصولات
           </h1>
-          <p className="mt-4 text-gray-400">
+          <p className="mt-4 text-gray-600 dark:text-gray-400">
             جدیدترین کالاهای موجود را با بهترین قیمت کشف کنید
           </p>
         </div>
@@ -122,8 +122,8 @@ export default async function ProductsPage({ searchParams }: PageProps) {
           {/* Product Grid */}
           <div className="w-full md:w-3/4">
             {products.length === 0 ? (
-              <div className="bg-white/5 border border-white/10 rounded-3xl p-12 text-center">
-                <p className="text-xl text-gray-400">متاسفانه هیچ محصولی با این مشخصات یافت نشد.</p>
+              <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none rounded-3xl p-12 text-center">
+                <p className="text-xl text-gray-600 dark:text-gray-400">متاسفانه هیچ محصولی با این مشخصات یافت نشد.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

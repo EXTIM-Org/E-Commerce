@@ -25,21 +25,21 @@ export function ProductCarousel({ title, products, userWishlistIds = new Set() }
   return (
     <section className="my-12 relative w-full">
       <div className="flex justify-between items-center mb-6 px-2">
-        <h2 className="text-2xl font-bold text-white relative inline-block">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white relative inline-block">
           {title}
-          <div className="absolute -bottom-2 right-0 w-1/2 h-1 bg-gradient-to-l from-purple-500 to-transparent rounded-full" />
+          <div className="absolute -bottom-2 right-0 w-1/2 h-1 bg-gradient-to-l from-purple-600 to-transparent dark:from-purple-500 rounded-full" />
         </h2>
         
         <div className="flex gap-2">
           <button 
             onClick={() => scroll("right")}
-            className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-purple-500/20 hover:border-purple-500/50 transition-colors"
+            className="w-10 h-10 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-700 dark:text-white hover:bg-purple-100 dark:hover:bg-purple-500/20 hover:border-purple-500/50 transition-colors"
           >
             <ChevronRight className="w-6 h-6" />
           </button>
           <button 
             onClick={() => scroll("left")}
-            className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-purple-500/20 hover:border-purple-500/50 transition-colors"
+            className="w-10 h-10 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-700 dark:text-white hover:bg-purple-100 dark:hover:bg-purple-500/20 hover:border-purple-500/50 transition-colors"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>

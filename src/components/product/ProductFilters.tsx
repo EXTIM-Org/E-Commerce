@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition, useRef } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { Search, SlidersHorizontal, ChevronDown } from "lucide-react";
+import { Search, SlidersHorizontal, ChevronDown, Check } from "lucide-react";
 
 interface Category {
   id: string;
@@ -14,6 +14,13 @@ interface ProductFiltersProps {
   categories: Category[];
 }
 
+const SORT_OPTIONS = [
+  { value: "newest", label: "جدیدترین" },
+  { value: "popular", label: "محبوب‌ترین" },
+  { value: "price_asc", label: "ارزان‌ترین" },
+  { value: "price_desc", label: "گران‌ترین" },
+];
+
 export function ProductFilters({ categories }: ProductFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -24,6 +31,25 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
   const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
+
+  // Custom dropdown states
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  const categoryRef = useRef<HTMLDivElement>(null);
+  const sortRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (categoryRef.current && !categoryRef.current.contains(event.target as Node)) {
+        setIsCategoryOpen(false);
+      }
+      if (sortRef.current && !sortRef.current.contains(event.target as Node)) {
+        setIsSortOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const createQueryString = useCallback(
     (updates: Record<string, string | null>) => {
@@ -66,9 +92,17 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
     return () => clearTimeout(delayDebounceFn);
   }, [minPrice, maxPrice]);
 
+  const currentCategory = searchParams.get("category") || "";
+  const categoryLabel = currentCategory 
+    ? categories.find(c => c.slug === currentCategory)?.name || "همه دسته‌ها"
+    : "همه دسته‌ها";
+
+  const currentSort = searchParams.get("sort") || "newest";
+  const sortLabel = SORT_OPTIONS.find(o => o.value === currentSort)?.label || "جدیدترین";
+
   return (
-    <div className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-md sticky top-28">
-      <div className="flex items-center gap-2 mb-6 text-purple-400 font-bold text-lg">
+    <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-3xl p-6 backdrop-blur-md sticky top-28 shadow-sm dark:shadow-none">
+      <div className="flex items-center gap-2 mb-6 text-purple-600 dark:text-purple-400 font-bold text-lg">
         <SlidersHorizontal className="w-5 h-5" />
         <h3>فیلتر محصولات</h3>
       </div>
@@ -76,7 +110,7 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
       <div className="space-y-6">
         {/* Search */}
         <div className="relative">
-          <label className="text-sm text-gray-400 mb-2 block">جستجو</label>
+          <label className="text-sm text-gray-700 dark:text-gray-400 mb-2 block">جستجو</label>
           <div className="relative">
             <Search className="w-5 h-5 absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
@@ -84,68 +118,122 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
               placeholder="نام محصول..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full bg-black/20 border border-white/10 rounded-2xl py-3 pr-12 pl-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
+              className="w-full bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-2xl py-3 pr-12 pl-4 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
             />
           </div>
         </div>
 
-        {/* Category */}
+        {/* Category Custom Dropdown */}
         <div>
-          <label className="text-sm text-gray-400 mb-2 block">دسته‌بندی</label>
-          <div className="relative">
-            <select
-              value={searchParams.get("category") || ""}
-              onChange={(e) => applyFilters({ category: e.target.value })}
-              className="w-full appearance-none bg-black/20 border border-white/10 rounded-2xl py-3 px-4 text-white focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all cursor-pointer"
+          <label className="text-sm text-gray-700 dark:text-gray-400 mb-2 block">دسته‌بندی</label>
+          <div className="relative" ref={categoryRef}>
+            <button
+              type="button"
+              onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+              className="w-full flex items-center justify-between bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-2xl py-3 px-4 text-gray-900 dark:text-white focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
             >
-              <option value="" className="bg-zinc-900">همه دسته‌ها</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.slug} className="bg-zinc-900">
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <span>{categoryLabel}</span>
+              <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isCategoryOpen ? "rotate-180" : ""}`} />
+            </button>
+            
+            {isCategoryOpen && (
+              <div className="absolute top-full left-0 right-0 mt-2 z-50 overflow-hidden bg-white dark:bg-[#1a1b26] backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-2xl shadow-xl dark:shadow-2xl origin-top animate-in fade-in zoom-in-95 duration-200">
+                <div className="flex flex-col py-2 max-h-60 overflow-y-auto">
+                  <button
+                    onClick={() => {
+                      applyFilters({ category: "" });
+                      setIsCategoryOpen(false);
+                    }}
+                    className={`flex items-center justify-between w-full px-4 py-2.5 text-sm font-medium transition-colors hover:bg-gray-50 dark:hover:bg-white/10 ${
+                      currentCategory === ""
+                        ? "text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/10"
+                        : "text-gray-700 dark:text-gray-300"
+                    }`}
+                  >
+                    همه دسته‌ها
+                    {currentCategory === "" && <Check className="w-4 h-4 text-purple-500" />}
+                  </button>
+                  {categories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => {
+                        applyFilters({ category: cat.slug });
+                        setIsCategoryOpen(false);
+                      }}
+                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm font-medium transition-colors hover:bg-gray-50 dark:hover:bg-white/10 ${
+                        currentCategory === cat.slug
+                          ? "text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/10"
+                          : "text-gray-700 dark:text-gray-300"
+                      }`}
+                    >
+                      {cat.name}
+                      {currentCategory === cat.slug && <Check className="w-4 h-4 text-purple-500" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Price Range */}
         <div>
-          <label className="text-sm text-gray-400 mb-2 block">محدوده قیمت (تومان)</label>
+          <label className="text-sm text-gray-700 dark:text-gray-400 mb-2 block">محدوده قیمت (تومان)</label>
           <div className="flex items-center gap-2">
             <input
               type="number"
               placeholder="از"
               value={minPrice}
               onChange={(e) => setMinPrice(e.target.value)}
-              className="w-full bg-black/20 border border-white/10 rounded-2xl py-3 px-4 text-white text-center focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
+              className="w-full bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-2xl py-3 px-4 text-gray-900 dark:text-white text-center focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
             />
-            <span className="text-gray-500">-</span>
+            <span className="text-gray-400 dark:text-gray-500">-</span>
             <input
               type="number"
               placeholder="تا"
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
-              className="w-full bg-black/20 border border-white/10 rounded-2xl py-3 px-4 text-white text-center focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
+              className="w-full bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-2xl py-3 px-4 text-gray-900 dark:text-white text-center focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
             />
           </div>
         </div>
 
-        {/* Sort */}
+        {/* Sort Custom Dropdown */}
         <div>
-          <label className="text-sm text-gray-400 mb-2 block">مرتب‌سازی بر اساس</label>
-          <div className="relative">
-            <select
-              value={searchParams.get("sort") || "newest"}
-              onChange={(e) => applyFilters({ sort: e.target.value })}
-              className="w-full appearance-none bg-black/20 border border-white/10 rounded-2xl py-3 px-4 text-white focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all cursor-pointer"
+          <label className="text-sm text-gray-700 dark:text-gray-400 mb-2 block">مرتب‌سازی بر اساس</label>
+          <div className="relative" ref={sortRef}>
+            <button
+              type="button"
+              onClick={() => setIsSortOpen(!isSortOpen)}
+              className="w-full flex items-center justify-between bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-2xl py-3 px-4 text-gray-900 dark:text-white focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
             >
-              <option value="newest" className="bg-zinc-900">جدیدترین</option>
-              <option value="popular" className="bg-zinc-900">محبوب‌ترین</option>
-              <option value="price_asc" className="bg-zinc-900">ارزان‌ترین</option>
-              <option value="price_desc" className="bg-zinc-900">گران‌ترین</option>
-            </select>
-            <ChevronDown className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <span>{sortLabel}</span>
+              <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isSortOpen ? "rotate-180" : ""}`} />
+            </button>
+            
+            {isSortOpen && (
+              <div className="absolute top-full left-0 right-0 mt-2 z-50 overflow-hidden bg-white dark:bg-[#1a1b26] backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-2xl shadow-xl dark:shadow-2xl origin-top animate-in fade-in zoom-in-95 duration-200">
+                <div className="flex flex-col py-2">
+                  {SORT_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => {
+                        applyFilters({ sort: opt.value });
+                        setIsSortOpen(false);
+                      }}
+                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm font-medium transition-colors hover:bg-gray-50 dark:hover:bg-white/10 ${
+                        currentSort === opt.value
+                          ? "text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/10"
+                          : "text-gray-700 dark:text-gray-300"
+                      }`}
+                    >
+                      {opt.label}
+                      {currentSort === opt.value && <Check className="w-4 h-4 text-purple-500" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
         

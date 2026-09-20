@@ -29,8 +29,8 @@ export default async function WishlistPage() {
   const products = wishlist?.items.map(i => i.product).filter(p => p !== null) || [];
 
   return (
-    <div className="bg-white/5 border border-white/10 rounded-3xl p-6 md:p-8 backdrop-blur-md">
-      <h2 className="text-2xl font-bold text-white mb-6">علاقه‌مندی‌های من</h2>
+    <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-3xl p-6 md:p-8 backdrop-blur-md shadow-sm dark:shadow-none">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">علاقه‌مندی‌های من</h2>
 
       {products.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -44,11 +44,11 @@ export default async function WishlistPage() {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="bg-white/5 p-6 rounded-full mb-6">
-            <HeartCrack className="w-16 h-16 text-gray-500" />
+          <div className="bg-gray-100 dark:bg-white/5 p-6 rounded-full mb-6">
+            <HeartCrack className="w-16 h-16 text-gray-400 dark:text-gray-500" />
           </div>
-          <h3 className="text-xl font-bold text-white mb-2">لیست علاقه‌مندی‌های شما خالی است</h3>
-          <p className="text-gray-400 mb-8 max-w-md">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">لیست علاقه‌مندی‌های شما خالی است</h3>
+          <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md">
             محصولاتی که به آن‌ها علاقه دارید را به لیست خود اضافه کنید تا در آینده راحت‌تر به آن‌ها دسترسی داشته باشید.
           </p>
           <Link 

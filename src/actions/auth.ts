@@ -30,7 +30,7 @@ export async function registerUser(prevState: any, formData: FormData) {
     });
 
     // Create JWT session
-    await createSession(user.id, user.role, user.name || "کاربر");
+    await createSession(user.id, user.role, user.name || "کاربر", user.image || undefined);
 
   } catch (error) {
     console.error(error);
@@ -62,7 +62,7 @@ export async function loginUser(prevState: any, formData: FormData) {
     }
 
     // Create session
-    await createSession(user.id, user.role, user.name || "کاربر");
+    await createSession(user.id, user.role, user.name || "کاربر", user.image || undefined);
 
   } catch (error) {
     console.error(error);

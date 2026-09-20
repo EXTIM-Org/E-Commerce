@@ -1334,8 +1334,22 @@
                   "kind": "scalar"
                 }
               },
+              "isVerifiedBuyer": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
               "productId": {
                 "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "purchasedVariantName": {
+                "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
@@ -1401,8 +1415,14 @@
                 "id": {
                   "column": "id"
                 },
+                "isVerifiedBuyer": {
+                  "column": "isVerifiedBuyer"
+                },
                 "productId": {
                   "column": "productId"
+                },
+                "purchasedVariantName": {
+                  "column": "purchasedVariantName"
                 },
                 "rating": {
                   "column": "rating"
@@ -1433,6 +1453,13 @@
               },
               "id": {
                 "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "image": {
+                "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
@@ -1562,6 +1589,9 @@
                 },
                 "id": {
                   "column": "id"
+                },
+                "image": {
+                  "column": "image"
                 },
                 "name": {
                   "column": "name"
@@ -2649,10 +2679,24 @@
                   "nativeType": "text",
                   "nullable": false
                 },
+                "isVerifiedBuyer": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
                 "productId": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": false
+                },
+                "purchasedVariantName": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
                 },
                 "rating": {
                   "codecId": "pg/int4@1",
@@ -2753,6 +2797,11 @@
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": false
+                },
+                "image": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
                 },
                 "name": {
                   "codecId": "pg/text@1",
@@ -2985,7 +3034,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "d7cc89e1ba124740bc290f9f838e78028066e97d86d6dcc280a827055d7e0839"
+    "storageHash": "fb9a291f43d5328cacd1a30b1bb27db4c57f9c5488f32306f617c120995f7b4d"
   },
   "execution": {
     "executionHash": "62771749b1954ff01f945f1b9170052644565ec24371fe05b22fa2e2d9da21cc",

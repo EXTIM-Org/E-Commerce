@@ -17,36 +17,36 @@ export default async function AddressesPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white mb-2">آدرس‌های من</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">آدرس‌های من</h1>
         <NewAddressForm />
       </div>
       
       {addresses.length === 0 ? (
-        <div className="bg-white/5 border border-white/10 rounded-3xl p-12 flex flex-col items-center justify-center gap-4">
-          <MapPin className="w-20 h-20 text-gray-500/50" />
-          <h2 className="text-xl font-medium text-gray-300">هیچ آدرسی ثبت نشده است!</h2>
-          <p className="text-gray-500 text-sm text-center">آدرس‌های شما در زمان تکمیل خرید به صورت خودکار در اینجا ذخیره می‌شوند.</p>
+        <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-3xl p-12 flex flex-col items-center justify-center gap-4 shadow-sm dark:shadow-none">
+          <MapPin className="w-20 h-20 text-gray-400 dark:text-gray-500/50" />
+          <h2 className="text-xl font-medium text-gray-900 dark:text-gray-300">هیچ آدرسی ثبت نشده است!</h2>
+          <p className="text-gray-500 dark:text-gray-500 text-sm text-center">آدرس‌های شما در زمان تکمیل خرید به صورت خودکار در اینجا ذخیره می‌شوند.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {addresses.map((address) => (
-            <div key={address.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col gap-4 relative overflow-hidden group hover:border-purple-500/30 transition-colors">
+            <div key={address.id} className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-3xl p-6 flex flex-col gap-4 relative overflow-hidden group hover:border-purple-500/30 transition-colors shadow-sm dark:shadow-none">
               
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-purple-400" />
-                  <span className="text-white font-medium">{address.title || "آدرس"}</span>
+                  <MapPin className="w-5 h-5 text-purple-500 dark:text-purple-400" />
+                  <span className="text-gray-900 dark:text-white font-medium">{address.title || "آدرس"}</span>
                 </div>
                 {address.isDefault && (
                   <span className="bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded text-xs">آدرس پیش‌فرض</span>
                 )}
               </div>
               
-              <p className="text-gray-400 text-sm leading-relaxed mt-2">
+              <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mt-2">
                 {address.fullAddress}
               </p>
 
-              <div className="flex items-center gap-4 mt-2 pt-4 border-t border-white/5 text-sm text-gray-500">
+              <div className="flex items-center gap-4 mt-2 pt-4 border-t border-gray-200 dark:border-white/5 text-sm text-gray-500">
                 {address.postalCode && (
                   <span>کد پستی: {address.postalCode}</span>
                 )}

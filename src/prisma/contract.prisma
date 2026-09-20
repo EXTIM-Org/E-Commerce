@@ -24,6 +24,7 @@ enum TransactionType {
 model User {
   id            String    @id @default(uuid())
   name          String?
+  image         String?
   email         String    @unique
   passwordHash  String
   role          Role      @default(USER)
@@ -210,6 +211,9 @@ model Review {
   
   rating        Int       // 1 to 5
   comment       String?
+  
+  isVerifiedBuyer Boolean   @default(false)
+  purchasedVariantName String?
   
   createdAt     TimestamptzString @default(now())
 }

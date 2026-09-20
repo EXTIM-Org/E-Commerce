@@ -17,13 +17,13 @@ export default async function OrdersHistoryPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold text-white mb-2">تاریخچه سفارشات</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">تاریخچه سفارشات</h1>
       
       {orders.length === 0 ? (
-        <div className="bg-white/5 border border-white/10 rounded-3xl p-12 flex flex-col items-center justify-center gap-4">
-          <PackageOpen className="w-20 h-20 text-gray-500/50" />
-          <h2 className="text-xl font-medium text-gray-300">هیچ سفارشی یافت نشد!</h2>
-          <p className="text-gray-500 text-sm mb-4">تا کنون هیچ خریدی از فروشگاه ما نداشته‌اید.</p>
+        <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-3xl p-12 flex flex-col items-center justify-center gap-4 shadow-sm dark:shadow-none">
+          <PackageOpen className="w-20 h-20 text-gray-400 dark:text-gray-500/50" />
+          <h2 className="text-xl font-medium text-gray-900 dark:text-gray-300">هیچ سفارشی یافت نشد!</h2>
+          <p className="text-gray-500 dark:text-gray-500 text-sm mb-4">تا کنون هیچ خریدی از فروشگاه ما نداشته‌اید.</p>
           <Link href="/products" className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-2 rounded-xl transition-colors">
             مشاهده محصولات
           </Link>
@@ -31,22 +31,22 @@ export default async function OrdersHistoryPage() {
       ) : (
         <div className="flex flex-col gap-6">
           {orders.map((order) => (
-            <div key={order.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col gap-4 relative overflow-hidden group">
+            <div key={order.id} className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-3xl p-6 flex flex-col gap-4 relative overflow-hidden group shadow-sm dark:shadow-none">
               
               {/* Order Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 dark:border-white/10 pb-4">
                 <div className="flex items-center gap-4 flex-wrap">
-                  <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <span className="bg-black/30 px-3 py-1 rounded-lg border border-white/5 text-gray-300 font-mono text-xs">
+                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                    <span className="bg-gray-100 dark:bg-black/30 px-3 py-1 rounded-lg border border-gray-200 dark:border-white/5 text-gray-700 dark:text-gray-300 font-mono text-xs">
                       #{order.id.split('-')[0]}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                     <Clock className="w-4 h-4" />
                     {new Date(order.createdAt).toLocaleDateString('fa-IR')}
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-400">
-                    مبلغ: <span className="font-bold text-white">{order.totalAmount.toLocaleString('fa-IR')} تومان</span>
+                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                    مبلغ: <span className="font-bold text-gray-900 dark:text-white">{order.totalAmount.toLocaleString('fa-IR')} تومان</span>
                   </div>
                 </div>
                 
@@ -54,10 +54,10 @@ export default async function OrdersHistoryPage() {
               </div>
               
               {/* Receiver Info */}
-              <div className="flex items-start gap-3 text-sm text-gray-400 bg-black/20 p-4 rounded-xl border border-white/5">
-                <MapPin className="w-5 h-5 flex-shrink-0 text-purple-400 mt-0.5" />
+              <div className="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-black/20 p-4 rounded-xl border border-gray-200 dark:border-white/5">
+                <MapPin className="w-5 h-5 flex-shrink-0 text-purple-500 dark:text-purple-400 mt-0.5" />
                 <div className="flex flex-col gap-1">
-                  <span className="text-gray-300 font-medium">گیرنده: {order.receiverName} ({order.phone})</span>
+                  <span className="text-gray-900 dark:text-gray-300 font-medium">گیرنده: {order.receiverName} ({order.phone})</span>
                   <span>{order.shippingAddress}</span>
                   {order.postalCode && <span>کد پستی: {order.postalCode}</span>}
                 </div>
@@ -66,8 +66,8 @@ export default async function OrdersHistoryPage() {
               {/* Order Items */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
                 {order.items.map((item) => (
-                  <div key={item.id} className="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/5 hover:bg-white/10 transition-colors">
-                    <div className="w-16 h-16 bg-white/5 rounded-lg overflow-hidden flex-shrink-0 relative">
+                  <div key={item.id} className="flex items-center gap-4 bg-gray-50 dark:bg-white/5 p-3 rounded-xl border border-gray-200 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+                    <div className="w-16 h-16 bg-gray-200 dark:bg-white/5 rounded-lg overflow-hidden flex-shrink-0 relative">
                       {/* Using standard img for now since we're assuming remote patterns might not cover everything, but Next Image is better */}
                       <img 
                         src={item.variant?.product?.images[0] || "https://picsum.photos/seed/placeholder/100"} 
@@ -76,11 +76,11 @@ export default async function OrdersHistoryPage() {
                       />
                     </div>
                     <div className="flex flex-col flex-1 overflow-hidden">
-                      <span className="text-white font-medium text-sm truncate">{item.variant?.product?.name}</span>
-                      <span className="text-xs text-gray-400 mt-1">{item.variant?.name !== "Default" ? item.variant?.name : "بدون تنوع"}</span>
+                      <span className="text-gray-900 dark:text-white font-medium text-sm truncate">{item.variant?.product?.name}</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">{item.variant?.name !== "Default" ? item.variant?.name : "بدون تنوع"}</span>
                       <div className="flex items-center justify-between mt-2">
-                        <span className="text-xs font-bold text-purple-400">{item.unitPrice.toLocaleString('fa-IR')} تومان</span>
-                        <span className="text-xs bg-black/30 px-2 py-0.5 rounded text-gray-300">{item.quantity} عدد</span>
+                        <span className="text-xs font-bold text-purple-600 dark:text-purple-400">{item.unitPrice.toLocaleString('fa-IR')} تومان</span>
+                        <span className="text-xs bg-gray-200 dark:bg-black/30 px-2 py-0.5 rounded text-gray-700 dark:text-gray-300">{item.quantity} عدد</span>
                       </div>
                     </div>
                   </div>

@@ -6,6 +6,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useCart } from "@/store/CartContext";
 import { useEffect, useState } from "react";
 import { logoutUser } from "@/actions/auth";
+import { usePathname } from "next/navigation";
 
 const navLinks = [
   { name: "فروشگاه", href: "/products" },
@@ -17,6 +18,8 @@ const navLinks = [
 export function Header({ session }: { session: any }) {
   const { totalItems } = useCart();
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+  const isAdminPage = pathname.startsWith("/admin");
 
   useEffect(() => {
     setMounted(true);
@@ -40,7 +43,7 @@ export function Header({ session }: { session: any }) {
               <Link
                 key={link.name}
                 href={link.href}
-                className="text-gray-300 hover:text-white transition-colors py-2 group relative"
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors py-2 group relative"
               >
                 {link.name}
                 <span className="absolute inset-x-0 bottom-0 h-0.5 bg-purple-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-right"></span>
@@ -63,16 +66,30 @@ export function Header({ session }: { session: any }) {
           </Link>
           
           {session ? (
-            <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">
+            <div className="flex items-center gap-3 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 px-3 py-1.5 rounded-full">
               <Link href="/profile" className="flex items-center gap-2 text-sm font-medium hover:opacity-80 transition-opacity cursor-pointer">
-                <div className="w-6 h-6 rounded-full bg-violet-600/30 flex items-center justify-center text-violet-400">
-                  <User className="w-4 h-4" />
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 p-[1px]">
+                  <div className="w-full h-full rounded-full overflow-hidden bg-violet-600/20 dark:bg-violet-600/30 flex items-center justify-center text-violet-600 dark:text-violet-400">
+                    {session.image ? (
+                      <img src={session.image} alt="Profile" className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="w-4 h-4" />
+                    )}
+                  </div>
                 </div>
-                <span className="hidden sm:inline text-gray-200">سلام، {session.name.split(' ')[0]}</span>
+                <span className="hidden sm:inline text-gray-700 dark:text-gray-200">سلام، {session.name.split(' ')[0]}</span>
               </Link>
-              <div className="w-px h-4 bg-white/10 mx-1"></div>
+              <div className="w-px h-4 bg-black/10 dark:bg-white/10 mx-1"></div>
+              {session.role === "ADMIN" && !isAdminPage && (
+                <>
+                  <Link href="/admin" className="text-xs font-medium bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 px-2 py-1 rounded-md hover:bg-violet-200 dark:hover:bg-violet-900/50 transition-colors">
+                    پنل ادمین
+                  </Link>
+                  <div className="w-px h-4 bg-black/10 dark:bg-white/10 mx-1"></div>
+                </>
+              )}
               <form action={logoutUser}>
-                <button type="submit" className="text-xs text-red-400 hover:text-red-300 transition-colors">خروج</button>
+                <button type="submit" className="text-xs text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors">خروج</button>
               </form>
             </div>
           ) : (

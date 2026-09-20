@@ -27,6 +27,31 @@ export async function getPopularProducts(limit: number = 8) {
   return products;
 }
 
+// 3. Special Offers (Discounted)
+export async function getSpecialOffers(limit: number = 8) {
+  // Fetch products that have a discount > 0, ordered by highest discount
+  const products = await db.orm.public.Product
+    .where((p) => p.discount.gt(0))
+    .include("variants", (v) => v.include("inventory"))
+    .orderBy((p) => p.discount.desc())
+    .limit(limit)
+    .all();
+    
+  return products;
+}
+
+// 4. New Arrivals
+export async function getNewArrivals(limit: number = 8) {
+  // Fetch the latest added products
+  const products = await db.orm.public.Product
+    .include("variants", (v) => v.include("inventory"))
+    .orderBy((p) => p.createdAt.desc())
+    .limit(limit)
+    .all();
+    
+  return products;
+}
+
 // 3. Collaborative Filtering (Frequently Bought Together)
 export async function getFrequentlyBoughtTogether(productId: string, limit: number = 4) {
   // First, get all variant IDs for this product

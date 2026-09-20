@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ShoppingCart, Check, ShieldCheck, Truck } from "lucide-react";
+import { ShoppingCart, Check, ShieldCheck, Truck, Star } from "lucide-react";
 import { useCart } from "@/store/CartContext";
 
 interface Variant {
@@ -29,6 +29,7 @@ interface ProductClientProps {
     images: readonly string[] | string[];
     variants?: Variant[];
     category?: Category | null;
+    reviews?: { rating: number }[];
   };
 }
 
@@ -42,6 +43,11 @@ export function ProductClient({ product }: ProductClientProps) {
 
   const basePrice = selectedVariant?.price ?? product.basePrice;
   const finalPrice = basePrice - product.discount;
+
+  const reviewCount = product.reviews?.length || 0;
+  const averageRating = reviewCount > 0 
+    ? product.reviews!.reduce((acc, curr) => acc + curr.rating, 0) / reviewCount
+    : 0;
 
   const handleAddToCart = () => {
     addToCart({
@@ -109,23 +115,42 @@ export function ProductClient({ product }: ProductClientProps) {
           {product.category?.name || 'دسته‌بندی نشده'}
         </div>
         
-        <h1 className="text-3xl md:text-4xl font-extrabold text-white leading-tight">
+        <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white leading-tight">
           {product.name}
         </h1>
         
-        <div className="flex items-center gap-4 text-sm text-gray-400">
+        {/* Rating */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center" dir="ltr">
+            {[1, 2, 3, 4, 5].map((s) => (
+              <Star 
+                key={s} 
+                className={`w-4 h-4 ${s <= Math.round(averageRating) ? "fill-yellow-400 text-yellow-400" : "text-gray-600"}`} 
+              />
+            ))}
+          </div>
+          <span className="text-sm font-bold text-yellow-400">{averageRating > 0 ? averageRating.toFixed(1) : ""}</span>
+          <button 
+            onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })} 
+            className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors cursor-pointer"
+          >
+            ({reviewCount} دیدگاه)
+          </button>
+        </div>
+        
+        <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
           <span className="flex items-center gap-1"><Check className="w-4 h-4 text-green-500" /> موجود در انبار</span>
           <span className="flex items-center gap-1"><ShieldCheck className="w-4 h-4 text-blue-500" /> تضمین اصالت کالا</span>
         </div>
         
-        <p className="text-gray-300 leading-relaxed text-lg my-2">
+        <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-lg my-2">
           {product.description}
         </p>
 
         {/* Variants Selection */}
         {product.variants && product.variants.length > 0 && (
           <div className="flex flex-col gap-3 mt-4">
-            <h3 className="text-white font-medium">انتخاب مدل / سایز:</h3>
+            <h3 className="text-gray-900 dark:text-white font-medium">انتخاب مدل / سایز:</h3>
             <div className="flex flex-wrap gap-3">
               {product.variants.map((variant) => (
                 <button
@@ -133,8 +158,8 @@ export function ProductClient({ product }: ProductClientProps) {
                   onClick={() => setSelectedVariant(variant)}
                   className={`px-5 py-2.5 rounded-xl border font-medium transition-all ${
                     selectedVariant?.id === variant.id
-                      ? "bg-purple-600/20 border-purple-500 text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.2)]"
-                      : "bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:border-white/20"
+                      ? "bg-purple-100 dark:bg-purple-600/20 border-purple-500 text-purple-700 dark:text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.2)]"
+                      : "bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/20"
                   }`}
                 >
                   {variant.name}
@@ -144,22 +169,22 @@ export function ProductClient({ product }: ProductClientProps) {
           </div>
         )}
 
-        <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent my-6"></div>
+        <div className="h-px w-full bg-gradient-to-r from-transparent via-gray-300 dark:via-white/10 to-transparent my-6"></div>
 
         {/* Pricing & Add to Cart */}
-        <div className="flex flex-col gap-6 bg-white/5 rounded-3xl p-8 border border-white/10 backdrop-blur-sm shadow-xl">
+        <div className="flex flex-col gap-6 bg-white dark:bg-white/5 rounded-3xl p-8 border border-gray-200 dark:border-white/10 backdrop-blur-sm shadow-sm dark:shadow-xl">
           <div className="flex justify-between items-end">
             <div className="flex flex-col gap-1">
               {product.discount > 0 && (
-                <span className="text-gray-500 line-through text-lg">
+                <span className="text-gray-400 dark:text-gray-500 line-through text-lg">
                   {basePrice.toLocaleString('fa-IR')} تومان
                 </span>
               )}
               <div className="flex items-center gap-3">
-                <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
+                <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-500">
                   {finalPrice.toLocaleString('fa-IR')}
                 </span>
-                <span className="text-xl text-gray-400 font-medium">تومان</span>
+                <span className="text-xl text-gray-500 dark:text-gray-400 font-medium">تومان</span>
               </div>
             </div>
             {product.discount > 0 && (

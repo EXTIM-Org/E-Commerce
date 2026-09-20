@@ -58,8 +58,8 @@ export function WishlistButton({ productId, initialIsLiked, className = "" }: Wi
       disabled={isPending}
       className={`absolute top-4 left-4 z-10 flex h-9 w-9 items-center justify-center rounded-full backdrop-blur-md border transition-all ${
         isLiked 
-          ? "bg-rose-500/20 border-rose-500/50 text-rose-500" 
-          : "bg-black/30 border-white/10 text-gray-300 hover:bg-white/10 hover:text-white"
+          ? "bg-rose-50 dark:bg-rose-500/20 border-rose-500/50 text-rose-500" 
+          : "bg-white/50 dark:bg-black/30 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white"
       } ${isPending ? "opacity-50 cursor-not-allowed" : "hover:scale-110 active:scale-95"} ${className}`}
       title={isLiked ? "حذف از علاقه‌مندی‌ها" : "افزودن به علاقه‌مندی‌ها"}
     >
