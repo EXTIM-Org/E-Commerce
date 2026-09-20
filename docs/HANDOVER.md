@@ -68,6 +68,13 @@ The core schema is fully designed, pushed to the database, and synced. It includ
 - **Product Cards**: Displays a beautiful "ناموجود" overlay for out-of-stock items, and a pulsing orange "موجودی محدود" badge if stock is running low.
 - **Product Details Page**: Dynamically displays semantic stock statuses ("موجود در انبار", "تنها X عدد باقی مانده!", or "ناموجود") based on the selected variant, leveraging the database's `lowStockThreshold`.
 
+### 12. Mock Payment Gateway
+- A simulated payment page allows for complete end-to-end testing of the checkout flow (Order creation -> Payment -> Inventory deduction) without requiring a real third-party provider.
+
+### 13. Coupon & Discount System
+- Fully functional discount system where admins can create coupon codes (percentage or fixed amount, with expiry and usage limits).
+- Users can apply these codes during checkout to receive dynamic discounts on their cart total.
+
 ---
 
 ## ⚠️ CRITICAL: Prisma 8 (Contract-First) Syntax Rules
@@ -100,8 +107,8 @@ This project uses **Prisma 8**, which has breaking syntax changes compared to ol
 ## 🚀 Next Steps (Action Items for New Agent)
 
 The following features are the next logical steps for development:
-1. **Payment Gateway Integration**: Integrate a real or mock payment gateway (like ZarinPal) to process transactions during checkout.
-2. **Advanced Image Uploads**: Enable multiple image uploads per product and an image gallery viewer in the Admin panel.
+1. **Payment Gateway Integration**: (✅ Completed) Mock payment gateway implemented for testing checkout flows.
+2. **Advanced Image Uploads**: (✅ Completed) Enabled multiple image uploads per product and an image gallery viewer in the Admin panel.
 3. **Email Verification / Notifications**: (✅ Completed) Provider-agnostic email system implemented using Nodemailer and React-Email.
 4. **Sales Analytics / Charts**: (✅ Completed) Added Recharts-based visual charts to the Admin Dashboard showing revenue and top-selling products.
 
