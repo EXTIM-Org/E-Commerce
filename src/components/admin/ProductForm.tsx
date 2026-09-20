@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useActionState, useEffect, useRef } from "react";
-import { Upload, X, Loader2, ChevronDown, Check } from "lucide-react";
+import { Upload, X, Loader2, ChevronDown, Check, Plus, Trash2 } from "lucide-react";
 import { createProduct, updateProduct } from "@/actions/product";
 
 export function ProductForm({
@@ -26,6 +26,63 @@ export function ProductForm({
       url
     }));
   });
+
+  type VariantState = {
+    id: string;
+    name: string;
+    sku: string;
+    price: number | '';
+    stockQuantity: number;
+    isNew?: boolean;
+  };
+
+  const [variants, setVariants] = useState<VariantState[]>(() => {
+    if (product?.variants && product.variants.length > 0) {
+      return product.variants.map((v: any) => ({
+        id: v.id,
+        name: v.name || "پیش‌فرض",
+        sku: v.sku,
+        price: v.price ?? "",
+        stockQuantity: v.inventory?.stockQuantity || 0,
+        isNew: false
+      }));
+    }
+    return [{
+      id: `new-var-${Math.random()}`,
+      name: "پیش‌فرض",
+      sku: `SKU-${Date.now()}`,
+      price: "",
+      stockQuantity: 10,
+      isNew: true
+    }];
+  });
+
+  const addVariant = () => {
+    setVariants([...variants, {
+      id: `new-var-${Math.random()}`,
+      name: "",
+      sku: `SKU-${Date.now()}`,
+      price: "",
+      stockQuantity: 0,
+      isNew: true
+    }]);
+  };
+
+  const updateVariant = (index: number, field: keyof VariantState, value: string | number) => {
+    const updated = [...variants];
+    updated[index] = { ...updated[index], [field]: value };
+    setVariants(updated);
+  };
+
+  const removeVariant = (index: number) => {
+    if (variants.length <= 1) {
+      alert("هر محصول باید حداقل یک متغیر داشته باشد.");
+      return;
+    }
+    const updated = [...variants];
+    updated.splice(index, 1);
+    setVariants(updated);
+  };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -70,9 +127,10 @@ export function ProductForm({
       const currentNewFiles = media.filter(m => m.type === 'new').map(m => (m as any).file);
       const selectedFiles = Array.from(e.target.files);
       
+      const maxAllowed = 5 - media.length;
       const toAdd = selectedFiles.filter(newF => 
         !currentNewFiles.some(existing => existing.name === newF.name && existing.size === newF.size)
-      );
+      ).slice(0, maxAllowed);
       
       if (toAdd.length > 0) {
         const newMediaItems: MediaItem[] = toAdd.map(f => ({
@@ -135,6 +193,9 @@ export function ProductForm({
       
       {/* Hidden input to pass the final ordering structure */}
       <input type="hidden" name="finalOrder" value={finalOrderJson} />
+      
+      {/* Hidden input for variants */}
+      <input type="hidden" name="variantsJson" value={JSON.stringify(variants)} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
@@ -237,25 +298,34 @@ export function ProductForm({
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">تصاویر محصول</label>
             
-            <div 
-              className="border-2 border-dashed border-black/10 dark:border-white/20 rounded-xl p-8 text-center cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Upload className="w-8 h-8 text-violet-500 mx-auto mb-3" />
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                برای افزودن عکس کلیک کنید (چند عکس مجاز است)
-              </p>
-            </div>
-            
-            <input 
-              type="file" 
-              name="images"
-              multiple
-              accept="image/*"
-              className="hidden" 
-              ref={fileInputRef}
-              onChange={handleFileChange}
-            />
+            {media.length < 5 && (
+              <>
+                <div 
+                  className="border-2 border-dashed border-black/10 dark:border-white/20 rounded-xl p-8 text-center cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload className="w-8 h-8 text-violet-500 mx-auto mb-3" />
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    برای افزودن عکس کلیک کنید (حداکثر ۵ تصویر مجاز است)
+                  </p>
+                </div>
+                
+                <input 
+                  type="file" 
+                  name="images"
+                  multiple
+                  accept="image/*"
+                  className="hidden" 
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                />
+              </>
+            )}
+            {media.length >= 5 && (
+              <div className="bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 p-4 rounded-xl text-sm mb-4">
+                شما به سقف مجاز آپلود تصویر (۵ تصویر) رسیده‌اید. برای افزودن تصویر جدید، ابتدا یکی از تصاویر فعلی را حذف کنید.
+              </div>
+            )}
 
             {/* Gallery Preview */}
             {media.length > 0 && (
@@ -299,6 +369,86 @@ export function ProductForm({
           </div>
         </div>
 
+      </div>
+
+      <div className="border-t border-black/10 dark:border-white/10 pt-8 mt-8">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">مدیریت متغیرها (Variants)</h3>
+          <button
+            type="button"
+            onClick={addVariant}
+            className="flex items-center gap-2 bg-violet-100 dark:bg-violet-600/20 text-violet-700 dark:text-violet-300 px-4 py-2 rounded-xl text-sm font-bold hover:bg-violet-200 dark:hover:bg-violet-600/30 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            افزودن متغیر
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {variants.map((variant, index) => (
+            <div key={variant.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start bg-white/30 dark:bg-black/30 p-4 rounded-2xl border border-black/5 dark:border-white/5">
+              
+              <div className="md:col-span-3">
+                <label className="block text-xs font-medium text-gray-500 mb-1">نام متغیر (الزامی)</label>
+                <input 
+                  type="text" 
+                  value={variant.name}
+                  onChange={(e) => updateVariant(index, 'name', e.target.value)}
+                  placeholder="سفید - L"
+                  required
+                  className="w-full bg-white/50 dark:bg-black/50 border border-black/10 dark:border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                />
+              </div>
+
+              <div className="md:col-span-3">
+                <label className="block text-xs font-medium text-gray-500 mb-1">شناسه یکتا (SKU)</label>
+                <input 
+                  type="text" 
+                  value={variant.sku}
+                  onChange={(e) => updateVariant(index, 'sku', e.target.value)}
+                  required
+                  className="w-full bg-white/50 dark:bg-black/50 border border-black/10 dark:border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                />
+              </div>
+
+              <div className="md:col-span-3">
+                <label className="block text-xs font-medium text-gray-500 mb-1">موجودی انبار</label>
+                <input 
+                  type="number" 
+                  value={variant.stockQuantity}
+                  onChange={(e) => updateVariant(index, 'stockQuantity', parseInt(e.target.value) || 0)}
+                  min={0}
+                  required
+                  className="w-full bg-white/50 dark:bg-black/50 border border-black/10 dark:border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-xs font-medium text-gray-500 mb-1">قیمت اختصاصی</label>
+                <input 
+                  type="number" 
+                  value={variant.price}
+                  onChange={(e) => updateVariant(index, 'price', e.target.value ? parseInt(e.target.value) : '')}
+                  placeholder="بدون تغییر"
+                  min={0}
+                  className="w-full bg-white/50 dark:bg-black/50 border border-black/10 dark:border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                />
+              </div>
+
+              <div className="md:col-span-1 flex items-end justify-end h-full pt-6">
+                <button
+                  type="button"
+                  onClick={() => removeVariant(index)}
+                  className="text-red-500 hover:bg-red-500/10 p-2 rounded-xl transition-colors"
+                  title="حذف متغیر"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
+              </div>
+
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="flex justify-end pt-4 border-t border-black/10 dark:border-white/10">

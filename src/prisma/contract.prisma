@@ -21,6 +21,11 @@ enum TransactionType {
   ADJUSTMENT
 }
 
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
 model User {
   id            String    @id @default(uuid())
   name          String?
@@ -28,6 +33,8 @@ model User {
   email         String    @unique
   passwordHash  String
   role          Role      @default(USER)
+  resetToken       String?   @unique
+  resetTokenExpiry TimestamptzString?
   createdAt     TimestamptzString @default(now())
   updatedAt     temporal.updatedAtString()
   
@@ -177,6 +184,14 @@ model Order {
   status        OrderStatus @default(PENDING)
   totalAmount   Float
   
+  couponId      String?
+  coupon        Coupon?   @relation(fields: [couponId], references: [id])
+  discountAmount Float    @default(0)
+  
+  // Payment gateway snapshot
+  paymentAuthority String?
+  paymentRefId     String?
+  
   // Shipping snapshot
   receiverName    String
   phone           String
@@ -216,4 +231,22 @@ model Review {
   purchasedVariantName String?
   
   createdAt     TimestamptzString @default(now())
+}
+
+model Coupon {
+  id            String    @id @default(uuid())
+  code          String    @unique
+  type          DiscountType
+  value         Float
+  maxDiscount   Float?
+  minOrderAmount Float?
+  usageLimit    Int?
+  usedCount     Int       @default(0)
+  expiresAt     TimestamptzString?
+  isActive      Boolean   @default(true)
+  
+  orders        Order[]
+  
+  createdAt     TimestamptzString @default(now())
+  updatedAt     temporal.updatedAtString()
 }

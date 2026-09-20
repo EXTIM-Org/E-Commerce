@@ -54,6 +54,20 @@ The core schema is fully designed, pushed to the database, and synced. It includ
 - **Consistent Glassmorphism**: The entire application uses a state-of-the-art modern aesthetic with `backdrop-blur` and translucent backgrounds (`bg-white/5` for dark mode, `bg-white/70` for light mode).
 - **Theme Toggle**: Fully supports toggling between light and dark themes using `next-themes` without any textual or structural artifacts.
 
+### 9. Order Tracking & Timeline
+- A visual order tracking timeline (`OrderTimeline`) has been implemented to show states: PENDING, PAID, PROCESSING, SHIPPED, DELIVERED.
+- **Admin**: Admins can update the status of the order and add a postal tracking code in `/admin/orders/[id]`. This triggers an automatic email notification to the user.
+- **User**: Users can see the graphical timeline of their order and easily copy the tracking code in `/profile/orders/[id]`.
+
+### 10. Advanced Admin Product Management
+- Full CRUD for products with dynamic variant and inventory input fields integrated in `ProductForm.tsx`.
+- **Product Filters & Sorts**: The admin product list (`/admin/products`) supports filtering by text and category, as well as sorting by Base Price, Inventory Stock, and Sales Count by clicking on the table headers.
+
+### 11. Smart Inventory Badges (FOMO & UX)
+- Avoids showing exact stock numbers to preserve perceived value and prevent competitor scraping.
+- **Product Cards**: Displays a beautiful "ناموجود" overlay for out-of-stock items, and a pulsing orange "موجودی محدود" badge if stock is running low.
+- **Product Details Page**: Dynamically displays semantic stock statuses ("موجود در انبار", "تنها X عدد باقی مانده!", or "ناموجود") based on the selected variant, leveraging the database's `lowStockThreshold`.
+
 ---
 
 ## ⚠️ CRITICAL: Prisma 8 (Contract-First) Syntax Rules
@@ -88,7 +102,14 @@ This project uses **Prisma 8**, which has breaking syntax changes compared to ol
 The following features are the next logical steps for development:
 1. **Payment Gateway Integration**: Integrate a real or mock payment gateway (like ZarinPal) to process transactions during checkout.
 2. **Advanced Image Uploads**: Enable multiple image uploads per product and an image gallery viewer in the Admin panel.
-3. **Email Verification / Notifications**: Add an email service provider to notify users when their order status changes (e.g. "Your order has been shipped").
-4. **Sales Analytics / Charts**: Add visual charts to the Admin Dashboard showing daily/weekly revenue and top-selling products.
+3. **Email Verification / Notifications**: (✅ Completed) Provider-agnostic email system implemented using Nodemailer and React-Email.
+4. **Sales Analytics / Charts**: (✅ Completed) Added Recharts-based visual charts to the Admin Dashboard showing revenue and top-selling products.
+
+## 📧 Provider-Agnostic Email System (Architecture)
+The email system is designed to be completely independent of any specific vendor, allowing it to work with a personal Mail Server (like Postfix/Exim) or third-party APIs (like Resend, SendGrid) without changing any code.
+
+- **Templating**: Emails are built using `@react-email/components` and Tailwind CSS in `src/emails/OrderStatusEmail.tsx`.
+- **Sending Engine**: `Nodemailer` handles SMTP transport in `src/lib/email.ts`.
+- **Usage**: To connect a real mail server, simply fill out the `SMTP_*` variables in the `.env` file. If `SMTP_HOST` is left empty, the application will automatically mock the email by logging the contents to the terminal console, allowing for uninterrupted local development.
 
 *The codebase is perfectly clean, type-checked, and the latest code is pushed to the local working directory.*

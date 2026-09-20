@@ -4,9 +4,10 @@ import { db } from "@/prisma/db";
 import { getSession } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { writeFile, mkdir } from "fs/promises";
+import { writeFile, mkdir, unlink } from "fs/promises";
 import { join } from "path";
 import { existsSync } from "fs";
+import sharp from "sharp";
 
 // Helper to ensure category exists (for the "default" category if none exists)
 export async function getOrCreateDefaultCategory() {
@@ -25,6 +26,23 @@ export async function getCategories() {
   return await db.orm.public.Category.orderBy((c) => c.createdAt.desc()).all();
 }
 
+async function deletePhysicalImages(urls: readonly string[] | string[]) {
+  if (!urls || urls.length === 0) return;
+  for (const url of urls) {
+    if (!url.startsWith("/uploads/products/")) continue;
+    try {
+      // url is like "/uploads/products/filename.webp"
+      const filepath = join(process.cwd(), "public", url);
+      if (existsSync(filepath)) {
+        await unlink(filepath);
+        console.log(`Deleted physical file: ${filepath}`);
+      }
+    } catch (e) {
+      console.error(`Failed to delete physical file for URL ${url}:`, e);
+    }
+  }
+}
+
 async function saveImages(formData: FormData): Promise<string[]> {
   const imageFiles = formData.getAll("images") as File[];
   console.log("saveImages received files:", imageFiles.map(f => ({ name: f.name, size: f.size, type: f.type })));
@@ -37,13 +55,23 @@ async function saveImages(formData: FormData): Promise<string[]> {
 
   for (const file of imageFiles) {
     if (file && file.size > 0 && file.type.startsWith("image/")) {
+      // 1. Check file size (10MB max)
+      if (file.size > 10 * 1024 * 1024) {
+        throw new Error(`حجم فایل ${file.name} نباید بیشتر از ۱۰ مگابایت باشد.`);
+      }
+
       const buffer = Buffer.from(await file.arrayBuffer());
       const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-      const extension = file.name.split(".").pop();
-      const filename = `product-${uniqueSuffix}.${extension}`;
+      const filename = `product-${uniqueSuffix}.webp`;
       const filepath = join(uploadDir, filename);
       
-      await writeFile(filepath, buffer);
+      // 2. Compress and convert to WebP using sharp
+      const webpBuffer = await sharp(buffer)
+        .resize(1200, 1200, { fit: "inside", withoutEnlargement: true })
+        .webp({ quality: 80 })
+        .toBuffer();
+
+      await writeFile(filepath, webpBuffer);
       imageUrls.push(`/uploads/products/${filename}`);
     }
   }
@@ -80,7 +108,13 @@ export async function createProduct(prevState: unknown, formData: FormData) {
     }
 
     // Handle image uploads
-    const newImageUrls = await saveImages(formData);
+    let newImageUrls: string[] = [];
+    try {
+      newImageUrls = await saveImages(formData);
+    } catch (e: any) {
+      return { error: e.message || "خطایی در آپلود تصاویر رخ داد." };
+    }
+    
     const finalOrderStr = formData.get("finalOrder") as string;
     let finalImages: string[] = [];
     
@@ -105,7 +139,10 @@ export async function createProduct(prevState: unknown, formData: FormData) {
       finalImages = newImageUrls;
     }
 
-    await db.orm.public.Product.create({
+    // Limit to max 5 images
+    finalImages = finalImages.slice(0, 5);
+
+    const product = await db.orm.public.Product.create({
       name,
       slug,
       description,
@@ -114,6 +151,30 @@ export async function createProduct(prevState: unknown, formData: FormData) {
       categoryId,
       images: finalImages,
     });
+
+    // Handle variants
+    const variantsJsonStr = formData.get("variantsJson") as string;
+    if (variantsJsonStr) {
+      try {
+        const variants = JSON.parse(variantsJsonStr);
+        for (const variant of variants) {
+          const createdVariant = await db.orm.public.ProductVariant.create({
+            productId: product.id,
+            name: variant.name || "پیش‌فرض",
+            sku: variant.sku,
+            price: variant.price !== "" ? parseFloat(variant.price) : null,
+          });
+          
+          await db.orm.public.Inventory.create({
+            variantId: createdVariant.id,
+            stockQuantity: variant.stockQuantity || 0,
+            reservedStock: 0,
+          });
+        }
+      } catch (e) {
+        console.error("Error parsing variants:", e);
+      }
+    }
 
   } catch (error) {
     console.error("Error creating product:", error);
@@ -138,6 +199,11 @@ export async function updateProduct(id: string, prevState: unknown, formData: Fo
     const categoryId = formData.get("categoryId") as string;
     const existingImagesStr = formData.get("existingImages") as string; // JSON string of old images kept
 
+    const oldProduct = await db.orm.public.Product.where({ id }).first();
+    if (!oldProduct) {
+      return { error: "محصول یافت نشد." };
+    }
+
     if (!name || !basePriceStr || !categoryId) {
       return { error: "فیلدهای نام، قیمت پایه و دسته‌بندی الزامی هستند." };
     }
@@ -157,7 +223,13 @@ export async function updateProduct(id: string, prevState: unknown, formData: Fo
 
     const finalOrderStr = formData.get("finalOrder") as string;
     
-    const newImageUrls = await saveImages(formData);
+    let newImageUrls: string[] = [];
+    try {
+      newImageUrls = await saveImages(formData);
+    } catch (e: any) {
+      return { error: e.message || "خطایی در آپلود تصاویر رخ داد." };
+    }
+    
     let finalImages: string[] = [];
 
     if (finalOrderStr) {
@@ -181,6 +253,15 @@ export async function updateProduct(id: string, prevState: unknown, formData: Fo
       finalImages = [...existingImages, ...newImageUrls];
     }
 
+    // Limit to max 5 images
+    finalImages = finalImages.slice(0, 5);
+
+    // Calculate orphaned images to delete physically
+    const orphanedImages = oldProduct.images.filter(img => !finalImages.includes(img));
+    if (orphanedImages.length > 0) {
+      await deletePhysicalImages(orphanedImages);
+    }
+
     await db.orm.public.Product.where({ id }).update({
       name,
       description,
@@ -189,6 +270,53 @@ export async function updateProduct(id: string, prevState: unknown, formData: Fo
       categoryId,
       images: finalImages,
     });
+
+    // Handle variants
+    const variantsJsonStr = formData.get("variantsJson") as string;
+    if (variantsJsonStr) {
+      try {
+        const variants = JSON.parse(variantsJsonStr);
+        const incomingIds = variants.map((v: any) => v.id);
+        
+        // Find existing variants
+        const existingVariants = await db.orm.public.ProductVariant.where({ productId: id }).all();
+        
+        // Delete missing variants
+        for (const ev of existingVariants) {
+          if (!incomingIds.includes(ev.id)) {
+            await db.orm.public.ProductVariant.where({ id: ev.id }).delete();
+          }
+        }
+        
+        // Create or update incoming variants
+        for (const variant of variants) {
+          if (variant.isNew) {
+            const createdVariant = await db.orm.public.ProductVariant.create({
+              productId: id,
+              name: variant.name || "پیش‌فرض",
+              sku: variant.sku,
+              price: variant.price !== "" ? parseFloat(variant.price) : null,
+            });
+            await db.orm.public.Inventory.create({
+              variantId: createdVariant.id,
+              stockQuantity: variant.stockQuantity || 0,
+              reservedStock: 0,
+            });
+          } else {
+            await db.orm.public.ProductVariant.where({ id: variant.id }).update({
+              name: variant.name || "پیش‌فرض",
+              sku: variant.sku,
+              price: variant.price !== "" ? parseFloat(variant.price) : null,
+            });
+            await db.orm.public.Inventory.where({ variantId: variant.id }).update({
+              stockQuantity: variant.stockQuantity || 0,
+            });
+          }
+        }
+      } catch (e) {
+        console.error("Error parsing/syncing variants:", e);
+      }
+    }
 
   } catch (error) {
     console.error("Error updating product:", error);
@@ -206,7 +334,14 @@ export async function deleteProduct(id: string) {
   }
 
   try {
+    const oldProduct = await db.orm.public.Product.where({ id }).first();
+    
     await db.orm.public.Product.where({ id }).delete();
+    
+    if (oldProduct && oldProduct.images && oldProduct.images.length > 0) {
+      await deletePhysicalImages(oldProduct.images);
+    }
+    
     revalidatePath("/admin/products");
     return { success: true };
   } catch (error) {

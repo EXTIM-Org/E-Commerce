@@ -4,7 +4,7 @@ import { useCart } from "@/store/CartContext";
 import { useActionState, useEffect, useState } from "react";
 import { processCheckout } from "@/actions/checkout";
 import { useRouter } from "next/navigation";
-import { ArrowRight, MapPin, CreditCard, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { ArrowRight, MapPin, CreditCard, ShieldCheck, CheckCircle2, Tags } from "lucide-react";
 import Link from "next/link";
 import { useFormStatus } from "react-dom";
 
@@ -27,7 +27,14 @@ export default function CheckoutPage() {
   const router = useRouter();
 
   const shippingCost = totalPrice > 2000000 ? 0 : 45000;
-  const finalPayable = totalPrice + (totalItems > 0 ? shippingCost : 0);
+
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedDiscount, setAppliedDiscount] = useState<number>(0);
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+  const [couponError, setCouponError] = useState("");
+  const [couponSuccess, setCouponSuccess] = useState("");
+
+  const finalPayable = totalPrice + (totalItems > 0 ? shippingCost : 0) - appliedDiscount;
 
   const [initialData, setInitialData] = useState<{receiverName: string, phone: string, address: string, postalCode: string} | null>(null);
   const [isFetchingData, setIsFetchingData] = useState(true);
@@ -42,12 +49,41 @@ export default function CheckoutPage() {
     });
   }, []);
 
+  const handleApplyCoupon = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent form submission
+    if (!couponCode) return;
+    setIsValidatingCoupon(true);
+    setCouponError("");
+    setCouponSuccess("");
+    
+    try {
+      const { validateCoupon } = await import("@/actions/coupon");
+      const res = await validateCoupon(couponCode, totalPrice); 
+      if (res.success) {
+        setAppliedDiscount(res.discountAmount || 0);
+        setCouponSuccess(`مبلغ ${(res.discountAmount || 0).toLocaleString('fa-IR')} تومان کسر شد.`);
+      } else {
+        setCouponError(res.error || "خطا در اعتبارسنجی");
+        setAppliedDiscount(0);
+      }
+    } catch (err) {
+      setCouponError("خطایی در ارتباط با سرور رخ داد.");
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
+
   // If order is successful, clear cart and show success message
   useEffect(() => {
     if (state?.success) {
       clearCart();
+      // Auto redirect to orders history after 3 seconds
+      const timer = setTimeout(() => {
+        router.push("/profile/orders");
+      }, 3000);
+      return () => clearTimeout(timer);
     }
-  }, [state?.success]);
+  }, [state?.success, router, clearCart]);
 
   if (state?.success) {
     return (
@@ -59,8 +95,8 @@ export default function CheckoutPage() {
         <p className="text-gray-600 dark:text-gray-400 mb-8 text-center max-w-md">
           کد رهگیری سفارش: <span className="font-mono text-gray-900 dark:text-white bg-gray-100 dark:bg-white/10 px-2 py-1 rounded">{state.orderId}</span>
         </p>
-        <Link href="/" className="bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-gray-800 dark:text-white px-8 py-3 rounded-full transition-colors border border-gray-200 dark:border-white/10">
-          بازگشت به صفحه اصلی
+        <Link href="/profile/orders" className="bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-gray-800 dark:text-white px-8 py-3 rounded-full transition-colors border border-gray-200 dark:border-white/10">
+          پیگیری سفارشات
         </Link>
       </main>
     );
@@ -163,23 +199,53 @@ export default function CheckoutPage() {
               </h2>
               <div className="flex flex-col gap-3">
                 <label className="flex items-center gap-3 p-4 border border-purple-500/50 bg-purple-50 dark:bg-purple-500/10 rounded-xl cursor-pointer">
-                  <input type="radio" name="payment" defaultChecked className="text-purple-500 focus:ring-purple-500" />
-                  <span className="text-gray-900 dark:text-white font-medium">پرداخت اینترنتی (زرین‌پال)</span>
+                  <input type="radio" name="simulationType" value="SUCCESS" defaultChecked className="text-purple-500 focus:ring-purple-500" />
+                  <span className="text-gray-900 dark:text-white font-medium">شبیه‌سازی پرداخت موفق</span>
                 </label>
-                <label className="flex items-center gap-3 p-4 border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/20 rounded-xl cursor-pointer opacity-50">
-                  <input type="radio" name="payment" disabled className="text-purple-500" />
-                  <span className="text-gray-500 dark:text-gray-400 font-medium">پرداخت در محل (موقتاً غیرفعال)</span>
+                <label className="flex items-center gap-3 p-4 border border-red-500/50 bg-red-50 dark:bg-red-500/10 rounded-xl cursor-pointer">
+                  <input type="radio" name="simulationType" value="FAIL" className="text-red-500 focus:ring-red-500" />
+                  <span className="text-gray-900 dark:text-white font-medium">شبیه‌سازی پرداخت ناموفق</span>
                 </label>
               </div>
             </div>
             
             {/* Hidden field to pass cart items to server */}
             <input type="hidden" name="items" value={JSON.stringify(items)} />
-
+            <input type="hidden" name="couponCode" value={appliedDiscount > 0 ? couponCode : ""} />
+            
           </div>
 
           {/* Right Column: Order Summary */}
           <div className="flex flex-col gap-6">
+            
+            {/* Coupon Section */}
+            <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 p-6 rounded-3xl backdrop-blur-sm shadow-sm">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <Tags className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                کد تخفیف
+              </h2>
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                    className="flex-1 bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-xl p-3 text-gray-900 dark:text-white focus:outline-none focus:border-purple-500 uppercase"
+                    placeholder="کد تخفیف..."
+                    dir="ltr"
+                  />
+                  <button
+                    onClick={handleApplyCoupon}
+                    disabled={isValidatingCoupon || !couponCode}
+                    className="bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 text-gray-800 dark:text-white px-6 rounded-xl font-medium transition-colors disabled:opacity-50"
+                  >
+                    {isValidatingCoupon ? "..." : "اعمال"}
+                  </button>
+                </div>
+                {couponError && <p className="text-red-500 text-sm mt-1">{couponError}</p>}
+                {couponSuccess && <p className="text-green-500 text-sm mt-1">{couponSuccess}</p>}
+              </div>
+            </div>
             <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 p-6 md:p-8 rounded-3xl backdrop-blur-sm flex flex-col gap-4 shadow-xl">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">فاکتور نهایی</h2>
               
@@ -192,6 +258,12 @@ export default function CheckoutPage() {
                   <span>هزینه بسته‌بندی و ارسال</span>
                   <span className="font-medium text-gray-900 dark:text-white">{shippingCost.toLocaleString('fa-IR')} تومان</span>
                 </div>
+                {appliedDiscount > 0 && (
+                  <div className="flex justify-between items-center text-green-600 dark:text-green-400">
+                    <span>تخفیف (کد: {couponCode})</span>
+                    <span className="font-medium">- {appliedDiscount.toLocaleString('fa-IR')} تومان</span>
+                  </div>
+                )}
               </div>
               
               <div className="flex justify-between items-end pt-2 mb-4">

@@ -4,6 +4,8 @@ import { db } from "@/prisma/db";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { markOrderAsPaid } from "@/services/order";
+import { validateCoupon } from "@/actions/coupon";
 
 const checkoutSchema = z.object({
   receiverName: z.string().min(2, "نام تحویل گیرنده باید حداقل ۲ کاراکتر باشد."),
@@ -36,7 +38,7 @@ export async function getUserCheckoutData() {
   };
 }
 
-export async function processCheckout(prevState: any, formData: FormData) {
+export async function processCheckout(prevState: unknown, formData: FormData) {
   try {
     const session = await getSession();
     if (!session || !session.userId) {
@@ -48,6 +50,13 @@ export async function processCheckout(prevState: any, formData: FormData) {
     const phone = formData.get("phone") as string;
     const postalCode = formData.get("postalCode") as string | null;
     const itemsRaw = formData.get("items") as string;
+    const simulationType = formData.get("simulationType") as string;
+    const couponCode = formData.get("couponCode") as string | null;
+    
+    // Simulate failed payment
+    if (simulationType === "FAIL") {
+      return { error: "پرداخت ناموفق بود (شبیه‌سازی خطا توسط درگاه پرداخت). لطفاً مجدداً تلاش کنید." };
+    }
     
     const validation = checkoutSchema.safeParse({
       receiverName,
@@ -70,29 +79,86 @@ export async function processCheckout(prevState: any, formData: FormData) {
       return { error: "سبد خرید خالی است." };
     }
 
-    // 1. Calculate total (In a real app, you must verify prices against the DB again!)
-    const totalAmount = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-    const shipping = totalAmount > 2000000 ? 0 : 45000;
-    const finalTotal = totalAmount + shipping;
+    // 1. Fetch valid variants from the DB to prevent Foreign Key errors and secure prices
+    const variantIds = cartItems.map(item => item.variantId);
+    const dbVariants = await db.orm.public.ProductVariant
+      .where((v) => v.id.in(variantIds))
+      .include('product')
+      .all();
 
-    // 2. Create the Order
+    // Map them for quick access
+    const dbVariantMap = new Map(dbVariants.map(v => [v.id, v]));
+
+    // Validate cart items
+    for (const item of cartItems) {
+      if (!dbVariantMap.has(item.variantId)) {
+        return { error: "برخی از محصولات سبد خرید شما دیگر در سیستم موجود نیستند. لطفاً سبد خرید خود را بروزرسانی کنید." };
+      }
+    }
+
+    // 2. Calculate true total amount securely using Database prices!
+    let totalAmount = 0;
+    const validatedOrderItems = cartItems.map(item => {
+      const dbVariant = dbVariantMap.get(item.variantId)!;
+      // Price logic: if variant has specific price use it, else use base product price
+      const finalPrice = dbVariant.price ?? dbVariant.product?.basePrice ?? 0;
+      
+      totalAmount += finalPrice * item.quantity;
+      
+      return {
+        variantId: item.variantId,
+        quantity: item.quantity,
+        unitPrice: finalPrice,
+      };
+    });
+
+    const shipping = totalAmount > 2000000 ? 0 : 45000;
+    
+    let discountAmount = 0;
+    let appliedCouponId: string | null = null;
+    
+    // Validate Coupon if provided
+    if (couponCode) {
+      const couponRes = await validateCoupon(couponCode, totalAmount);
+      if (!couponRes.success) {
+        return { error: couponRes.error || "کد تخفیف نامعتبر است." };
+      }
+      discountAmount = couponRes.discountAmount || 0;
+      appliedCouponId = couponRes.couponId || null;
+    }
+    
+    const finalTotal = totalAmount + shipping - discountAmount;
+
+    // 3. Create the Order
     const order = await db.orm.public.Order.create({
       userId: session.userId as string,
       status: 'PENDING',
       totalAmount: finalTotal,
+      couponId: appliedCouponId,
+      discountAmount,
       receiverName,
       phone,
       shippingAddress: fullAddress,
       postalCode,
     });
+    
+    // Increment coupon usage
+    if (appliedCouponId) {
+      const coupon = await db.orm.public.Coupon.where({ id: appliedCouponId }).first();
+      if (coupon) {
+        await db.orm.public.Coupon.where({ id: appliedCouponId }).update({
+          usedCount: coupon.usedCount + 1
+        });
+      }
+    }
 
-    // 3. Create OrderItems & Update Inventory (in a transaction optimally, but we'll do sequentially for Prisma 8 RC)
-    for (const item of cartItems) {
+    // 4. Create OrderItems & Update Inventory
+    for (const item of validatedOrderItems) {
       await db.orm.public.OrderItem.create({
         orderId: order.id,
         variantId: item.variantId,
         quantity: item.quantity,
-        unitPrice: item.price,
+        unitPrice: item.unitPrice,
       });
 
       // Find inventory
@@ -129,6 +195,9 @@ export async function processCheckout(prevState: any, formData: FormData) {
       });
     }
     
+    // 5. Simulated Payment Success -> Trigger receipt email
+    await markOrderAsPaid(order.id);
+
     // Returning success to trigger client-side clear cart
     return { success: true, orderId: order.id };
 

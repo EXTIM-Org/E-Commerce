@@ -1,17 +1,83 @@
 import { db } from "@/prisma/db";
 import Link from "next/link";
-import { Plus, Edit2 } from "lucide-react";
+import { Plus, Edit2, ArrowUp, ArrowDown } from "lucide-react";
 import { deleteProduct } from "@/actions/product";
 import { DeleteButton } from "@/components/admin/DeleteButton";
+import { ProductFilters } from "@/components/admin/ProductFilters";
 
-export default async function AdminProductsPage() {
-  // Fetch products with their category and variants
-  // In Prisma 8, to iterate over all results, we use .all()
-  const products = await db.orm.public.Product
+function SortableHeader({ 
+  label, 
+  field, 
+  currentSort, 
+  currentOrder,
+  searchParams
+}: { 
+  label: string; 
+  field: string; 
+  currentSort: string; 
+  currentOrder: string;
+  searchParams: Record<string, any>;
+}) {
+  const isActive = currentSort === field;
+  const nextOrder = isActive && currentOrder === "desc" ? "asc" : "desc"; // Default to desc for new sorts
+  
+  const params = new URLSearchParams();
+  for (const [key, val] of Object.entries(searchParams)) {
+    if (val !== undefined && val !== null) {
+      params.set(key, String(val));
+    }
+  }
+  params.set("sort", field);
+  params.set("order", nextOrder);
+  
+  return (
+    <Link href={`?${params.toString()}`} className="flex items-center gap-1.5 hover:text-violet-500 transition-colors w-fit">
+      {label}
+      {isActive && (
+        currentOrder === "asc" ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />
+      )}
+    </Link>
+  );
+}
+
+export default async function AdminProductsPage(props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
+  const searchParams = await props.searchParams;
+  const q = typeof searchParams.q === 'string' ? searchParams.q : '';
+  const categoryId = typeof searchParams.category === 'string' ? searchParams.category : '';
+  const sort = typeof searchParams.sort === 'string' ? searchParams.sort : '';
+  const order = typeof searchParams.order === 'string' ? searchParams.order : 'desc';
+
+  const categories = await db.orm.public.Category.all();
+
+  let query = db.orm.public.Product
     .include("category")
-    .include("variants")
-    .orderBy((p) => p.createdAt.desc())
-    .all();
+    .include("variants", (v) => v.include("inventory"));
+
+  if (sort === "basePrice") {
+    query = query.orderBy((p) => order === "asc" ? p.basePrice.asc() : p.basePrice.desc());
+  } else if (sort === "salesCount") {
+    query = query.orderBy((p) => order === "asc" ? p.salesCount.asc() : p.salesCount.desc());
+  } else if (sort !== "inventory") {
+    query = query.orderBy((p) => p.createdAt.desc());
+  }
+
+  if (q) {
+    query = query.where((p) => p.name.ilike(`%${q}%`));
+  }
+  if (categoryId) {
+    query = query.where({ categoryId });
+  }
+
+  let products = await query.all();
+
+  // Handle inventory sort in JS since it's a nested aggregate
+  if (sort === "inventory") {
+    products.sort((a, b) => {
+      const stockA = a.variants?.reduce((acc: number, v: any) => acc + (v.inventory?.stockQuantity || 0), 0) || 0;
+      const stockB = b.variants?.reduce((acc: number, v: any) => acc + (v.inventory?.stockQuantity || 0), 0) || 0;
+      return order === "asc" ? stockA - stockB : stockB - stockA;
+    });
+  }
 
   return (
     <div className="space-y-6">
@@ -26,6 +92,8 @@ export default async function AdminProductsPage() {
         </Link>
       </div>
 
+      <ProductFilters categories={categories} />
+
       <div className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-3xl backdrop-blur-md overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-right">
@@ -34,8 +102,15 @@ export default async function AdminProductsPage() {
                 <th className="px-6 py-4 font-medium">تصویر</th>
                 <th className="px-6 py-4 font-medium">نام محصول</th>
                 <th className="px-6 py-4 font-medium">دسته‌بندی</th>
-                <th className="px-6 py-4 font-medium">قیمت پایه</th>
-                <th className="px-6 py-4 font-medium">فروش</th>
+                <th className="px-6 py-4 font-medium">
+                  <SortableHeader label="قیمت پایه" field="basePrice" currentSort={sort} currentOrder={order} searchParams={searchParams} />
+                </th>
+                <th className="px-6 py-4 font-medium">
+                  <SortableHeader label="موجودی انبار" field="inventory" currentSort={sort} currentOrder={order} searchParams={searchParams} />
+                </th>
+                <th className="px-6 py-4 font-medium">
+                  <SortableHeader label="فروش" field="salesCount" currentSort={sort} currentOrder={order} searchParams={searchParams} />
+                </th>
                 <th className="px-6 py-4 font-medium text-center">عملیات</th>
               </tr>
             </thead>
@@ -76,13 +151,16 @@ export default async function AdminProductsPage() {
                         </span>
                       )}
                     </td>
+                    <td className="px-6 py-4 text-gray-600 dark:text-gray-300">
+                      {product.variants?.reduce((acc: number, v: any) => acc + (v.inventory?.stockQuantity || 0), 0) || 0} عدد
+                    </td>
                     <td className="px-6 py-4 text-gray-600 dark:text-gray-400">{product.salesCount}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-center gap-3">
                         <Link href={`/admin/products/${product.id}/edit`} className="text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors" title="ویرایش">
                           <Edit2 className="w-5 h-5" />
                         </Link>
-                        <form action={deleteProduct.bind(null, product.id)}>
+                        <form action={async () => { "use server"; await deleteProduct(product.id); }}>
                           <DeleteButton />
                         </form>
                       </div>

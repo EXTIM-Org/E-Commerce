@@ -20,6 +20,10 @@
       "model": "Category",
       "namespace": "public"
     },
+    "coupon": {
+      "model": "Coupon",
+      "namespace": "public"
+    },
     "inventory": {
       "model": "Inventory",
       "namespace": "public"
@@ -65,6 +69,19 @@
     "namespaces": {
       "public": {
         "enum": {
+          "DiscountType": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "PERCENTAGE",
+                "value": "PERCENTAGE"
+              },
+              {
+                "name": "FIXED",
+                "value": "FIXED"
+              }
+            ]
+          },
           "OrderStatus": {
             "codecId": "pg/text@1",
             "members": [
@@ -543,6 +560,159 @@
               "table": "category"
             }
           },
+          "Coupon": {
+            "fields": {
+              "code": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "expiresAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "isActive": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "maxDiscount": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "minOrderAmount": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "type": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "DiscountType",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "usageLimit": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "usedCount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "value": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "orders": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "couponId"
+                  ]
+                },
+                "to": {
+                  "model": "Order",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "code": {
+                  "column": "code"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "expiresAt": {
+                  "column": "expiresAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "isActive": {
+                  "column": "isActive"
+                },
+                "maxDiscount": {
+                  "column": "maxDiscount"
+                },
+                "minOrderAmount": {
+                  "column": "minOrderAmount"
+                },
+                "type": {
+                  "column": "type"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "usageLimit": {
+                  "column": "usageLimit"
+                },
+                "usedCount": {
+                  "column": "usedCount"
+                },
+                "value": {
+                  "column": "value"
+                }
+              },
+              "namespaceId": "public",
+              "table": "coupon"
+            }
+          },
           "Inventory": {
             "fields": {
               "id": {
@@ -742,6 +912,13 @@
           },
           "Order": {
             "fields": {
+              "couponId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "createdAt": {
                 "nullable": false,
                 "type": {
@@ -749,8 +926,29 @@
                   "kind": "scalar"
                 }
               },
+              "discountAmount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
               "id": {
                 "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "paymentAuthority": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "paymentRefId": {
+                "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
@@ -827,6 +1025,22 @@
               }
             },
             "relations": {
+              "coupon": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "couponId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Coupon",
+                  "namespace": "public"
+                }
+              },
               "items": {
                 "cardinality": "1:N",
                 "on": {
@@ -861,11 +1075,23 @@
             },
             "storage": {
               "fields": {
+                "couponId": {
+                  "column": "couponId"
+                },
                 "createdAt": {
                   "column": "createdAt"
                 },
+                "discountAmount": {
+                  "column": "discountAmount"
+                },
                 "id": {
                   "column": "id"
+                },
+                "paymentAuthority": {
+                  "column": "paymentAuthority"
+                },
+                "paymentRefId": {
+                  "column": "paymentRefId"
                 },
                 "phone": {
                   "column": "phone"
@@ -1479,6 +1705,20 @@
                   "kind": "scalar"
                 }
               },
+              "resetToken": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "resetTokenExpiry": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
               "role": {
                 "nullable": false,
                 "type": {
@@ -1598,6 +1838,12 @@
                 },
                 "passwordHash": {
                   "column": "passwordHash"
+                },
+                "resetToken": {
+                  "column": "resetToken"
+                },
+                "resetTokenExpiry": {
+                  "column": "resetTokenExpiry"
                 },
                 "role": {
                   "column": "role"
@@ -2094,6 +2340,109 @@
                 }
               ]
             },
+            "coupon": {
+              "checks": [
+                {
+                  "expression": "\"type\" IN ('PERCENTAGE', 'FIXED')",
+                  "name": "coupon_type_check_9def900f",
+                  "prefix": "coupon_type_check"
+                }
+              ],
+              "columns": {
+                "code": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "expiresAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "isActive": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": true
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "maxDiscount": {
+                  "codecId": "pg/float8@1",
+                  "nativeType": "float8",
+                  "nullable": true
+                },
+                "minOrderAmount": {
+                  "codecId": "pg/float8@1",
+                  "nativeType": "float8",
+                  "nullable": true
+                },
+                "type": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "DiscountType",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "usageLimit": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "usedCount": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "value": {
+                  "codecId": "pg/float8@1",
+                  "nativeType": "float8",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "code"
+                  ]
+                }
+              ]
+            },
             "inventory": {
               "columns": {
                 "id": {
@@ -2267,6 +2616,11 @@
                 }
               ],
               "columns": {
+                "couponId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
                 "createdAt": {
                   "codecId": "pg/timestamptz-string@1",
                   "default": {
@@ -2276,10 +2630,29 @@
                   "nativeType": "timestamptz",
                   "nullable": false
                 },
+                "discountAmount": {
+                  "codecId": "pg/float8@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "float8",
+                  "nullable": false
+                },
                 "id": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": false
+                },
+                "paymentAuthority": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "paymentRefId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
                 },
                 "phone": {
                   "codecId": "pg/text@1",
@@ -2353,9 +2726,33 @@
                     "namespaceId": "public",
                     "tableName": "user"
                   }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "couponId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "order"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "coupon"
+                  }
                 }
               ],
               "indexes": [
+                {
+                  "columns": [
+                    "couponId"
+                  ],
+                  "name": "order_couponId_idx_a9dd19dc",
+                  "prefix": "order_couponId_idx",
+                  "unique": false
+                },
                 {
                   "columns": [
                     "userId"
@@ -2813,6 +3210,16 @@
                   "nativeType": "text",
                   "nullable": false
                 },
+                "resetToken": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "resetTokenExpiry": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
                 "role": {
                   "codecId": "pg/text@1",
                   "default": {
@@ -2845,6 +3252,11 @@
                 {
                   "columns": [
                     "email"
+                  ]
+                },
+                {
+                  "columns": [
+                    "resetToken"
                   ]
                 }
               ]
@@ -3001,6 +3413,13 @@
             }
           },
           "valueSet": {
+            "DiscountType": {
+              "kind": "valueSet",
+              "values": [
+                "PERCENTAGE",
+                "FIXED"
+              ]
+            },
             "OrderStatus": {
               "kind": "valueSet",
               "values": [
@@ -3034,10 +3453,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "fb9a291f43d5328cacd1a30b1bb27db4c57f9c5488f32306f617c120995f7b4d"
+    "storageHash": "bdbb81f873e92ecd36cb2727ce2a1160e46a87ec5b9cdb1c582535495988016f"
   },
   "execution": {
-    "executionHash": "62771749b1954ff01f945f1b9170052644565ec24371fe05b22fa2e2d9da21cc",
+    "executionHash": "59e8b73fd1bcb497df535363f246bc8869378daa4e39f5d0df3d05e81eb8a8cd",
     "mutations": {
       "defaults": [
         {
@@ -3112,6 +3531,32 @@
             "column": "updatedAt",
             "namespace": "public",
             "table": "category"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "coupon"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updatedAt",
+            "namespace": "public",
+            "table": "coupon"
           }
         },
         {

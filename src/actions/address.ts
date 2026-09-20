@@ -11,7 +11,7 @@ const addressSchema = z.object({
   postalCode: z.string().regex(/^\d{10}$/, "کد پستی باید دقیقاً ۱۰ رقم باشد.").optional().or(z.literal("")),
 });
 
-export async function addAddress(prevState: any, formData: FormData) {
+export async function addAddress(prevState: unknown, formData: FormData) {
   try {
     const session = await getSession();
     if (!session || !session.userId) {

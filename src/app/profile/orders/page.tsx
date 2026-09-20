@@ -34,24 +34,29 @@ export default async function OrdersHistoryPage() {
             <div key={order.id} className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-3xl p-6 flex flex-col gap-4 relative overflow-hidden group shadow-sm dark:shadow-none">
               
               {/* Order Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 dark:border-white/10 pb-4">
-                <div className="flex items-center gap-4 flex-wrap">
-                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                    <span className="bg-gray-100 dark:bg-black/30 px-3 py-1 rounded-lg border border-gray-200 dark:border-white/5 text-gray-700 dark:text-gray-300 font-mono text-xs">
-                      #{order.id.split('-')[0]}
-                    </span>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 dark:border-white/10 pb-4">
+                  <div className="flex items-center gap-4 flex-wrap">
+                    <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                      <span className="bg-gray-100 dark:bg-black/30 px-3 py-1 rounded-lg border border-gray-200 dark:border-white/5 text-gray-700 dark:text-gray-300 font-mono text-xs">
+                        #{order.id.split('-')[0]}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                      <Clock className="w-4 h-4" />
+                      {new Date(order.createdAt).toLocaleDateString('fa-IR')}
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                      مبلغ: <span className="font-bold text-gray-900 dark:text-white">{order.totalAmount.toLocaleString('fa-IR')} تومان</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                    <Clock className="w-4 h-4" />
-                    {new Date(order.createdAt).toLocaleDateString('fa-IR')}
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                    مبلغ: <span className="font-bold text-gray-900 dark:text-white">{order.totalAmount.toLocaleString('fa-IR')} تومان</span>
+                  
+                  <div className="flex items-center gap-3">
+                    <StatusBadge status={order.status} />
+                    <Link href={`/profile/orders/${order.id}`} className="text-xs bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 px-4 py-2 rounded-lg font-medium hover:bg-violet-200 dark:hover:bg-violet-500/30 transition-colors">
+                      جزئیات و رهگیری
+                    </Link>
                   </div>
                 </div>
-                
-                <StatusBadge status={order.status} />
-              </div>
               
               {/* Receiver Info */}
               <div className="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-black/20 p-4 rounded-xl border border-gray-200 dark:border-white/5">

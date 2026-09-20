@@ -10,7 +10,10 @@ export default async function EditProductPage(props: { params: Promise<{ id: str
   const params = await props.params;
   const categories = await getCategories();
   
-  const product = await db.orm.public.Product.first({ id: params.id });
+  const product = await db.orm.public.Product
+    .where({ id: params.id })
+    .include('variants', (v) => v.include('inventory'))
+    .first();
   
   if (!product) {
     notFound();

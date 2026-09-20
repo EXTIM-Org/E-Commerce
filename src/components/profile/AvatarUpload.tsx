@@ -22,8 +22,8 @@ export function AvatarUpload({ currentImage }: AvatarUploadProps) {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert("حجم فایل نباید بیشتر از 5 مگابایت باشد");
+    if (file.size > 10 * 1024 * 1024) {
+      alert("حجم فایل نباید بیشتر از 10 مگابایت باشد");
       return;
     }
 

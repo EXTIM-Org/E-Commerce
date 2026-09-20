@@ -1,6 +1,9 @@
 import { db } from "@/prisma/db";
 import { Package, ShoppingCart, Users, DollarSign } from "lucide-react";
 import Link from "next/link";
+import { RevenueChart } from "@/components/admin/charts/RevenueChart";
+import { TopProductsChart } from "@/components/admin/charts/TopProductsChart";
+import { getRevenueData, getTopProducts } from "@/actions/analytics";
 
 export default async function AdminDashboard() {
   // Fetch stats using Prisma 8
@@ -8,6 +11,17 @@ export default async function AdminDashboard() {
   const { count: ordersCount } = await db.orm.public.Order.aggregate(a => ({ count: a.count() }));
   const { count: usersCount } = await db.orm.public.User.aggregate(a => ({ count: a.count() }));
   
+  // Calculate real total revenue
+  const revenueAgg = await db.orm.public.Order
+    .where((o) => o.status.neq('CANCELLED'))
+    .aggregate((a) => ({ total: a.sum('totalAmount') }));
+  
+  const totalRevenue = revenueAgg.total ?? 0;
+  
+  // Fetch chart data
+  const initialRevenueData = await getRevenueData(7);
+  const topProductsData = await getTopProducts();
+
   // Get recent 5 orders
   const recentOrders = await db.orm.public.Order
     .include("user")
@@ -43,11 +57,21 @@ export default async function AdminDashboard() {
           bg="bg-purple-500/10"
         />
         <StatCard 
-          title="درآمد کل (تستی)" 
-          value="---" 
+          title="درآمد کل" 
+          value={(totalRevenue / 1000000).toLocaleString('fa-IR', { maximumFractionDigits: 1 }) + ' میلیون تومان'} 
           icon={<DollarSign className="w-6 h-6 text-amber-600 dark:text-amber-400" />} 
           bg="bg-amber-500/10"
         />
+      </div>
+
+      {/* Analytics Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <RevenueChart initialData={initialRevenueData} />
+        </div>
+        <div>
+          <TopProductsChart data={topProductsData} />
+        </div>
       </div>
 
       {/* Recent Orders Table */}

@@ -30,7 +30,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
   
   const product = await db.orm.public.Product.where({ slug })
     .include('category')
-    .include('variants')
+    .include("variants", (v) => v.include("inventory"))
     .include('reviews', (r) => r.include('user'))
     .first();
 

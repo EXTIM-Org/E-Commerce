@@ -68,7 +68,7 @@ export default function LoginPage() {
           <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center">
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="password">رمز عبور</label>
-              <a href="#" className="text-xs text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300">فراموشی رمز؟</a>
+              <Link href="/forgot-password" className="text-xs text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300">فراموشی رمز؟</Link>
             </div>
             <div className="relative">
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">

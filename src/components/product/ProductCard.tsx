@@ -19,10 +19,13 @@ interface ProductCardProps {
 
 export function ProductCard({ product, initialIsLiked = false }: ProductCardProps) {
   const finalPrice = product.basePrice - product.discount;
+  const totalStock = product.variants?.reduce((acc: number, v: any) => acc + (v.inventory?.stockQuantity || 0), 0) ?? 0;
+  const isOutOfStock = totalStock === 0 && product.variants && product.variants.length > 0;
+  const isLowStock = !isOutOfStock && totalStock > 0 && totalStock <= 5;
   
   return (
     <Link href={`/products/${product.slug}`} className="group block">
-      <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 backdrop-blur-md transition-all duration-300 hover:bg-gray-50 dark:hover:bg-white/10 hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(147,51,234,0.1)] dark:hover:shadow-[0_0_30px_rgba(147,51,234,0.3)] shadow-sm dark:shadow-none">
+      <div className={`relative overflow-hidden rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 backdrop-blur-md transition-all duration-300 hover:bg-gray-50 dark:hover:bg-white/10 hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(147,51,234,0.1)] dark:hover:shadow-[0_0_30px_rgba(147,51,234,0.3)] shadow-sm dark:shadow-none ${isOutOfStock ? "opacity-75 grayscale-[30%]" : ""}`}>
         
         {/* Wishlist Button */}
         <WishlistButton productId={product.id} initialIsLiked={initialIsLiked} />
@@ -44,9 +47,24 @@ export function ProductCard({ product, initialIsLiked = false }: ProductCardProp
           )}
           
           {/* Discount Badge */}
-          {product.discount > 0 && (
+          {product.discount > 0 && !isOutOfStock && (
             <div className="absolute top-4 right-4 rounded-full bg-purple-600/90 px-3 py-1 text-xs font-bold text-white shadow-lg backdrop-blur-md">
               تخفیف ویژه
+            </div>
+          )}
+          
+          {/* Smart Badges */}
+          {isOutOfStock && (
+            <div className="absolute inset-0 bg-black/40 dark:bg-black/60 flex items-center justify-center backdrop-blur-[2px]">
+              <span className="bg-white/90 dark:bg-black/80 text-gray-900 dark:text-white px-4 py-2 rounded-xl font-bold tracking-wider shadow-xl border border-white/20">
+                ناموجود
+              </span>
+            </div>
+          )}
+          {isLowStock && (
+            <div className="absolute top-4 right-4 rounded-full bg-orange-500/90 px-3 py-1 text-xs font-bold text-white shadow-lg backdrop-blur-md flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+              موجودی محدود
             </div>
           )}
         </div>
@@ -63,16 +81,22 @@ export function ProductCard({ product, initialIsLiked = false }: ProductCardProp
           
           <div className="mt-2 flex items-center justify-between">
             <div className="flex flex-col">
-              {product.discount > 0 && (
+              {product.discount > 0 && !isOutOfStock && (
                 <span className="text-sm text-gray-400 dark:text-gray-500 line-through">
                   {product.basePrice.toLocaleString('fa-IR')} تومان
                 </span>
               )}
-              <span className="text-xl font-bold text-purple-600 dark:text-purple-400">
-                {finalPrice.toLocaleString('fa-IR')} تومان
-              </span>
+              {isOutOfStock ? (
+                <span className="text-xl font-bold text-gray-500 dark:text-gray-400">
+                  اتمام موجودی
+                </span>
+              ) : (
+                <span className="text-xl font-bold text-purple-600 dark:text-purple-400">
+                  {finalPrice.toLocaleString('fa-IR')} تومان
+                </span>
+              )}
             </div>
-            <AddToCartQuick product={product} variants={product.variants || []} />
+            {!isOutOfStock && <AddToCartQuick product={product} variants={product.variants || []} />}
           </div>
         </div>
       </div>
