@@ -111,6 +111,10 @@ The following features are the next logical steps for development:
 2. **Advanced Image Uploads**: (✅ Completed) Enabled multiple image uploads per product and an image gallery viewer in the Admin panel.
 3. **Email Verification / Notifications**: (✅ Completed) Provider-agnostic email system implemented using Nodemailer and React-Email.
 4. **Sales Analytics / Charts**: (✅ Completed) Added Recharts-based visual charts to the Admin Dashboard showing revenue and top-selling products.
+5. **Product Q&A System**: (✅ Completed) Implemented interactive Product Q&A section with Admin Dashboard management.
+6. **Advanced Shop Page (Search & Filters)**: (✅ Completed) Server-side advanced search and filtering system.
+7. **User Dashboard & Wishlist**: (✅ Completed) Fully integrated user profile, order tracking, and wishlist.
+8. **Server-Side Cart & Inventory Reservation**: (✅ Completed) Intelligent inventory reservation for logged-in users with a 15-minute lazy-cleanup expiration and FOMO cart timers.
 
 ## 📧 Provider-Agnostic Email System (Architecture)
 The email system is designed to be completely independent of any specific vendor, allowing it to work with a personal Mail Server (like Postfix/Exim) or third-party APIs (like Resend, SendGrid) without changing any code.

@@ -2,8 +2,47 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useState, useEffect } from "react";
 import { useCart } from "@/store/CartContext";
-import { Trash2, Plus, Minus, ArrowRight, ShieldCheck, Truck, Check } from "lucide-react";
+import { Trash2, Plus, Minus, ArrowRight, ShieldCheck, Truck, Check, Clock } from "lucide-react";
+
+function ReservationTimer({ reservedAt }: { reservedAt: string }) {
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+
+  useEffect(() => {
+    const reservationTime = new Date(reservedAt).getTime();
+    const expiryTime = reservationTime + 15 * 60 * 1000;
+    
+    const updateTimer = () => {
+      const now = new Date().getTime();
+      const diff = expiryTime - now;
+      if (diff <= 0) {
+        setTimeLeft(0);
+      } else {
+        setTimeLeft(Math.floor(diff / 1000));
+      }
+    };
+    
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [reservedAt]);
+
+  if (timeLeft === null) return null;
+
+  if (timeLeft <= 0) {
+    return <span className="text-xs text-red-500 font-bold bg-red-50 dark:bg-red-500/10 px-2 py-1 rounded-md flex items-center gap-1"><Clock className="w-3 h-3" /> رزرو منقضی شده</span>;
+  }
+
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+  
+  return (
+    <span className="text-xs text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-orange-500/10 px-2 py-1 rounded-md flex items-center gap-1">
+      <Clock className="w-3 h-3" /> رزرو تا: {minutes}:{seconds.toString().padStart(2, '0')}
+    </span>
+  );
+}
 
 export default function CartPage() {
   const { items, removeFromCart, updateQuantity, totalPrice, totalItems } = useCart();
@@ -71,6 +110,13 @@ export default function CartPage() {
                           <span className="w-2 h-2 rounded-full bg-purple-500"></span>
                           {item.variantName}
                         </p>
+                      )}
+                      {item.reservedAt ? (
+                        <div className="mt-2">
+                          <ReservationTimer reservedAt={item.reservedAt} />
+                        </div>
+                      ) : (
+                        <p className="text-xs text-gray-400 mt-2">برای رزرو کالا لاگین کنید</p>
                       )}
                     </div>
                     <button 

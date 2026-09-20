@@ -153,6 +153,8 @@ export async function processCheckout(prevState: unknown, formData: FormData) {
     }
 
     // 4. Create OrderItems & Update Inventory
+    const cart = await db.orm.public.Cart.where({ userId: session.userId as string }).first();
+
     for (const item of validatedOrderItems) {
       await db.orm.public.OrderItem.create({
         orderId: order.id,
@@ -165,10 +167,29 @@ export async function processCheckout(prevState: unknown, formData: FormData) {
       const inventory = await db.orm.public.Inventory.where({ variantId: item.variantId }).first();
       
       if (inventory) {
-        // Decrease stock
-        await db.orm.public.Inventory.where({ id: inventory.id }).update({
-          stockQuantity: inventory.stockQuantity - item.quantity
-        });
+        // Check if there is an active reservation
+        let cartItem = null;
+        if (cart) {
+          cartItem = await db.orm.public.CartItem.where({ cartId: cart.id, variantId: item.variantId }).first();
+        }
+
+        if (cartItem) {
+          // Has reservation, deduct from reservedStock
+          await db.orm.public.Inventory.where({ id: inventory.id }).update({
+            reservedStock: Math.max(0, inventory.reservedStock - item.quantity)
+          });
+          
+          // Remove cart item
+          await db.orm.public.CartItem.where({ id: cartItem.id }).delete();
+        } else {
+          // No reservation (maybe expired), deduct from stockQuantity if available
+          if (inventory.stockQuantity < item.quantity) {
+             throw new Error(`موجودی کالای ${item.variantId} به پایان رسیده است.`);
+          }
+          await db.orm.public.Inventory.where({ id: inventory.id }).update({
+            stockQuantity: inventory.stockQuantity - item.quantity
+          });
+        }
 
         // Log transaction
         await db.orm.public.InventoryTransaction.create({

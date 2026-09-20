@@ -28,7 +28,7 @@ export default async function RootLayout({
   return (
     <html lang="fa" dir="rtl" className={vazirmatn.variable} suppressHydrationWarning>
       <body className="font-vazirmatn antialiased bg-background text-foreground min-h-screen transition-colors duration-300 flex flex-col">
-        <CartProvider>
+        <CartProvider isLoggedIn={!!session?.userId}>
           <Toaster 
             position="bottom-right" 
             toastOptions={{
