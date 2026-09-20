@@ -1,15 +1,15 @@
-# Smart & Modern E-Commerce Platform
+# EXTIM E-Commerce Platform
 
-این پروژه یک پلتفرم فروشگاهی مدرن، پرسرعت و بهینه برای سئو است که بر پایه معماری فول‌استک Next.js طراحی شده است.
+This project is a modern, high-performance, and SEO-optimized e-commerce platform built on a monolithic Next.js architecture.
 
-## پیش‌نیازها
-- Node.js (نسخه 18 به بالا)
+## Prerequisites
+- Node.js (version 18 or higher)
 - PostgreSQL
-- npm یا pnpm
+- npm or pnpm
 
-## مستندات
-لطفا قبل از شروع توسعه، مستندات زیر را در پوشه `docs/` مطالعه کنید:
-- [معماری سیستم](docs/ARCHITECTURE.md)
-- [تکنولوژی‌ها](docs/TECH_STACK.md)
-- [استانداردهای کدنویسی](docs/CODING_GUIDELINES.md)
-- [قوانین گیت‌هاب](.agents/rules/github-restrictions.md)
+## Documentation
+Please read the following documentation in the `docs/` directory before starting development:
+- [System Architecture](docs/ARCHITECTURE.md)
+- [Tech Stack](docs/TECH_STACK.md)
+- [Coding Guidelines](docs/CODING_GUIDELINES.md)
+- [GitHub Rules](.agents/rules/github-restrictions.md)

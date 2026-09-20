@@ -1,25 +1,28 @@
-# استانداردهای کدنویسی (Coding Guidelines)
+# Coding Guidelines
 
-رعایت این اصول برای حفظ تمیزی کد (Clean Code) و توسعه تیمی الزامی است.
+Adhering to these principles is mandatory to maintain clean code and facilitate team collaboration.
 
-## 1. قواعد نام‌گذاری (Naming Conventions)
-- **متغیرها و توابع:** `camelCase`
-- **کامپوننت‌های React و کلاس‌ها:** `PascalCase` (مانند `ProductCard.tsx`)
-- **فایل‌ها:** فایل‌های کامپوننت به صورت PascalCase و سایر فایل‌ها `camelCase` یا `kebab-case`.
-- **ثوابت (Constants):** `UPPER_SNAKE_CASE`
+## 1. Naming Conventions
+- **Variables & Functions:** `camelCase`
+- **React Components & Classes:** `PascalCase` (e.g., `ProductCard.tsx`)
+- **Files:** Component files must be `PascalCase`. Other files (like utilities) should be `camelCase` or `kebab-case`.
+- **Constants:** `UPPER_SNAKE_CASE`
 
-## 2. ساختار پوشه‌ها در فرانت‌اند
-- `src/components`: کامپوننت‌های قابل استفاده مجدد (UI، Layouts).
-- `src/app`: مسیرها (Routes) و صفحات اصلی در Next.js.
-- `src/lib` یا `src/utils`: توابع کمکی.
-- `src/store`: مدیریت وضعیت (Zustand).
-- `src/types`: اینترفیس‌ها و تایپ‌های TypeScript.
+## 2. Directory Structure (Frontend)
+- `src/components`: Reusable UI components and layouts.
+- `src/app`: Routes and main pages in Next.js.
+- `src/lib` or `src/utils`: Helper functions and utilities.
+- `src/store`: State management (Zustand).
+- `src/types`: TypeScript interfaces and types.
 
-## 3. اصول Clean Code
-- **توابع کوچک (Small Functions):** هر تابع فقط باید یک کار را انجام دهد.
-- **بدون کد تکراری (DRY):** منطق مشترک را به توابع کمکی یا کامپوننت‌ها منتقل کنید.
-- **تایپینگ قوی (Strong Typing):** استفاده از `any` در TypeScript ممنوع است مگر در مواقع اجتناب‌ناپذیر با کامنت توضیح.
+## 3. Clean Code Principles
+- **Small Functions:** Every function should do only one thing (Single Responsibility).
+- **Don't Repeat Yourself (DRY):** Move common logic into helper functions or reusable components.
+- **Strong Typing:** The use of `any` in TypeScript is strictly forbidden unless absolutely necessary (must be accompanied by an explanatory comment).
 
-## 4. امنیت و اعتبارسنجی (Security & Validation)
-- همیشه داده‌های ورودی کاربر را در سمت سرور (در Server Actions و Route Handlers) اعتبارسنجی (Validate) کنید (پیشنهاد می‌شود از Zod استفاده شود).
-- هیچ‌گاه کلیدهای محرمانه و API Keyها را هاردکد نکنید؛ حتماً از `.env` استفاده کنید و مطمئن شوید در `.gitignore` قرار دارد.
+## 4. Security & Validation
+- Always validate user input on the server side (in Server Actions and Route Handlers). Using Zod is highly recommended.
+- Never hardcode secret keys or API keys. Always use `.env` files and ensure they are added to `.gitignore`.
+
+## 5. Versioning
+- **Latest Stable Versions:** Whenever installing packages, frameworks, or tools, always use the highest stable version. This ensures long-term maintainability and reduces the need for frequent upgrades or dealing with deprecated code in the near future.

@@ -1,20 +1,20 @@
-# تکنولوژی‌های پروژه (Tech Stack)
+# Tech Stack
 
-## تکنولوژی اصلی (Fullstack Framework)
+## Core Technology (Full-stack Framework)
 - **Framework:** Next.js (App Router)
 - **Language:** TypeScript
 - **Paradigm:** Server Actions & API Routes (No separate backend server)
 
-## فرانت‌اند (Frontend)
-- **Styling:** Tailwind CSS (برای پرفورمنس بالا، بهینه‌سازی سئو و توسعه سریع)
-- **State Management:** Zustand (برای استیت‌های محلی مثل سبد خرید)
-- **UI Components:** پیاده‌سازی اختصاصی بدون کتابخانه‌های سنگین خارجی برای حفظ بالاترین سرعت.
+## Frontend
+- **Styling:** Tailwind CSS (Focus on high performance, SEO optimization, and rapid development)
+- **State Management:** Zustand (For local state like shopping cart)
+- **UI Components:** Custom implementation without heavy external libraries to maintain maximum speed.
 
-## پایگاه داده و بک‌اند (Database & Data Layer)
+## Database & Data Layer
 - **Primary Database:** PostgreSQL
 - **ORM:** Prisma
 - **Authentication:** Auth.js (NextAuth)
 
-## ابزارهای توسعه (Dev Tools)
+## Development Tools
 - **Linter & Formatter:** ESLint + Prettier
 - **Version Control:** Git

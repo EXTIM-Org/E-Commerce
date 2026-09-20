@@ -1,18 +1,18 @@
-# معماری سیستم (System Architecture)
+# System Architecture
 
-این سیستم بر پایه معماری یکپارچه (Monolithic / Fullstack) با استفاده از قابلیت‌های مدرن Next.js طراحی شده است.
+This system is designed based on a monolithic (Full-stack) architecture utilizing modern Next.js capabilities.
 
-## رویکرد فول‌استک (Fullstack Next.js)
-- اپلیکیشن بر پایه **Next.js (App Router)** توسعه داده می‌شود.
-- به جای داشتن یک سرور بک‌اند مجزا، از **Server Actions** و **Route Handlers** در خود Next.js استفاده می‌شود. این کار باعث کاهش چشمگیر تاخیر شبکه (Network Latency) و افزایش سرعت لود صفحات می‌شود.
-- رندرینگ ترکیبی (SSR/SSG) باعث می‌شود سیستم برای سئو (SEO) کاملاً بهینه باشد.
+## Full-stack Approach (Next.js)
+- The application is built on **Next.js (App Router)**.
+- Instead of a separate backend server, we use **Server Actions** and **Route Handlers** directly within Next.js. This significantly reduces network latency and improves page load times.
+- Hybrid rendering (SSR/SSG) ensures the system is fully optimized for SEO.
 
-## پایگاه داده (Database)
-- دیتابیس رابطه‌ای **PostgreSQL** برای ذخیره امن و ساختاریافته اطلاعات.
-- استفاده از **Prisma ORM** که مستقیماً در لایه سرورِ Next.js با دیتابیس ارتباط برقرار می‌کند (بدون نیاز به API میانی اضافی).
+## Database
+- **PostgreSQL** is used as the primary relational database for secure and structured data storage.
+- **Prisma ORM** is utilized to communicate with the database directly from the Next.js server layer, ensuring type safety without the need for an intermediate API layer.
 
-## سیستم پیشنهادگر (Recommender System)
-این سیستم در فاز اول شامل موارد زیر خواهد بود:
-1. **پیشنهاد مبتنی بر محتوا:** پیشنهاد محصولات مشابه بر اساس دسته‌بندی و برچسب‌ها.
-2. **پیشنهاد مبتنی بر رفتار کاربران:** رهگیری سبد خرید مشتریان و نمایش محصولات مکمل.
-3. **محصولات محبوب:** نمایش هوشمند پرفروش‌ترین‌ها و پربازدیدترین‌ها.
+## Smart Recommender System
+In the first phase, this system will include:
+1. **Content-based Filtering:** Suggesting similar products based on categories and tags.
+2. **Collaborative Filtering (User Behavior):** Tracking customer shopping carts and displaying complementary products.
+3. **Popular Products:** Intelligently displaying top-selling and most-viewed items using optimized database queries.
