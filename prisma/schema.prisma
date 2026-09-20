@@ -1,0 +1,195 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum TransactionType {
+  RESTOCK
+  SALE
+  RETURN
+  ADJUSTMENT
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  passwordHash  String
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  addresses     Address[]
+  orders        Order[]
+  cart          Cart?
+  reviews       Review[]
+}
+
+model Address {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title         String    // e.g., Home, Work
+  city          String
+  province      String
+  postalCode    String
+  fullAddress   String
+  isDefault     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+}
+
+model Category {
+  id            String    @id @default(cuid())
+  name          String
+  slug          String    @unique
+  parentId      String?
+  parent        Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  subcategories Category[] @relation("CategoryHierarchy")
+  
+  products      Product[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Product {
+  id            String    @id @default(cuid())
+  name          String
+  slug          String    @unique
+  description   String?
+  categoryId    String
+  category      Category  @relation(fields: [categoryId], references: [id])
+  
+  basePrice     Float     // The base/display price of the product
+  discount      Float     @default(0) // Discount percentage or amount
+  images        String[]  // Array of image URLs
+  
+  variants      ProductVariant[]
+  reviews       Review[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model ProductVariant {
+  id            String    @id @default(cuid())
+  productId     String
+  product       Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  name          String?   // e.g., "Red - Large" or "Default" if no variants
+  sku           String    @unique
+  price         Float?    // If different from base price
+  
+  inventory     Inventory?
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+}
+
+model Inventory {
+  id                String    @id @default(cuid())
+  variantId         String    @unique
+  variant           ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  
+  stockQuantity     Int       @default(0) // Available for sale
+  reservedStock     Int       @default(0) // In users' carts currently
+  lowStockThreshold Int       @default(5)
+  
+  transactions      InventoryTransaction[]
+  
+  updatedAt         DateTime  @updatedAt
+}
+
+model InventoryTransaction {
+  id            String    @id @default(cuid())
+  inventoryId   String
+  inventory     Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+  
+  type          TransactionType
+  quantity      Int       // Positive for RESTOCK/RETURN, Negative for SALE
+  reference     String?   // Order ID or reason for adjustment
+  
+  createdAt     DateTime  @default(now())
+}
+
+model Cart {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  items         CartItem[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model CartItem {
+  id            String    @id @default(cuid())
+  cartId        String
+  cart          Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  
+  variantId     String
+  variant       ProductVariant @relation(fields: [variantId], references: [id])
+  
+  quantity      Int
+  reservedAt    DateTime? // Timestamp for the 15-min reservation release logic
+}
+
+model Order {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  
+  status        OrderStatus @default(PENDING)
+  totalAmount   Float
+  
+  // Shipping snapshot
+  shippingAddress String
+  trackingCode    String?
+  
+  items         OrderItem[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model OrderItem {
+  id            String    @id @default(cuid())
+  orderId       String
+  order         Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  variantId     String
+  variant       ProductVariant @relation(fields: [variantId], references: [id])
+  
+  quantity      Int
+  unitPrice     Float     // Snapshot of price at the time of purchase
+}
+
+model Review {
+  id            String    @id @default(cuid())
+  productId     String
+  product       Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  rating        Int       // 1 to 5
+  comment       String?
+  
+  createdAt     DateTime  @default(now())
+}

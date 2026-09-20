@@ -1,0 +1,215 @@
+// use prisma-8
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum TransactionType {
+  RESTOCK
+  SALE
+  RETURN
+  ADJUSTMENT
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String?
+  email         String    @unique
+  passwordHash  String
+  role          Role      @default(USER)
+  createdAt     TimestamptzString @default(now())
+  updatedAt     temporal.updatedAtString()
+  
+  addresses     Address[]
+  orders        Order[]
+  cart          Cart?
+  reviews       Review[]
+  wishlist      Wishlist?
+}
+
+model Address {
+  id            String    @id @default(uuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title         String?   // e.g., Home, Work
+  city          String?
+  province      String?
+  postalCode    String?
+  fullAddress   String
+  isDefault     Boolean   @default(false)
+  createdAt     TimestamptzString @default(now())
+}
+
+model Category {
+  id            String    @id @default(uuid())
+  name          String
+  slug          String    @unique
+  parentId      String?
+  parent        Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  subcategories Category[] @relation("CategoryHierarchy")
+  
+  products      Product[]
+  createdAt     TimestamptzString @default(now())
+  updatedAt     temporal.updatedAtString()
+}
+
+model Product {
+  id            String    @id @default(uuid())
+  name          String
+  slug          String    @unique
+  description   String?
+  categoryId    String
+  category      Category  @relation(fields: [categoryId], references: [id])
+  
+  basePrice     Float     // The base/display price of the product
+  discount      Float     @default(0) // Discount percentage or amount
+  images        String[]  // Array of image URLs
+  
+  variants      ProductVariant[]
+  reviews       Review[]
+  wishlistItems WishlistItem[]
+  
+  viewCount     Int       @default(0) // Track product views
+  salesCount    Int       @default(0) // Track product sales
+  
+  createdAt     TimestamptzString @default(now())
+  updatedAt     temporal.updatedAtString()
+}
+
+model Wishlist {
+  id        String    @id @default(uuid())
+  userId    String    @unique
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     WishlistItem[]
+  createdAt TimestamptzString @default(now())
+}
+
+model WishlistItem {
+  id          String    @id @default(uuid())
+  wishlistId  String
+  wishlist    Wishlist  @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt   TimestamptzString @default(now())
+  
+  @@unique([wishlistId, productId])
+}
+
+model ProductVariant {
+  id            String    @id @default(uuid())
+  productId     String
+  product       Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  name          String?   // e.g., "Red - Large" or "Default" if no variants
+  sku           String    @unique
+  price         Float?    // If different from base price
+  
+  inventory     Inventory?
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+}
+
+model Inventory {
+  id                String    @id @default(uuid())
+  variantId         String    @unique
+  variant           ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  
+  stockQuantity     Int       @default(0) // Available for sale
+  reservedStock     Int       @default(0) // In users' carts currently
+  lowStockThreshold Int       @default(5)
+  
+  transactions      InventoryTransaction[]
+  
+  updatedAt         temporal.updatedAtString()
+}
+
+model InventoryTransaction {
+  id            String    @id @default(uuid())
+  inventoryId   String
+  inventory     Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+  
+  type          TransactionType
+  quantity      Int       // Positive for RESTOCK/RETURN, Negative for SALE
+  reference     String?   // Order ID or reason for adjustment
+  
+  createdAt     TimestamptzString @default(now())
+}
+
+model Cart {
+  id            String    @id @default(uuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  items         CartItem[]
+  
+  createdAt     TimestamptzString @default(now())
+  updatedAt     temporal.updatedAtString()
+}
+
+model CartItem {
+  id            String    @id @default(uuid())
+  cartId        String
+  cart          Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  
+  variantId     String
+  variant       ProductVariant @relation(fields: [variantId], references: [id])
+  
+  quantity      Int
+  reservedAt    TimestamptzString? // Timestamp for the 15-min reservation release logic
+}
+
+model Order {
+  id            String    @id @default(uuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  
+  status        OrderStatus @default(PENDING)
+  totalAmount   Float
+  
+  // Shipping snapshot
+  receiverName    String
+  phone           String
+  shippingAddress String
+  postalCode      String?
+  trackingCode    String?
+  
+  items         OrderItem[]
+  
+  createdAt     TimestamptzString @default(now())
+  updatedAt     temporal.updatedAtString()
+}
+
+model OrderItem {
+  id            String    @id @default(uuid())
+  orderId       String
+  order         Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  variantId     String
+  variant       ProductVariant @relation(fields: [variantId], references: [id])
+  
+  quantity      Int
+  unitPrice     Float     // Snapshot of price at the time of purchase
+}
+
+model Review {
+  id            String    @id @default(uuid())
+  productId     String
+  product       Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  rating        Int       // 1 to 5
+  comment       String?
+  
+  createdAt     TimestamptzString @default(now())
+}

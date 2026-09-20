@@ -26,3 +26,7 @@ Adhering to these principles is mandatory to maintain clean code and facilitate 
 
 ## 5. Versioning
 - **Latest Stable Versions:** Whenever installing packages, frameworks, or tools, always use the highest stable version. This ensures long-term maintainability and reduces the need for frequent upgrades or dealing with deprecated code in the near future.
+
+## 6. Language & Localization (Persian / RTL)
+- **Language:** The primary language of the platform is Persian (Farsi). All UI components, messages, and static texts must be written in Persian.
+- **RTL Support:** The layout is completely Right-To-Left. Use logical Tailwind classes (e.g., `ps-*`, `pe-*`, `ms-*`, `me-*`) instead of directional classes (`pl-*`, `pr-*`) to ensure perfect compatibility with RTL layouts.
