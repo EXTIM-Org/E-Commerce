@@ -4,7 +4,7 @@ import { db } from "@/prisma/db";
 import { getSession, updateSession } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 
-export async function updateProfile(prevState: any, formData: FormData) {
+export async function updateProfile(prevState: unknown, formData: FormData) {
   const session = await getSession();
   if (!session?.userId) {
     return { error: "باید وارد سیستم شده باشید" };

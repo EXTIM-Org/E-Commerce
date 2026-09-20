@@ -51,7 +51,7 @@ async function saveImages(formData: FormData): Promise<string[]> {
   return imageUrls;
 }
 
-export async function createProduct(prevState: any, formData: FormData) {
+export async function createProduct(prevState: unknown, formData: FormData) {
   const session = await getSession();
   if (!session || session.role !== "ADMIN") {
     return { error: "دسترسی غیرمجاز" };
@@ -124,7 +124,7 @@ export async function createProduct(prevState: any, formData: FormData) {
   redirect("/admin/products");
 }
 
-export async function updateProduct(id: string, prevState: any, formData: FormData) {
+export async function updateProduct(id: string, prevState: unknown, formData: FormData) {
   const session = await getSession();
   if (!session || session.role !== "ADMIN") {
     return { error: "دسترسی غیرمجاز" };
