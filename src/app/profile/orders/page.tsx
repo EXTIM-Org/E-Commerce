@@ -1,6 +1,6 @@
 import { getSession } from "@/lib/session";
 import { db } from "@/prisma/db";
-import { PackageOpen, ExternalLink, MapPin, Clock } from "lucide-react";
+import { PackageOpen, MapPin, Clock } from "lucide-react";
 import Link from "next/link";
 
 export default async function OrdersHistoryPage() {

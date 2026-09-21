@@ -2,7 +2,6 @@
 
 import { db } from "@/prisma/db";
 import { getSession } from "@/lib/session";
-import { redirect } from "next/navigation";
 import { z } from "zod";
 import { markOrderAsPaid } from "@/services/order";
 import { validateCoupon } from "@/actions/coupon";

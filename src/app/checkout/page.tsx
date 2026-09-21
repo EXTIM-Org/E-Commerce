@@ -66,7 +66,7 @@ export default function CheckoutPage() {
         setCouponError(res.error || "خطا در اعتبارسنجی");
         setAppliedDiscount(0);
       }
-    } catch (err) {
+    } catch {
       setCouponError("خطایی در ارتباط با سرور رخ داد.");
     } finally {
       setIsValidatingCoupon(false);

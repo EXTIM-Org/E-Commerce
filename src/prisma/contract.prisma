@@ -46,6 +46,7 @@ model User {
   wishlist      Wishlist?
   questions     Question[]
   answers       Answer[]
+  articles      Article[]
 }
 
 model Address {
@@ -327,4 +328,42 @@ model ProductSpecification {
   updatedAt temporal.updatedAtString()
   
   @@unique([productId, name])
+}
+
+model ArticleCategory {
+  id          String    @id @default(uuid())
+  name        String
+  slug        String    @unique
+  
+  articles    Article[]
+  
+  createdAt   TimestamptzString  @default(now())
+  updatedAt   temporal.updatedAtString()
+}
+
+model Article {
+  id          String    @id @default(uuid())
+  title       String
+  slug        String    @unique
+  excerpt     String?
+  content     String
+  coverImage  String?
+  
+  status      ArticleStatus @default(DRAFT)
+  viewCount   Int       @default(0)
+  
+  categoryId  String
+  category    ArticleCategory @relation(fields: [categoryId], references: [id])
+  
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id])
+  
+  publishedAt TimestamptzString?
+  createdAt   TimestamptzString  @default(now())
+  updatedAt   temporal.updatedAtString()
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
 }

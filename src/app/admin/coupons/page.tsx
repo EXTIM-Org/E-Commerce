@@ -1,7 +1,6 @@
 import { getCoupons, deleteCoupon, toggleCouponStatus } from "@/actions/coupon";
 import { CouponForm } from "@/components/admin/CouponForm";
 import { Trash2, CheckCircle, XCircle } from "lucide-react";
-import { revalidatePath } from "next/cache";
 
 export const metadata = {
   title: "مدیریت کدهای تخفیف | پنل ادمین",

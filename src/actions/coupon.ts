@@ -55,7 +55,7 @@ export async function createCoupon(prevState: any, formData: FormData) {
       isActive: true,
     });
 
-  } catch (error) {
+  } catch {
     console.error("Error creating coupon:", error);
     return { error: "خطایی در ساخت کد تخفیف رخ داد." };
   }
@@ -74,7 +74,7 @@ export async function toggleCouponStatus(id: string, isActive: boolean) {
     await db.orm.public.Coupon.where({ id }).update({ isActive });
     revalidatePath("/admin/coupons");
     return { success: true };
-  } catch (error) {
+  } catch {
     return { success: false, error: "خطایی رخ داد." };
   }
 }
@@ -89,7 +89,7 @@ export async function deleteCoupon(id: string) {
     await db.orm.public.Coupon.where({ id }).delete();
     revalidatePath("/admin/coupons");
     return { success: true };
-  } catch (error) {
+  } catch {
     return { success: false, error: "خطایی رخ داد." };
   }
 }
@@ -142,7 +142,7 @@ export async function validateCoupon(code: string, cartTotal: number) {
       couponId: coupon.id,
       code: coupon.code
     };
-  } catch (error) {
+  } catch {
     console.error("Error validating coupon:", error);
     return { success: false, error: "خطایی در اعتبارسنجی کد تخفیف رخ داد." };
   }

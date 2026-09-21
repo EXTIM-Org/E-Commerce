@@ -1,6 +1,6 @@
 import { db } from "@/prisma/db";
 import Link from "next/link";
-import { Plus, Trash2, Edit3, Power, PowerOff } from "lucide-react";
+import { Plus, Trash2, Power, PowerOff } from "lucide-react";
 import { toggleFlashSale, deleteFlashSale } from "@/actions/flashSale";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
@@ -48,7 +48,7 @@ export default async function AdminFlashSalesPage() {
           </thead>
           <tbody className="divide-y divide-black/5 dark:divide-white/5">
             {sales.map((sale) => {
-              const isActive = sale.isActive && now >= sale.startTime && now <= sale.endTime;
+              
               const isExpired = now > sale.endTime;
               const isPending = now < sale.startTime;
 

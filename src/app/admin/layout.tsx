@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
-import { LayoutDashboard, Package, Tags, ShoppingCart, Users, HelpCircle, MessageSquare } from "lucide-react";
+import { LayoutDashboard, Package, Tags, ShoppingCart, HelpCircle, MessageSquare } from "lucide-react";
 
 export default async function AdminLayout({
   children,
@@ -71,7 +71,10 @@ export default async function AdminLayout({
                 <Tags className="w-5 h-5" />
                 فروش ویژه
               </Link>
-              
+              <Link href="/admin/blog" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                <MessageSquare className="w-5 h-5" />
+                وبلاگ و مقالات
+              </Link>
 
             </nav>
             

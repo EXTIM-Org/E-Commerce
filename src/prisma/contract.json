@@ -12,6 +12,14 @@
       "model": "Answer",
       "namespace": "public"
     },
+    "article": {
+      "model": "Article",
+      "namespace": "public"
+    },
+    "articleCategory": {
+      "model": "ArticleCategory",
+      "namespace": "public"
+    },
     "cart": {
       "model": "Cart",
       "namespace": "public"
@@ -89,6 +97,19 @@
     "namespaces": {
       "public": {
         "enum": {
+          "ArticleStatus": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "DRAFT",
+                "value": "DRAFT"
+              },
+              {
+                "name": "PUBLISHED",
+                "value": "PUBLISHED"
+              }
+            ]
+          },
           "DiscountType": {
             "codecId": "pg/text@1",
             "members": [
@@ -387,6 +408,263 @@
               },
               "namespaceId": "public",
               "table": "answer"
+            }
+          },
+          "Article": {
+            "fields": {
+              "authorId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "categoryId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "content": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "coverImage": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "excerpt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "publishedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "slug": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "ArticleStatus",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "title": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "viewCount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "author": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "authorId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "category": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "categoryId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "ArticleCategory",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "authorId": {
+                  "column": "authorId"
+                },
+                "categoryId": {
+                  "column": "categoryId"
+                },
+                "content": {
+                  "column": "content"
+                },
+                "coverImage": {
+                  "column": "coverImage"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "excerpt": {
+                  "column": "excerpt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "publishedAt": {
+                  "column": "publishedAt"
+                },
+                "slug": {
+                  "column": "slug"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "title": {
+                  "column": "title"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "viewCount": {
+                  "column": "viewCount"
+                }
+              },
+              "namespaceId": "public",
+              "table": "article"
+            }
+          },
+          "ArticleCategory": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "slug": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "articles": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "categoryId"
+                  ]
+                },
+                "to": {
+                  "model": "Article",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "slug": {
+                  "column": "slug"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "articleCategory"
             }
           },
           "Cart": {
@@ -2375,6 +2653,21 @@
                   "namespace": "public"
                 }
               },
+              "articles": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "authorId"
+                  ]
+                },
+                "to": {
+                  "model": "Article",
+                  "namespace": "public"
+                }
+              },
               "cart": {
                 "cardinality": "1:1",
                 "nullable": true,
@@ -2864,6 +3157,211 @@
                 ]
               },
               "uniques": []
+            },
+            "article": {
+              "checks": [
+                {
+                  "expression": "\"status\" IN ('DRAFT', 'PUBLISHED')",
+                  "name": "article_status_check_1b4a7b6b",
+                  "prefix": "article_status_check"
+                }
+              ],
+              "columns": {
+                "authorId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "categoryId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "content": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "coverImage": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "excerpt": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "publishedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "slug": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "DRAFT"
+                  },
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "ArticleStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "title": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "viewCount": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "categoryId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "article"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "articleCategory"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "authorId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "article"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "user"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "authorId"
+                  ],
+                  "name": "article_authorId_idx_e47547ed",
+                  "prefix": "article_authorId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "categoryId"
+                  ],
+                  "name": "article_categoryId_idx_15c304f2",
+                  "prefix": "article_categoryId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "slug"
+                  ]
+                }
+              ]
+            },
+            "articleCategory": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "slug": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "slug"
+                  ]
+                }
+              ]
             },
             "cart": {
               "columns": {
@@ -4531,6 +5029,13 @@
             }
           },
           "valueSet": {
+            "ArticleStatus": {
+              "kind": "valueSet",
+              "values": [
+                "DRAFT",
+                "PUBLISHED"
+              ]
+            },
             "DiscountType": {
               "kind": "valueSet",
               "values": [
@@ -4571,10 +5076,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "46ee72d18fff88136c91083f6f5849a7113b7ada575b8a07f5440e3081b84f42"
+    "storageHash": "28874b7cafa05f2bac730fd05585cff3c2a9f76ce9bb397eef640418a2f84bf1"
   },
   "execution": {
-    "executionHash": "174a0e3b51c8f6e83e4538349a900327b533e7ccb3a35f2c6115cb414a4f24a1",
+    "executionHash": "6e86ffb38b0d0888124e3b499a635ac5aba890fec450a41376a79b3bc67e3ffb",
     "mutations": {
       "defaults": [
         {
@@ -4597,6 +5102,58 @@
             "column": "id",
             "namespace": "public",
             "table": "answer"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "article"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updatedAt",
+            "namespace": "public",
+            "table": "article"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "articleCategory"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updatedAt",
+            "namespace": "public",
+            "table": "articleCategory"
           }
         },
         {

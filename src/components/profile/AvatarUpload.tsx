@@ -40,7 +40,7 @@ export function AvatarUpload({ currentImage }: AvatarUploadProps) {
       } else {
         alert(result.error || "خطایی در آپلود فایل رخ داد");
       }
-    } catch (error) {
+    } catch {
       alert("خطایی در آپلود فایل رخ داد");
     } finally {
       setIsUploading(false);

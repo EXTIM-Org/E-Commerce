@@ -8,7 +8,7 @@ import { ReviewForm } from "@/components/product/ReviewForm";
 import { QASection } from "@/components/product/QASection";
 import { InteractionTabs } from "@/components/product/InteractionTabs";
 import { ReviewItem } from "@/components/product/ReviewItem";
-import { Star, BadgeCheck } from "lucide-react";
+import { BadgeCheck } from "lucide-react";
 import { getEffectivePrice } from "@/lib/price";
 import { RecentlyViewedTracker } from "@/components/product/RecentlyViewedTracker";
 import { RecentlyViewedCarousel } from "@/components/product/RecentlyViewedCarousel";

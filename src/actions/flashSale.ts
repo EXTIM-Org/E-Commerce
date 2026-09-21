@@ -51,7 +51,7 @@ export async function createFlashSale(formData: FormData): Promise<void> {
     revalidatePath("/");
     revalidatePath("/products");
     revalidatePath("/admin/flash-sales");
-  } catch (error) {
+  } catch {
     console.error("Error creating flash sale:", error);
     throw new Error("خطایی در ثبت فروش ویژه رخ داد.");
   }
@@ -71,7 +71,7 @@ export async function toggleFlashSale(id: string, isActive: boolean) {
     revalidatePath("/products");
     revalidatePath("/admin/flash-sales");
     return { success: true };
-  } catch (error) {
+  } catch {
     return { error: "خطا در تغییر وضعیت" };
   }
 }
@@ -88,7 +88,7 @@ export async function deleteFlashSale(id: string) {
     revalidatePath("/products");
     revalidatePath("/admin/flash-sales");
     return { success: true };
-  } catch (error) {
+  } catch {
     return { error: "خطا در حذف" };
   }
 }

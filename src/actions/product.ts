@@ -37,7 +37,7 @@ async function deletePhysicalImages(urls: readonly string[] | string[]) {
         await unlink(filepath);
         console.log(`Deleted physical file: ${filepath}`);
       }
-    } catch (e) {
+    } catch {
       console.error(`Failed to delete physical file for URL ${url}:`, e);
     }
   }
@@ -171,7 +171,7 @@ export async function createProduct(prevState: unknown, formData: FormData) {
             reservedStock: 0,
           });
         }
-      } catch (e) {
+      } catch {
         console.error("Error parsing variants:", e);
       }
     }
@@ -190,7 +190,7 @@ export async function createProduct(prevState: unknown, formData: FormData) {
             });
           }
         }
-      } catch (e) {
+      } catch {
         console.error("Error parsing specs:", e);
       }
     }
@@ -235,7 +235,7 @@ export async function updateProduct(id: string, prevState: unknown, formData: Fo
     if (existingImagesStr) {
       try {
         existingImages = JSON.parse(existingImagesStr);
-      } catch (e) {
+      } catch {
         existingImages = [];
       }
     }
@@ -265,7 +265,7 @@ export async function updateProduct(id: string, prevState: unknown, formData: Fo
             finalImages.push(item);
           }
         }
-      } catch (e) {
+      } catch {
         finalImages = [...existingImages, ...newImageUrls];
       }
     } else {
@@ -332,7 +332,7 @@ export async function updateProduct(id: string, prevState: unknown, formData: Fo
             });
           }
         }
-      } catch (e) {
+      } catch {
         console.error("Error parsing/syncing variants:", e);
       }
     }
@@ -355,7 +355,7 @@ export async function updateProduct(id: string, prevState: unknown, formData: Fo
             });
           }
         }
-      } catch (e) {
+      } catch {
         console.error("Error parsing/syncing specs:", e);
       }
     }
