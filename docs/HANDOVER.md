@@ -120,8 +120,7 @@ The following features are the next logical steps for development:
 11. **Advanced SEO & Rich Snippets**: (✅ Completed) Fully integrated Google Rich Snippets via JSON-LD `@graph` on Product pages (including `Product`, `AggregateRating`, `Review`, `BreadcrumbList`, and `FAQPage`) to maximize organic search visibility and CTR.
 12. **Markdown-Based Blog & CMS System**: (✅ Completed) Built a fully functional Blog for SEO optimization. Extended Prisma 8 contract with `Article` and `ArticleCategory` models. Integrated `react-markdown` and `@tailwindcss/typography` for secure and beautiful content rendering. Developed comprehensive Admin Dashboard interfaces (`/admin/blog`) for article and category management, alongside public dynamic routes (`/blog` and `/blog/[slug]`) featuring view counts and `Article` schema JSON-LD.
 13. **Admin UI Refinements & Codebase Stabilization**: (✅ Completed) Resolved clipping issues in the Admin Order Status dropdown by migrating to React Portals (`createPortal`) with dynamic color-coding and scroll event handling. Executed a project-wide cleanup achieving zero TypeScript compilation errors and zero ESLint warnings, standardizing `catch` blocks in Server Actions and fixing authentication action bugs.
-
-
+14. **Customer Support System & Static Pages**: (✅ Completed) Implemented the `SUPPORT` user role with restricted admin access to the Contact Messages dashboard and Blog management. Built high-end glassmorphic static pages (About Us, Privacy Policy, Terms, etc.) and a dynamic Footer component. Ensured strict security by limiting message deletion to `SUPER_ADMIN` only. Resolved all React hook exhaustive-deps warnings and unused imports.
 ## 📌 Future Scope & Excluded Features
 - **Support Chat System**: Will use a third-party service in the future. Do not implement a custom chat system.
 - **Payment Gateway**: Real payment gateway integration is deferred until final deployment. The mock gateway is sufficient for now.
