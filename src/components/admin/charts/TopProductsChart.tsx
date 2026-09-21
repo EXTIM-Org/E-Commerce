@@ -2,20 +2,22 @@
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white dark:bg-[#1a1b26] border border-black/10 dark:border-white/10 p-3 rounded-xl shadow-xl">
+        <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">{label}</p>
+        <p className="text-blue-600 dark:text-blue-400 font-bold">
+          {payload[0].value.toLocaleString()} عدد فروخته شده
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
 export function TopProductsChart({ data }: { data: any[] }) {
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white dark:bg-[#1a1b26] border border-black/10 dark:border-white/10 p-3 rounded-xl shadow-xl">
-          <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">{label}</p>
-          <p className="text-blue-600 dark:text-blue-400 font-bold">
-            {payload[0].value.toLocaleString()} عدد فروخته شده
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
+
 
   const colors = ["#3b82f6", "#8b5cf6", "#ec4899", "#f59e0b", "#10b981"];
 

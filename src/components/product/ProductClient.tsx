@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { ShoppingCart, Check, ShieldCheck, Truck, Star } from "lucide-react";
 import { useCart } from "@/store/CartContext";
+import { WishlistButton } from "@/components/product/WishlistButton";
 
 const COLOR_DICTIONARY: Record<string, string> = {
   "مشکی": "#111111",
@@ -53,9 +54,10 @@ interface ProductClientProps {
     category?: Category | null;
     reviews?: { rating: number }[];
   };
+  initialIsLiked?: boolean;
 }
 
-export function ProductClient({ product }: ProductClientProps) {
+export function ProductClient({ product, initialIsLiked }: ProductClientProps) {
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(
     product.variants && product.variants.length > 0 ? product.variants[0] : null
   );
@@ -125,6 +127,7 @@ export function ProductClient({ product }: ProductClientProps) {
       <div className="flex flex-col gap-4">
         {/* Main Image */}
         <div className="relative aspect-square w-full overflow-hidden rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md p-4">
+          <WishlistButton productId={product.id} initialIsLiked={initialIsLiked || false} />
           {product.images[selectedImage] ? (
             <Image
               src={product.images[selectedImage]}
@@ -188,7 +191,7 @@ export function ProductClient({ product }: ProductClientProps) {
           </div>
           <span className="text-sm font-bold text-yellow-400">{averageRating > 0 ? averageRating.toFixed(1) : ""}</span>
           <button 
-            onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })} 
+            onClick={() => document.getElementById('interaction')?.scrollIntoView({ behavior: 'smooth' })} 
             className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors cursor-pointer"
           >
             ({reviewCount} دیدگاه)

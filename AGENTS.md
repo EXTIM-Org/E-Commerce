@@ -7,3 +7,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+# E-Commerce Project Rules & Context
+
+- **Support Chat System**: Do NOT build or suggest a custom support chat system. A third-party service will be used in the future.
+- **Payment Gateway**: Do NOT integrate a real payment gateway (e.g., Zarinpal, Stripe). The current mock payment system is sufficient. The real gateway will be chosen and integrated at the time of final deployment.

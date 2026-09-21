@@ -42,6 +42,7 @@ model User {
   orders        Order[]
   cart          Cart?
   reviews       Review[]
+  reviewVotes   ReviewVote[]
   wishlist      Wishlist?
   questions     Question[]
   answers       Answer[]
@@ -233,6 +234,11 @@ model Review {
   isVerifiedBuyer Boolean   @default(false)
   purchasedVariantName String?
   
+  adminReply    String?
+  adminReplyAt  TimestamptzString?
+  
+  votes         ReviewVote[]
+  
   createdAt     TimestamptzString @default(now())
 }
 
@@ -278,4 +284,17 @@ model Answer {
   isAdmin    Boolean  @default(false)
   
   createdAt  TimestamptzString @default(now())
+}
+
+model ReviewVote {
+  id        String   @id @default(uuid())
+  reviewId  String
+  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  isLike    Boolean  // true for like, false for dislike
+  createdAt TimestamptzString @default(now())
+
+  @@unique([reviewId, userId])
 }

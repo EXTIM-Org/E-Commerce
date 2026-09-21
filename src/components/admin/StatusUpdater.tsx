@@ -17,7 +17,9 @@ const STATUS_OPTIONS = [
 export function StatusUpdater({ orderId, currentStatus }: { orderId: string, currentStatus: string }) {
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
+  const [position, setPosition] = useState<"bottom" | "top">("bottom");
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -44,6 +46,22 @@ export function StatusUpdater({ orderId, currentStatus }: { orderId: string, cur
     });
   };
 
+  const toggleDropdown = () => {
+    if (isPending) return;
+    
+    if (!isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      // If less than 250px space below, open upwards
+      if (spaceBelow < 250) {
+        setPosition("top");
+      } else {
+        setPosition("bottom");
+      }
+    }
+    setIsOpen(!isOpen);
+  };
+
   const currentOption = STATUS_OPTIONS.find(o => o.value === currentStatus);
   const currentColor = currentOption?.color || "text-gray-900 dark:text-white bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10";
 
@@ -52,8 +70,9 @@ export function StatusUpdater({ orderId, currentStatus }: { orderId: string, cur
       
       {/* Trigger Button */}
       <button
+        ref={buttonRef}
         type="button"
-        onClick={() => !isPending && setIsOpen(!isOpen)}
+        onClick={toggleDropdown}
         disabled={isPending}
         className={`w-full flex items-center justify-between border rounded-lg px-3 py-1.5 text-sm font-medium ${currentColor} focus:outline-none focus:ring-1 focus:ring-violet-500 disabled:opacity-50 transition-all shadow-sm`}
       >
@@ -68,7 +87,9 @@ export function StatusUpdater({ orderId, currentStatus }: { orderId: string, cur
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1.5 z-50 overflow-hidden bg-white/80 dark:bg-[#1a1b26]/90 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-xl shadow-2xl origin-top animate-in fade-in zoom-in-95 duration-200">
+        <div className={`absolute left-0 right-0 z-50 overflow-hidden bg-white/80 dark:bg-[#1a1b26]/90 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-xl shadow-2xl duration-200 ${
+          position === "top" ? "bottom-full mb-1.5 origin-bottom animate-in fade-in zoom-in-95" : "top-full mt-1.5 origin-top animate-in fade-in zoom-in-95"
+        }`}>
           <div className="flex flex-col py-1">
             {STATUS_OPTIONS.map(opt => (
               <button

@@ -40,7 +40,7 @@ export default async function RootLayout({
               },
               success: {
                 iconTheme: {
-                  primary: '#a855f7',
+                  primary: '#22c55e',
                   secondary: '#fff',
                 },
               },

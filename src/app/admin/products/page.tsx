@@ -68,7 +68,7 @@ export default async function AdminProductsPage(props: { searchParams: Promise<{
     query = query.where({ categoryId });
   }
 
-  let products = await query.all();
+  const products = await query.all();
 
   // Handle inventory sort in JS since it's a nested aggregate
   if (sort === "inventory") {

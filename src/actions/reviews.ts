@@ -62,3 +62,75 @@ export async function submitReview(productId: string, rating: number, comment: s
     return { success: false, error: "خطایی در ثبت نظر رخ داد. لطفاً دوباره تلاش کنید." };
   }
 }
+
+export async function adminReplyToReview(reviewId: string, reply: string) {
+  try {
+    const session = await getSession();
+    
+    if (!session || session.role !== "ADMIN") {
+      return { success: false, error: "شما مجوز این کار را ندارید." };
+    }
+
+    const review = await db.orm.public.Review.where({ id: reviewId }).first();
+    if (!review) {
+      return { success: false, error: "نظر مورد نظر یافت نشد." };
+    }
+
+    await db.orm.public.Review.where({ id: reviewId }).update({
+      adminReply: reply.trim() || null,
+      adminReplyAt: reply.trim() ? new Date().toISOString() : null
+    });
+
+    revalidatePath(`/products/${review.productId}`);
+    revalidatePath('/admin/reviews');
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to reply to review:", error);
+    return { success: false, error: "خطایی رخ داد. لطفاً دوباره تلاش کنید." };
+  }
+}
+
+export async function toggleReviewLike(reviewId: string, isLike: boolean) {
+  try {
+    const session = await getSession();
+    
+    if (!session || !session.userId) {
+      return { success: false, error: "برای ثبت بازخورد باید وارد حساب کاربری خود شوید." };
+    }
+
+    const review = await db.orm.public.Review.where({ id: reviewId }).first();
+    if (!review) {
+      return { success: false, error: "نظر مورد نظر یافت نشد." };
+    }
+
+    const existingVote = await db.orm.public.ReviewVote.where({
+      reviewId,
+      userId: session.userId as string
+    }).first();
+
+    if (existingVote) {
+      if (existingVote.isLike === isLike) {
+        // Toggle off
+        await db.orm.public.ReviewVote.where({ id: existingVote.id }).delete();
+      } else {
+        // Switch vote
+        await db.orm.public.ReviewVote.where({ id: existingVote.id }).update({ isLike });
+      }
+    } else {
+      // Create new vote
+      await db.orm.public.ReviewVote.create({
+        reviewId,
+        userId: session.userId as string,
+        isLike
+      });
+    }
+
+    revalidatePath(`/products/${review.productId}`);
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to toggle review like:", error);
+    return { success: false, error: "خطایی رخ داد. لطفاً دوباره تلاش کنید." };
+  }
+}

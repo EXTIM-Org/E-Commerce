@@ -5,6 +5,20 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { getRevenueData } from "@/actions/analytics";
 import { Loader2 } from "lucide-react";
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white dark:bg-[#1a1b26] border border-black/10 dark:border-white/10 p-3 rounded-xl shadow-xl">
+        <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">{label}</p>
+        <p className="text-violet-600 dark:text-violet-400 font-bold">
+          {payload[0].value.toLocaleString()} تومان
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
 export function RevenueChart({ initialData }: { initialData: any[] }) {
   const [data, setData] = useState(initialData);
   const [days, setDays] = useState<7 | 30>(7);
@@ -35,19 +49,7 @@ export function RevenueChart({ initialData }: { initialData: any[] }) {
     return () => { isMounted = false; };
   }, [days, initialData]);
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white dark:bg-[#1a1b26] border border-black/10 dark:border-white/10 p-3 rounded-xl shadow-xl">
-          <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">{label}</p>
-          <p className="text-violet-600 dark:text-violet-400 font-bold">
-            {payload[0].value.toLocaleString()} تومان
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
+
 
   return (
     <div className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-3xl p-6 backdrop-blur-md">

@@ -34,9 +34,13 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
 
   // Custom dropdown states
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [categoryPosition, setCategoryPosition] = useState<"bottom" | "top">("bottom");
   const [isSortOpen, setIsSortOpen] = useState(false);
+  const [sortPosition, setSortPosition] = useState<"bottom" | "top">("bottom");
   const categoryRef = useRef<HTMLDivElement>(null);
   const sortRef = useRef<HTMLDivElement>(null);
+  const categoryBtnRef = useRef<HTMLButtonElement>(null);
+  const sortBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -100,6 +104,24 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
   const currentSort = searchParams.get("sort") || "newest";
   const sortLabel = SORT_OPTIONS.find(o => o.value === currentSort)?.label || "جدیدترین";
 
+  const toggleCategoryDropdown = () => {
+    if (!isCategoryOpen && categoryBtnRef.current) {
+      const rect = categoryBtnRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      setCategoryPosition(spaceBelow < 250 ? "top" : "bottom");
+    }
+    setIsCategoryOpen(!isCategoryOpen);
+  };
+
+  const toggleSortDropdown = () => {
+    if (!isSortOpen && sortBtnRef.current) {
+      const rect = sortBtnRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      setSortPosition(spaceBelow < 250 ? "top" : "bottom");
+    }
+    setIsSortOpen(!isSortOpen);
+  };
+
   return (
     <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-3xl p-6 backdrop-blur-md sticky top-28 shadow-sm dark:shadow-none">
       <div className="flex items-center gap-2 mb-6 text-purple-600 dark:text-purple-400 font-bold text-lg">
@@ -128,8 +150,9 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
           <label className="text-sm text-gray-700 dark:text-gray-400 mb-2 block">دسته‌بندی</label>
           <div className="relative" ref={categoryRef}>
             <button
+              ref={categoryBtnRef}
               type="button"
-              onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+              onClick={toggleCategoryDropdown}
               className="w-full flex items-center justify-between bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-2xl py-3 px-4 text-gray-900 dark:text-white focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
             >
               <span>{categoryLabel}</span>
@@ -137,7 +160,9 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
             </button>
             
             {isCategoryOpen && (
-              <div className="absolute top-full left-0 right-0 mt-2 z-50 overflow-hidden bg-white dark:bg-[#1a1b26] backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-2xl shadow-xl dark:shadow-2xl origin-top animate-in fade-in zoom-in-95 duration-200">
+              <div className={`absolute left-0 right-0 z-50 overflow-hidden bg-white dark:bg-[#1a1b26] backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-2xl shadow-xl dark:shadow-2xl duration-200 ${
+                categoryPosition === "top" ? "bottom-full mb-2 origin-bottom animate-in fade-in zoom-in-95" : "top-full mt-2 origin-top animate-in fade-in zoom-in-95"
+              }`}>
                 <div className="flex flex-col py-2 max-h-60 overflow-y-auto">
                   <button
                     onClick={() => {
@@ -203,8 +228,9 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
           <label className="text-sm text-gray-700 dark:text-gray-400 mb-2 block">مرتب‌سازی بر اساس</label>
           <div className="relative" ref={sortRef}>
             <button
+              ref={sortBtnRef}
               type="button"
-              onClick={() => setIsSortOpen(!isSortOpen)}
+              onClick={toggleSortDropdown}
               className="w-full flex items-center justify-between bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-2xl py-3 px-4 text-gray-900 dark:text-white focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
             >
               <span>{sortLabel}</span>
@@ -212,7 +238,9 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
             </button>
             
             {isSortOpen && (
-              <div className="absolute top-full left-0 right-0 mt-2 z-50 overflow-hidden bg-white dark:bg-[#1a1b26] backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-2xl shadow-xl dark:shadow-2xl origin-top animate-in fade-in zoom-in-95 duration-200">
+              <div className={`absolute left-0 right-0 z-50 overflow-hidden bg-white dark:bg-[#1a1b26] backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-2xl shadow-xl dark:shadow-2xl duration-200 ${
+                sortPosition === "top" ? "bottom-full mb-2 origin-bottom animate-in fade-in zoom-in-95" : "top-full mt-2 origin-top animate-in fade-in zoom-in-95"
+              }`}>
                 <div className="flex flex-col py-2">
                   {SORT_OPTIONS.map((opt) => (
                     <button

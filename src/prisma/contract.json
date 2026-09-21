@@ -60,6 +60,10 @@
       "model": "Review",
       "namespace": "public"
     },
+    "reviewVote": {
+      "model": "ReviewVote",
+      "namespace": "public"
+    },
     "user": {
       "model": "User",
       "namespace": "public"
@@ -1775,6 +1779,20 @@
           },
           "Review": {
             "fields": {
+              "adminReply": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "adminReplyAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
               "comment": {
                 "nullable": true,
                 "type": {
@@ -1864,10 +1882,31 @@
                   "model": "User",
                   "namespace": "public"
                 }
+              },
+              "votes": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "reviewId"
+                  ]
+                },
+                "to": {
+                  "model": "ReviewVote",
+                  "namespace": "public"
+                }
               }
             },
             "storage": {
               "fields": {
+                "adminReply": {
+                  "column": "adminReply"
+                },
+                "adminReplyAt": {
+                  "column": "adminReplyAt"
+                },
                 "comment": {
                   "column": "comment"
                 },
@@ -1895,6 +1934,100 @@
               },
               "namespaceId": "public",
               "table": "review"
+            }
+          },
+          "ReviewVote": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "isLike": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "reviewId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "userId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "review": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "reviewId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Review",
+                  "namespace": "public"
+                }
+              },
+              "user": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "isLike": {
+                  "column": "isLike"
+                },
+                "reviewId": {
+                  "column": "reviewId"
+                },
+                "userId": {
+                  "column": "userId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "reviewVote"
             }
           },
           "User": {
@@ -2050,6 +2183,21 @@
                 },
                 "to": {
                   "model": "Question",
+                  "namespace": "public"
+                }
+              },
+              "reviewVotes": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "ReviewVote",
                   "namespace": "public"
                 }
               },
@@ -3518,6 +3666,16 @@
             },
             "review": {
               "columns": {
+                "adminReply": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "adminReplyAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
                 "comment": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
@@ -3627,6 +3785,106 @@
                 ]
               },
               "uniques": []
+            },
+            "reviewVote": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "isLike": {
+                  "codecId": "pg/bool@1",
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "reviewId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "userId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "reviewId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "reviewVote"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "review"
+                  }
+                },
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "userId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "reviewVote"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "user"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "reviewId"
+                  ],
+                  "name": "reviewVote_reviewId_idx_2f51da17",
+                  "prefix": "reviewVote_reviewId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "userId"
+                  ],
+                  "name": "reviewVote_userId_idx_a489d58a",
+                  "prefix": "reviewVote_userId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "reviewId",
+                    "userId"
+                  ]
+                }
+              ]
             },
             "user": {
               "checks": [
@@ -3914,10 +4172,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "00b6371808cabdc69dec2df9d334007829cbd4affbe94cb125310137341ee442"
+    "storageHash": "44897e20ef46155a637d7dd8d4d308ec8666f326477a78e6ee87df2ce3f49193"
   },
   "execution": {
-    "executionHash": "5abefe8e2041bacf1a2179e4b7a2bdf3d6a2f0fa398a7c3f6b92e20a60656b3e",
+    "executionHash": "19fcb0bf883271ae1c357825b95e88264e00347d454f739319d326797bd923e2",
     "mutations": {
       "defaults": [
         {
@@ -4162,6 +4420,17 @@
             "column": "id",
             "namespace": "public",
             "table": "review"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "reviewVote"
           }
         },
         {

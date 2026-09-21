@@ -89,7 +89,9 @@ export function ProductForm({
   
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>(product?.categoryId || "");
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [categoryPosition, setCategoryPosition] = useState<"bottom" | "top">("bottom");
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
+  const categoryBtnRef = useRef<HTMLButtonElement>(null);
   
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -101,6 +103,15 @@ export function ProductForm({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const toggleCategoryDropdown = () => {
+    if (!isCategoryOpen && categoryBtnRef.current) {
+      const rect = categoryBtnRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      setCategoryPosition(spaceBelow < 250 ? "top" : "bottom");
+    }
+    setIsCategoryOpen(!isCategoryOpen);
+  };
 
   useEffect(() => {
     // Clean up object URLs
@@ -218,8 +229,9 @@ export function ProductForm({
             <input type="hidden" name="categoryId" value={selectedCategoryId} required />
             
             <button
+              ref={categoryBtnRef}
               type="button"
-              onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+              onClick={toggleCategoryDropdown}
               className="w-full flex items-center justify-between bg-white/50 dark:bg-black/50 border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all text-gray-900 dark:text-white"
             >
               <span className={selectedCategoryId ? "" : "text-gray-500"}>
@@ -231,7 +243,9 @@ export function ProductForm({
             </button>
 
             {isCategoryOpen && (
-              <div className="absolute top-full left-0 right-0 mt-2 z-50 overflow-hidden bg-white dark:bg-[#1a1b26] backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-2xl shadow-xl dark:shadow-2xl origin-top animate-in fade-in zoom-in-95 duration-200">
+              <div className={`absolute left-0 right-0 z-50 overflow-hidden bg-white dark:bg-[#1a1b26] backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-2xl shadow-xl dark:shadow-2xl duration-200 ${
+                categoryPosition === "top" ? "bottom-full mb-2 origin-bottom animate-in fade-in zoom-in-95" : "top-full mt-2 origin-top animate-in fade-in zoom-in-95"
+              }`}>
                 <div className="flex flex-col py-2 max-h-60 overflow-y-auto">
                   {categories.map((c: any) => (
                     <button

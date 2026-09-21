@@ -7,6 +7,7 @@ import { ProductCarousel } from "@/components/product/ProductCarousel";
 import { ReviewForm } from "@/components/product/ReviewForm";
 import { QASection } from "@/components/product/QASection";
 import { InteractionTabs } from "@/components/product/InteractionTabs";
+import { ReviewItem } from "@/components/product/ReviewItem";
 import { Star, BadgeCheck } from "lucide-react";
 
 interface PageProps {
@@ -33,7 +34,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const product = await db.orm.public.Product.where({ slug })
     .include('category')
     .include("variants", (v) => v.include("inventory"))
-    .include('reviews', (r) => r.include('user'))
+    .include('reviews', (r) => r.include('user').include('votes'))
     .include('questions', (q) => q.include('user').include('answers', (a) => a.include('user')))
     .first();
 
@@ -95,7 +96,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
       />
       
       {/* Product Client UI */}
-      <ProductClient product={product} />
+      <ProductClient product={product} initialIsLiked={userWishlistProductIds.has(product.id)} />
 
       {/* Frequently Bought Together */}
       {boughtTogetherProducts.length > 0 && (
@@ -130,42 +131,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
               <div className="lg:col-span-2 flex flex-col gap-6">
                 {product.reviews && product.reviews.length > 0 ? (
                   product.reviews.map((review) => (
-                    <div key={review.id} className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 p-6 rounded-2xl shadow-sm dark:shadow-none backdrop-blur-sm flex flex-col gap-3">
-                      <div className="flex justify-between items-start">
-                        <div className="flex flex-col">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-gray-900 dark:text-white">{review.user?.name || "کاربر ناشناس"}</span>
-                            {review.isVerifiedBuyer && (
-                              <span className="flex items-center gap-1 text-[10px] font-bold bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full border border-green-500/30">
-                                <BadgeCheck className="w-3 h-3" />
-                                خریدار این محصول
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs text-gray-500">
-                              {new Date(review.createdAt).toLocaleDateString("fa-IR")}
-                            </span>
-                            {review.isVerifiedBuyer && review.purchasedVariantName && review.purchasedVariantName !== "Default" && (
-                              <span className="text-xs text-gray-500 dark:text-gray-400 border-r border-gray-300 dark:border-gray-600 pr-2">
-                                {review.purchasedVariantName}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center" dir="ltr">
-                          {[1, 2, 3, 4, 5].map((s) => (
-                            <Star 
-                              key={s} 
-                              className={`w-4 h-4 ${s <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300 dark:text-gray-600"}`} 
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      {review.comment && (
-                        <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed mt-2">{review.comment}</p>
-                      )}
-                    </div>
+                    <ReviewItem key={review.id} review={review as any} currentUserId={session?.userId as string | null} />
                   ))
                 ) : (
                   <div className="text-center py-12 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl shadow-sm dark:shadow-none">
