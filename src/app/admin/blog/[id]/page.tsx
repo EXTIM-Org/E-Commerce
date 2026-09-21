@@ -3,10 +3,11 @@ import { getArticleCategories } from "@/actions/blog";
 import { db } from "@/prisma/db";
 import { notFound } from "next/navigation";
 
-export default async function EditArticlePage({ params }: { params: { id: string } }) {
+export default async function EditArticlePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const categories = await getArticleCategories();
   
-  const article = await db.orm.public.Article.where({ id: params.id }).first();
+  const article = await db.orm.public.Article.where({ id }).first();
   
   if (!article) {
     notFound();

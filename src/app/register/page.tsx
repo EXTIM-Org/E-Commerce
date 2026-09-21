@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { ArrowRight, Mail, Lock, AlertCircle } from "lucide-react";
 import { useFormStatus } from "react-dom";
+import { registerUser } from "@/actions/auth";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -19,7 +20,7 @@ function SubmitButton() {
 }
 
 export default function RegisterPage() {
-  const [state, formAction] = useActionState(registernull);
+  const [state, formAction] = useActionState(registerUser, null);
 
   return (
     <main className="min-h-screen flex items-center justify-center py-20 px-4 sm:px-6 relative overflow-hidden">

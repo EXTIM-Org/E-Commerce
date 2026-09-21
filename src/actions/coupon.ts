@@ -1,4 +1,5 @@
 "use server";
+import { canManageStore } from "@/lib/permissions";
 
 import { db } from "@/prisma/db";
 import { getSession } from "@/lib/session";
@@ -8,7 +9,7 @@ type DiscountType = "PERCENTAGE" | "FIXED";
 
 export async function getCoupons() {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !canManageStore(session.role as string)) {
     throw new Error("Unauthorized");
   }
 
@@ -17,7 +18,7 @@ export async function getCoupons() {
 
 export async function createCoupon(prevState: any, formData: FormData) {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !canManageStore(session.role as string)) {
     return { error: "دسترسی غیرمجاز" };
   }
 
@@ -55,7 +56,7 @@ export async function createCoupon(prevState: any, formData: FormData) {
       isActive: true,
     });
 
-  } catch {
+  } catch (error) {
     console.error("Error creating coupon:", error);
     return { error: "خطایی در ساخت کد تخفیف رخ داد." };
   }
@@ -66,7 +67,7 @@ export async function createCoupon(prevState: any, formData: FormData) {
 
 export async function toggleCouponStatus(id: string, isActive: boolean) {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !canManageStore(session.role as string)) {
     return { success: false, error: "دسترسی غیرمجاز" };
   }
 
@@ -81,7 +82,7 @@ export async function toggleCouponStatus(id: string, isActive: boolean) {
 
 export async function deleteCoupon(id: string) {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !canManageStore(session.role as string)) {
     return { success: false, error: "دسترسی غیرمجاز" };
   }
 
@@ -142,7 +143,7 @@ export async function validateCoupon(code: string, cartTotal: number) {
       couponId: coupon.id,
       code: coupon.code
     };
-  } catch {
+  } catch (error) {
     console.error("Error validating coupon:", error);
     return { success: false, error: "خطایی در اعتبارسنجی کد تخفیف رخ داد." };
   }

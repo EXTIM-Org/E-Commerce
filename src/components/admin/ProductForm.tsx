@@ -179,7 +179,7 @@ export function ProductForm({
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   const toggleCategoryDropdown = () => {
@@ -198,6 +198,7 @@ export function ProductForm({
         if (m.type === "new") URL.revokeObjectURL(m.url);
       });
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Whenever media changes, sync the new files to the native input

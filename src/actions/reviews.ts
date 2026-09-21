@@ -1,4 +1,5 @@
 "use server";
+import { canManageStore } from "@/lib/permissions";
 
 import { db } from "@/prisma/db";
 import { getSession } from "@/lib/session";
@@ -67,7 +68,7 @@ export async function adminReplyToReview(reviewId: string, reply: string) {
   try {
     const session = await getSession();
     
-    if (!session || session.role !== "ADMIN") {
+    if (!session || !canManageStore(session.role as string)) {
       return { success: false, error: "شما مجوز این کار را ندارید." };
     }
 

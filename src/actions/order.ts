@@ -1,4 +1,5 @@
 "use server";
+import { canManageStore } from "@/lib/permissions";
 
 import { db } from "@/prisma/db";
 import { getSession } from "@/lib/session";
@@ -9,7 +10,7 @@ type OrderStatus = "PENDING" | "PAID" | "PROCESSING" | "SHIPPED" | "DELIVERED" |
 
 export async function updateOrderStatus(orderId: string, status: OrderStatus) {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !canManageStore(session.role as string)) {
     return { success: false, error: "دسترسی غیرمجاز" };
   }
 
@@ -56,7 +57,7 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
 
 export async function updateTrackingCode(orderId: string, trackingCode: string) {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !canManageStore(session.role as string)) {
     return { success: false, error: "دسترسی غیرمجاز" };
   }
 

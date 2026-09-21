@@ -1,11 +1,12 @@
 "use server";
+import { canManageStore } from "@/lib/permissions";
 
 import { db } from "@/prisma/db";
 import { getSession } from "@/lib/session";
 
 export async function getRevenueData(days: number) {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !canManageStore(session.role as string)) {
     throw new Error("Unauthorized");
   }
 
@@ -50,7 +51,7 @@ export async function getRevenueData(days: number) {
 
 export async function getTopProducts() {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !canManageStore(session.role as string)) {
     throw new Error("Unauthorized");
   }
 

@@ -7,8 +7,10 @@ import remarkGfm from "remark-gfm";
 
 export const dynamic = 'force-dynamic';
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const article = await getArticleBySlug(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const decodedSlug = decodeURIComponent(slug);
+  const article = await getArticleBySlug(decodedSlug);
   if (!article) return { title: "مقاله یافت نشد" };
   
   return {
@@ -20,8 +22,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function SingleArticlePage({ params }: { params: { slug: string } }) {
-  const article = await getArticleBySlug(params.slug);
+export default async function SingleArticlePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const decodedSlug = decodeURIComponent(slug);
+  const article = await getArticleBySlug(decodedSlug);
   
   if (!article) {
     notFound();

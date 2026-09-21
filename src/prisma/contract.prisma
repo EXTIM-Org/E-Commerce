@@ -2,7 +2,9 @@
 
 enum Role {
   USER
+  BLOG_ADMIN
   ADMIN
+  SUPER_ADMIN
 }
 
 enum OrderStatus {

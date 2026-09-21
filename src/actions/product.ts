@@ -1,4 +1,5 @@
 "use server";
+import { canManageStore } from "@/lib/permissions";
 
 import { db } from "@/prisma/db";
 import { getSession } from "@/lib/session";
@@ -37,7 +38,7 @@ async function deletePhysicalImages(urls: readonly string[] | string[]) {
         await unlink(filepath);
         console.log(`Deleted physical file: ${filepath}`);
       }
-    } catch {
+    } catch (e) {
       console.error(`Failed to delete physical file for URL ${url}:`, e);
     }
   }
@@ -81,7 +82,7 @@ async function saveImages(formData: FormData): Promise<string[]> {
 
 export async function createProduct(prevState: unknown, formData: FormData) {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !canManageStore(session.role as string)) {
     return { error: "دسترسی غیرمجاز" };
   }
 
@@ -132,7 +133,7 @@ export async function createProduct(prevState: unknown, formData: FormData) {
             finalImages.push(item);
           }
         }
-      } catch(e) {
+      } catch {
         finalImages = newImageUrls;
       }
     } else {
@@ -171,7 +172,7 @@ export async function createProduct(prevState: unknown, formData: FormData) {
             reservedStock: 0,
           });
         }
-      } catch {
+      } catch (e) {
         console.error("Error parsing variants:", e);
       }
     }
@@ -190,7 +191,7 @@ export async function createProduct(prevState: unknown, formData: FormData) {
             });
           }
         }
-      } catch {
+      } catch (e) {
         console.error("Error parsing specs:", e);
       }
     }
@@ -206,7 +207,7 @@ export async function createProduct(prevState: unknown, formData: FormData) {
 
 export async function updateProduct(id: string, prevState: unknown, formData: FormData) {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !canManageStore(session.role as string)) {
     return { error: "دسترسی غیرمجاز" };
   }
 
@@ -332,7 +333,7 @@ export async function updateProduct(id: string, prevState: unknown, formData: Fo
             });
           }
         }
-      } catch {
+      } catch (e) {
         console.error("Error parsing/syncing variants:", e);
       }
     }
@@ -355,7 +356,7 @@ export async function updateProduct(id: string, prevState: unknown, formData: Fo
             });
           }
         }
-      } catch {
+      } catch (e) {
         console.error("Error parsing/syncing specs:", e);
       }
     }

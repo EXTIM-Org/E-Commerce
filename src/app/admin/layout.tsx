@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
-import { LayoutDashboard, Package, Tags, ShoppingCart, HelpCircle, MessageSquare } from "lucide-react";
+import { LayoutDashboard, Package, Tags, ShoppingCart, HelpCircle, MessageSquare, Users } from "lucide-react";
+import { hasAdminPanelAccess, canManageStore, canManageBlog, canManageRoles } from "@/lib/permissions";
 
 export default async function AdminLayout({
   children,
@@ -10,9 +11,13 @@ export default async function AdminLayout({
 }) {
   const session = await getSession();
   
-  if (!session || !session.userId || session.role !== "ADMIN") {
+  if (!session || !session.userId || !hasAdminPanelAccess(session.role as string)) {
     redirect("/");
   }
+
+  const isStoreAdmin = canManageStore(session.role as string);
+  const isBlogAdmin = canManageBlog(session.role as string);
+  const isSuperAdmin = canManageRoles(session.role as string);
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-7xl min-h-[80vh]">
@@ -34,48 +39,84 @@ export default async function AdminLayout({
               </div>
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">{(session.name as string) || "مدیر"}</h2>
               <span className="text-xs font-medium bg-rose-500/20 text-rose-700 dark:text-rose-400 px-3 py-1 rounded-full">
-                مدیریت سیستم
+                {session.role === "SUPER_ADMIN" ? "سوپر ادمین" : session.role === "BLOG_ADMIN" ? "مدیر وبلاگ" : "مدیریت سیستم"}
               </span>
             </div>
 
-            <nav className="flex flex-col gap-2">
-              <Link href="/admin" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-                <LayoutDashboard className="w-5 h-5" />
-                داشبورد
-              </Link>
-              <Link href="/admin/products" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-                <Package className="w-5 h-5" />
-                محصولات
-              </Link>
-              <Link href="/admin/categories" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-                <Tags className="w-5 h-5" />
-                دسته‌بندی‌ها
-              </Link>
-              <Link href="/admin/orders" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-                <ShoppingCart className="w-5 h-5" />
-                سفارشات
-              </Link>
-              <Link href="/admin/coupons" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-                <Tags className="w-5 h-5" />
-                کدهای تخفیف
-              </Link>
-              <Link href="/admin/qa" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-                <HelpCircle className="w-5 h-5" />
-                پرسش و پاسخ
-              </Link>
-              <Link href="/admin/reviews" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-                <MessageSquare className="w-5 h-5" />
-                نظرات کاربران
-              </Link>
-              <Link href="/admin/flash-sales" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-                <Tags className="w-5 h-5" />
-                فروش ویژه
-              </Link>
-              <Link href="/admin/blog" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-                <MessageSquare className="w-5 h-5" />
-                وبلاگ و مقالات
-              </Link>
+            <nav className="flex flex-col gap-6">
+              
+              {/* گروه اصلی */}
+              {isStoreAdmin && (
+                <div className="flex flex-col gap-1">
+                  <Link href="/admin" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    <LayoutDashboard className="w-5 h-5 text-violet-500" />
+                    <span className="font-medium">داشبورد</span>
+                  </Link>
+                </div>
+              )}
 
+              {/* فروشگاه */}
+              {isStoreAdmin && (
+                <div className="flex flex-col gap-1">
+                  <h3 className="px-4 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">فروشگاه</h3>
+                  <Link href="/admin/orders" className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    <ShoppingCart className="w-5 h-5 text-emerald-500" />
+                    <span>سفارشات</span>
+                  </Link>
+                  <Link href="/admin/products" className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    <Package className="w-5 h-5" />
+                    <span>محصولات</span>
+                  </Link>
+                  <Link href="/admin/categories" className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    <Tags className="w-5 h-5" />
+                    <span>دسته‌بندی‌ها</span>
+                  </Link>
+                  <Link href="/admin/flash-sales" className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    <Tags className="w-5 h-5 text-rose-500" />
+                    <span>فروش ویژه</span>
+                  </Link>
+                  <Link href="/admin/coupons" className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    <Tags className="w-5 h-5 text-amber-500" />
+                    <span>کدهای تخفیف</span>
+                  </Link>
+                </div>
+              )}
+
+              {/* تعاملات */}
+              {(isStoreAdmin || isBlogAdmin) && (
+                <div className="flex flex-col gap-1">
+                  <h3 className="px-4 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 mt-2">تعاملات</h3>
+                  {isStoreAdmin && (
+                    <>
+                      <Link href="/admin/reviews" className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                        <MessageSquare className="w-5 h-5 text-blue-500" />
+                        <span>نظرات کاربران</span>
+                      </Link>
+                      <Link href="/admin/qa" className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                        <HelpCircle className="w-5 h-5 text-orange-500" />
+                        <span>پرسش و پاسخ</span>
+                      </Link>
+                    </>
+                  )}
+                  {isBlogAdmin && (
+                    <Link href="/admin/blog" className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                      <MessageSquare className="w-5 h-5 text-fuchsia-500" />
+                      <span>وبلاگ و مقالات</span>
+                    </Link>
+                  )}
+                </div>
+              )}
+
+              {/* سیستم */}
+              {isSuperAdmin && (
+                <div className="flex flex-col gap-1">
+                  <h3 className="px-4 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 mt-2">سیستم</h3>
+                  <Link href="/admin/users" className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    <Users className="w-5 h-5 text-indigo-500" />
+                    <span>مدیریت کاربران</span>
+                  </Link>
+                </div>
+              )}
             </nav>
             
           </div>

@@ -7,6 +7,7 @@ import { useCart } from "@/store/CartContext";
 import { useEffect, useState } from "react";
 import { logoutUser } from "@/actions/auth";
 import { usePathname } from "next/navigation";
+import { hasAdminPanelAccess } from "@/lib/permissions";
 
 const navLinks = [
   { name: "فروشگاه", href: "/products" },
@@ -22,6 +23,7 @@ export function Header({ session }: { session: any }) {
   const isAdminPage = pathname.startsWith("/admin");
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -80,7 +82,7 @@ export function Header({ session }: { session: any }) {
                 <span className="hidden sm:inline text-gray-700 dark:text-gray-200">سلام، {session.name.split(' ')[0]}</span>
               </Link>
               <div className="w-px h-4 bg-black/10 dark:bg-white/10 mx-1"></div>
-              {session.role === "ADMIN" && !isAdminPage && (
+              {hasAdminPanelAccess(session.role) && !isAdminPage && (
                 <>
                   <Link href="/admin" className="text-xs font-medium bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 px-2 py-1 rounded-md hover:bg-violet-200 dark:hover:bg-violet-900/50 transition-colors">
                     پنل ادمین

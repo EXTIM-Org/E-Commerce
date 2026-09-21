@@ -160,8 +160,16 @@
                 "value": "USER"
               },
               {
+                "name": "BLOG_ADMIN",
+                "value": "BLOG_ADMIN"
+              },
+              {
                 "name": "ADMIN",
                 "value": "ADMIN"
+              },
+              {
+                "name": "SUPER_ADMIN",
+                "value": "SUPER_ADMIN"
               }
             ]
           },
@@ -4786,8 +4794,8 @@
             "user": {
               "checks": [
                 {
-                  "expression": "\"role\" IN ('USER', 'ADMIN')",
-                  "name": "user_role_check_1954e8c0",
+                  "expression": "\"role\" IN ('USER', 'BLOG_ADMIN', 'ADMIN', 'SUPER_ADMIN')",
+                  "name": "user_role_check_d0e3c086",
                   "prefix": "user_role_check"
                 }
               ],
@@ -5058,7 +5066,9 @@
               "kind": "valueSet",
               "values": [
                 "USER",
-                "ADMIN"
+                "BLOG_ADMIN",
+                "ADMIN",
+                "SUPER_ADMIN"
               ]
             },
             "TransactionType": {
@@ -5076,7 +5086,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "28874b7cafa05f2bac730fd05585cff3c2a9f76ce9bb397eef640418a2f84bf1"
+    "storageHash": "25ab0c2f5643dbe86e5dd4e8b790ae48892161928534ddc03dd1967fd7749cc7"
   },
   "execution": {
     "executionHash": "6e86ffb38b0d0888124e3b499a635ac5aba890fec450a41376a79b3bc67e3ffb",

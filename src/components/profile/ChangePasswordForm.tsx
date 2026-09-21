@@ -12,6 +12,7 @@ export function ChangePasswordForm() {
   useEffect(() => {
     if (state?.success) {
       toast.success("رمز عبور با موفقیت تغییر یافت");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsFormVisible(false);
       // Reset form
       const form = document.getElementById("change-password-form") as HTMLFormElement;

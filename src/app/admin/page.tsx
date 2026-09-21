@@ -4,8 +4,15 @@ import Link from "next/link";
 import { RevenueChart } from "@/components/admin/charts/RevenueChart";
 import { TopProductsChart } from "@/components/admin/charts/TopProductsChart";
 import { getRevenueData, getTopProducts } from "@/actions/analytics";
+import { getSession } from "@/lib/session";
+import { redirect } from "next/navigation";
 
 export default async function AdminDashboard() {
+  const session = await getSession();
+  if (session?.role === "BLOG_ADMIN") {
+    redirect("/admin/blog");
+  }
+
   // Fetch stats using Prisma 8
   const { count: productsCount } = await db.orm.public.Product.aggregate(a => ({ count: a.count() }));
   const { count: ordersCount } = await db.orm.public.Order.aggregate(a => ({ count: a.count() }));
@@ -108,12 +115,22 @@ export default async function AdminDashboard() {
                     <td className="py-4 text-gray-700 dark:text-gray-300">{order.receiverName}</td>
                     <td className="py-4 text-gray-900 dark:text-white font-medium">{order.totalAmount.toLocaleString()} تومان</td>
                     <td className="py-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        order.status === 'PENDING' ? 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-400' :
-                        order.status === 'PAID' ? 'bg-green-500/20 text-green-700 dark:text-green-400' :
-                        'bg-gray-500/20 text-gray-700 dark:text-gray-400'
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium border ${
+                        order.status === 'PENDING' ? 'text-yellow-600 dark:text-yellow-400 bg-yellow-500/10 border-yellow-500/20' :
+                        order.status === 'PAID' ? 'text-teal-600 dark:text-teal-400 bg-teal-500/10 border-teal-500/20' :
+                        order.status === 'PROCESSING' ? 'text-blue-600 dark:text-blue-400 bg-blue-500/10 border-blue-500/20' :
+                        order.status === 'SHIPPED' ? 'text-purple-600 dark:text-purple-400 bg-purple-500/10 border-purple-500/20' :
+                        order.status === 'DELIVERED' ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20' :
+                        order.status === 'CANCELLED' ? 'text-red-600 dark:text-red-400 bg-red-500/10 border-red-500/20' :
+                        'text-gray-600 dark:text-gray-400 bg-gray-500/10 border-gray-500/20'
                       }`}>
-                        {order.status}
+                        {order.status === 'PENDING' ? 'در انتظار پرداخت' :
+                         order.status === 'PAID' ? 'پرداخت شده' :
+                         order.status === 'PROCESSING' ? 'در حال پردازش' :
+                         order.status === 'SHIPPED' ? 'ارسال شده' :
+                         order.status === 'DELIVERED' ? 'تحویل داده شده' :
+                         order.status === 'CANCELLED' ? 'لغو شده' :
+                         order.status}
                       </span>
                     </td>
                     <td className="py-4 text-gray-600 dark:text-gray-400 text-sm">

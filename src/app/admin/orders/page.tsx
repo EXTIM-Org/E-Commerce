@@ -1,5 +1,5 @@
 import { db } from "@/prisma/db";
-import { PackageOpen, MapPin, Clock, Search } from "lucide-react";
+import { PackageOpen, MapPin, Clock } from "lucide-react";
 import { StatusUpdater } from "@/components/admin/StatusUpdater";
 
 export default async function AdminOrdersPage() {

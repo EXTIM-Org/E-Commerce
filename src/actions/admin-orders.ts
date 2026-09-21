@@ -1,4 +1,5 @@
 "use server";
+import { canManageStore } from "@/lib/permissions";
 
 import { db } from "@/prisma/db";
 import { getSession } from "@/lib/session";
@@ -14,7 +15,7 @@ export async function updateOrderStatus(orderId: string, newStatus: string) {
     const session = await getSession();
     
     // Only allow admins to update orders
-    if (!session || !session.userId || session.role !== "ADMIN") {
+    if (!session || !session.userId || !canManageStore(session.role as string)) {
       return { success: false, error: "عدم دسترسی. فقط مدیران می‌توانند وضعیت سفارش را تغییر دهند." };
     }
 

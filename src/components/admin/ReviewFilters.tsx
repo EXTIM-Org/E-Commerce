@@ -49,6 +49,7 @@ function FilterDropdown({
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+     
   }, []);
 
   const toggleDropdown = () => {

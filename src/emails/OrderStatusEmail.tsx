@@ -8,7 +8,6 @@ import {
   Section,
   Text,
   Tailwind,
-  Img,
   Hr,
 } from "@react-email/components";
 import * as React from "react";

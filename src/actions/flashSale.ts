@@ -1,4 +1,5 @@
 "use server";
+import { canManageStore } from "@/lib/permissions";
 
 import { db } from "@/prisma/db";
 import { getSession } from "@/lib/session";
@@ -7,7 +8,7 @@ import { redirect } from "next/navigation";
 
 export async function createFlashSale(formData: FormData): Promise<void> {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !canManageStore(session.role as string)) {
     throw new Error("دسترسی غیرمجاز");
   }
 
@@ -51,7 +52,7 @@ export async function createFlashSale(formData: FormData): Promise<void> {
     revalidatePath("/");
     revalidatePath("/products");
     revalidatePath("/admin/flash-sales");
-  } catch {
+  } catch (error) {
     console.error("Error creating flash sale:", error);
     throw new Error("خطایی در ثبت فروش ویژه رخ داد.");
   }
@@ -61,7 +62,7 @@ export async function createFlashSale(formData: FormData): Promise<void> {
 
 export async function toggleFlashSale(id: string, isActive: boolean) {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !canManageStore(session.role as string)) {
     return { error: "دسترسی غیرمجاز" };
   }
 
@@ -78,7 +79,7 @@ export async function toggleFlashSale(id: string, isActive: boolean) {
 
 export async function deleteFlashSale(id: string) {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !canManageStore(session.role as string)) {
     return { error: "دسترسی غیرمجاز" };
   }
 

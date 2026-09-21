@@ -1,4 +1,5 @@
 "use server";
+import { canManageStore } from "@/lib/permissions";
 
 import { z } from "zod";
 import { db } from "@/prisma/db";
@@ -63,7 +64,7 @@ export async function answerQuestion(formData: FormData) {
 
     const validatedData = answerQuestionSchema.parse(data);
 
-    const isAdmin = session.role === "ADMIN";
+    const isAdmin = canManageStore(session.role as string);
 
     await db.orm.public.Answer.create({
       questionId: validatedData.questionId,
@@ -85,7 +86,7 @@ export async function answerQuestion(formData: FormData) {
 export async function deleteQuestion(questionId: string) {
   try {
     const session = await getSession();
-    if (!session || session.role !== "ADMIN") {
+    if (!session || !canManageStore(session.role as string)) {
       return { success: false, error: "عدم دسترسی" };
     }
 
@@ -102,7 +103,7 @@ export async function deleteQuestion(questionId: string) {
 export async function deleteAnswer(answerId: string) {
   try {
     const session = await getSession();
-    if (!session || session.role !== "ADMIN") {
+    if (!session || !canManageStore(session.role as string)) {
       return { success: false, error: "عدم دسترسی" };
     }
 

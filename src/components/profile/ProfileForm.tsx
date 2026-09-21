@@ -18,6 +18,7 @@ export function ProfileForm({ user }: { user: UserProfile }) {
   useEffect(() => {
     if (state?.success && isEditing) {
       toast.success("اطلاعات با موفقیت بروزرسانی شد");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsEditing(false);
     } else if (state?.error && isEditing && !isPending) {
       toast.error(state.error);

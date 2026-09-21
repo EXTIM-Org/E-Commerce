@@ -53,6 +53,7 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+     
   }, []);
 
   const createQueryString = useCallback(

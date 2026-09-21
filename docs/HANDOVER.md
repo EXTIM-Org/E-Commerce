@@ -119,6 +119,8 @@ The following features are the next logical steps for development:
 10. **Flash Sales & UI Standardization**: (✅ Completed) Implemented time-sensitive Flash Sales with lazy evaluation pricing (no cron jobs required). Standardized all admin and user-facing `<select>` inputs to custom glassmorphic dropdowns. Fixed product card heights for consistency and integrated a "Recently Viewed Products" carousel using localStorage and server actions.
 11. **Advanced SEO & Rich Snippets**: (✅ Completed) Fully integrated Google Rich Snippets via JSON-LD `@graph` on Product pages (including `Product`, `AggregateRating`, `Review`, `BreadcrumbList`, and `FAQPage`) to maximize organic search visibility and CTR.
 12. **Markdown-Based Blog & CMS System**: (✅ Completed) Built a fully functional Blog for SEO optimization. Extended Prisma 8 contract with `Article` and `ArticleCategory` models. Integrated `react-markdown` and `@tailwindcss/typography` for secure and beautiful content rendering. Developed comprehensive Admin Dashboard interfaces (`/admin/blog`) for article and category management, alongside public dynamic routes (`/blog` and `/blog/[slug]`) featuring view counts and `Article` schema JSON-LD.
+13. **Admin UI Refinements & Codebase Stabilization**: (✅ Completed) Resolved clipping issues in the Admin Order Status dropdown by migrating to React Portals (`createPortal`) with dynamic color-coding and scroll event handling. Executed a project-wide cleanup achieving zero TypeScript compilation errors and zero ESLint warnings, standardizing `catch` blocks in Server Actions and fixing authentication action bugs.
+
 
 ## 📌 Future Scope & Excluded Features
 - **Support Chat System**: Will use a third-party service in the future. Do not implement a custom chat system.

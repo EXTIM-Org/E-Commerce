@@ -42,3 +42,17 @@ next-env.d.ts
 node_modules/
 dist/
 .env
+ 
+# Env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# User uploads
+/public/uploads
+
+# Scratch files
+*.cjs
+set_super_admin.*

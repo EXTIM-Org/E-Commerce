@@ -25,6 +25,7 @@ export function NewAddressForm() {
   // Close modal on success
   useEffect(() => {
     if (state?.success) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsOpen(false);
     }
   }, [state]);

@@ -19,14 +19,15 @@ const eslintConfig = defineConfig([
     ".devin/**",
     "migrations/**",
     "src/prisma/contract.d.ts",
+    "fix-roles.cjs",
+    "fix-use-server.cjs",
+    "set_super_admin.js",
   ]),
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
-      "react-hooks/set-state-in-effect": "off",
       "@next/next/no-img-element": "off",
       "@typescript-eslint/no-unused-vars": "warn",
-      "react-hooks/exhaustive-deps": "warn",
       "@typescript-eslint/no-empty-object-type": "off"
     }
   }
