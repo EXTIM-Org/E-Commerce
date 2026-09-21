@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { markOrderAsPaid } from "@/services/order";
 import { validateCoupon } from "@/actions/coupon";
+import { getEffectivePrice } from "@/lib/price";
 
 const checkoutSchema = z.object({
   receiverName: z.string().min(2, "نام تحویل گیرنده باید حداقل ۲ کاراکتر باشد."),
@@ -83,7 +84,7 @@ export async function processCheckout(prevState: unknown, formData: FormData) {
     const variantIds = cartItems.map(item => item.variantId);
     const dbVariants = await db.orm.public.ProductVariant
       .where((v) => v.id.in(variantIds))
-      .include('product')
+      .include('product', (p) => p.include('flashSale'))
       .all();
 
     // Map them for quick access
@@ -101,7 +102,8 @@ export async function processCheckout(prevState: unknown, formData: FormData) {
     const validatedOrderItems = cartItems.map(item => {
       const dbVariant = dbVariantMap.get(item.variantId)!;
       // Price logic: if variant has specific price use it, else use base product price
-      const finalPrice = dbVariant.price ?? dbVariant.product?.basePrice ?? 0;
+      const basePrice = dbVariant.price ?? dbVariant.product?.basePrice ?? 0;
+      const { finalPrice } = getEffectivePrice(basePrice, dbVariant.product?.flashSale);
       
       totalAmount += finalPrice * item.quantity;
       

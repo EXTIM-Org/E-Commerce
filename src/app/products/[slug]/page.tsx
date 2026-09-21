@@ -9,6 +9,9 @@ import { QASection } from "@/components/product/QASection";
 import { InteractionTabs } from "@/components/product/InteractionTabs";
 import { ReviewItem } from "@/components/product/ReviewItem";
 import { Star, BadgeCheck } from "lucide-react";
+import { getEffectivePrice } from "@/lib/price";
+import { RecentlyViewedTracker } from "@/components/product/RecentlyViewedTracker";
+import { RecentlyViewedCarousel } from "@/components/product/RecentlyViewedCarousel";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -33,10 +36,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
   
   const product = await db.orm.public.Product.where({ slug })
     .include('category')
-    .include("variants", (v) => v.include("inventory"))
+    .include("variants", (v) => v.select("id", "name", "sku", "price").include("inventory"))
     .include('specifications')
-    .include('reviews', (r) => r.include('user').include('votes'))
-    .include('questions', (q) => q.include('user').include('answers', (a) => a.include('user')))
+    .include('reviews', (r) => r.select("id", "rating", "comment", "isVerifiedBuyer", "purchasedVariantName", "adminReply", "adminReplyAt", "createdAt").include('user', (u) => u.select("name", "image")).include('votes'))
+    .include('questions', (q) => q.select("id", "text", "createdAt").include('user', (u) => u.select("name", "image")).include('answers', (a) => a.select("id", "text", "isAdmin", "createdAt").include('user', (u) => u.select("name", "image"))))
+    .include('flashSale')
     .first();
 
   if (!product) {
@@ -57,7 +61,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
   if (session?.userId) {
     const wishlist = await db.orm.public.Wishlist
       .where({ userId: session.userId as string })
-      .include("items")
+      .include("items", (i) => i.select("productId"))
       .all().first();
     if (wishlist) {
       userWishlistProductIds = new Set(wishlist.items.map(i => i.productId));
@@ -65,11 +69,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
   }
 
   // Calculate price for JSON-LD based on the first variant or base price
-  const basePrice = (product.variants && product.variants.length > 0 && product.variants[0].price) 
+  const basePriceForCalculation = (product.variants && product.variants.length > 0 && product.variants[0].price) 
     ? product.variants[0].price 
     : product.basePrice;
     
-  const finalPrice = basePrice - product.discount;
+  const { finalPrice } = getEffectivePrice(basePriceForCalculation - product.discount, product.flashSale);
 
   // JSON-LD Schema for single product SEO
   const jsonLd = {
@@ -95,6 +99,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      
+      {/* Track Recently Viewed */}
+      <RecentlyViewedTracker productId={product.id} />
       
       {/* Product Client UI */}
       <ProductClient product={product} initialIsLiked={userWishlistProductIds.has(product.id)} />
@@ -171,6 +178,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </div>
         }
       />
+
+      {/* Recently Viewed */}
+      <div className="mt-12 max-w-7xl mx-auto border-t border-white/10 pt-12">
+        <RecentlyViewedCarousel excludeProductId={product.id} />
+      </div>
 
     </main>
   );

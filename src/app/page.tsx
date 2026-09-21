@@ -1,11 +1,13 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { getPopularProducts, getSpecialOffers, getNewArrivals } from "@/lib/recommender";
+import { getPopularProducts, getSpecialOffers, getNewArrivals, getFlashSales } from "@/lib/recommender";
 import { getSession } from "@/lib/session";
 import { db } from "@/prisma/db";
 import { ProductCarousel } from "@/components/product/ProductCarousel";
+import { RecentlyViewedCarousel } from "@/components/product/RecentlyViewedCarousel";
 
 export default async function Home() {
+  const flashSales = await getFlashSales(8);
   const popularProducts = await getPopularProducts(8);
   const specialOffers = await getSpecialOffers(8);
   const newArrivals = await getNewArrivals(8);
@@ -71,6 +73,17 @@ export default async function Home() {
           </Link>
         </div>
         
+        {/* Flash Sales Carousel */}
+        {flashSales.length > 0 && (
+          <div className="w-full max-w-7xl mt-12">
+            <ProductCarousel 
+              title="⏳ پیشنهادهای شگفت‌انگیز" 
+              products={flashSales} 
+              userWishlistIds={userWishlistProductIds}
+            />
+          </div>
+        )}
+        
         {/* Special Offers Carousel */}
         {specialOffers.length > 0 && (
           <div className="w-full max-w-7xl mt-12">
@@ -103,6 +116,11 @@ export default async function Home() {
             />
           </div>
         )}
+        
+        {/* Recently Viewed Carousel */}
+        <div className="w-full max-w-7xl mt-8 mb-12">
+          <RecentlyViewedCarousel />
+        </div>
         
       </div>
     </div>

@@ -67,6 +67,10 @@ export default async function AdminLayout({
                 <MessageSquare className="w-5 h-5" />
                 نظرات کاربران
               </Link>
+              <Link href="/admin/flash-sales" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                <Tags className="w-5 h-5" />
+                فروش ویژه
+              </Link>
               
 
             </nav>

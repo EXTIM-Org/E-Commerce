@@ -89,6 +89,7 @@ model Product {
   variants      ProductVariant[]
   reviews       Review[]
   questions     Question[]
+  flashSale     FlashSale?
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -245,4 +246,18 @@ model ReviewVote {
   createdAt DateTime @default(now())
 
   @@unique([reviewId, userId])
+}
+
+model FlashSale {
+  id              String   @id @default(cuid())
+  productId       String   @unique
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  discountPercent Int
+  startTime       DateTime
+  endTime         DateTime
+  isActive        Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }

@@ -91,12 +91,27 @@ model Product {
   reviews       Review[]
   wishlistItems WishlistItem[]
   questions     Question[]
+  flashSale     FlashSale?
   
   viewCount     Int       @default(0) // Track product views
   salesCount    Int       @default(0) // Track product sales
   
   createdAt     TimestamptzString @default(now())
   updatedAt     temporal.updatedAtString()
+}
+
+model FlashSale {
+  id              String    @id @default(uuid())
+  productId       String    @unique
+  product         Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  discountPercent Int
+  startTime       TimestamptzString
+  endTime         TimestamptzString
+  isActive        Boolean   @default(true)
+  
+  createdAt       TimestamptzString @default(now())
+  updatedAt       temporal.updatedAtString()
 }
 
 model Wishlist {

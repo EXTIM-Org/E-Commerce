@@ -5,6 +5,8 @@ import Image from "next/image";
 import { ShoppingCart, Check, ShieldCheck, Truck, Star } from "lucide-react";
 import { useCart } from "@/store/CartContext";
 import { WishlistButton } from "@/components/product/WishlistButton";
+import { FlashSaleCountdown } from "@/components/product/FlashSaleCountdown";
+import { getEffectivePrice } from "@/lib/price";
 
 const COLOR_DICTIONARY: Record<string, string> = {
   "مشکی": "#111111",
@@ -53,6 +55,12 @@ interface ProductClientProps {
     variants?: Variant[];
     category?: Category | null;
     reviews?: { rating: number }[];
+    flashSale?: {
+      isActive: boolean;
+      startTime: string | Date;
+      endTime: string | Date;
+      discountPercent: number;
+    } | null;
   };
   initialIsLiked?: boolean;
 }
@@ -96,8 +104,8 @@ export function ProductClient({ product, initialIsLiked }: ProductClientProps) {
     }
   }
 
-  const basePrice = selectedVariant?.price ?? product.basePrice;
-  const finalPrice = basePrice - product.discount;
+  const basePriceForCalculation = selectedVariant?.price ?? product.basePrice;
+  const { originalPrice, finalPrice, hasDiscount, discountPercent } = getEffectivePrice(basePriceForCalculation - product.discount, product.flashSale);
 
   const reviewCount = product.reviews?.length || 0;
   const averageRating = reviewCount > 0 
@@ -142,9 +150,9 @@ export function ProductClient({ product, initialIsLiked }: ProductClientProps) {
             </div>
           )}
           
-          {product.discount > 0 && (
-            <div className="absolute top-6 right-6 rounded-full bg-pink-600/90 px-4 py-2 text-sm font-bold text-white shadow-[0_0_20px_rgba(219,39,119,0.5)] backdrop-blur-md">
-              فروش ویژه
+          {(product.discount > 0 || hasDiscount) && (
+            <div className={`absolute top-6 right-6 rounded-full px-4 py-2 text-sm font-bold text-white shadow-lg backdrop-blur-md ${hasDiscount ? 'bg-rose-600/90 shadow-[0_0_20px_rgba(225,29,72,0.5)]' : 'bg-pink-600/90 shadow-[0_0_20px_rgba(219,39,119,0.5)]'}`}>
+              {hasDiscount ? `%${discountPercent}- شگفت‌انگیز` : 'فروش ویژه'}
             </div>
           )}
         </div>
@@ -171,8 +179,13 @@ export function ProductClient({ product, initialIsLiked }: ProductClientProps) {
       <div className="flex flex-col gap-6 pt-4">
         
         {/* Breadcrumb / Category */}
-        <div className="text-purple-400 text-sm font-medium tracking-wide">
-          {product.category?.name || 'دسته‌بندی نشده'}
+        <div className="flex items-center justify-between">
+          <div className="text-purple-400 text-sm font-medium tracking-wide">
+            {product.category?.name || 'دسته‌بندی نشده'}
+          </div>
+          {hasDiscount && product.flashSale && (
+            <FlashSaleCountdown endTime={product.flashSale.endTime} />
+          )}
         </div>
         
         <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white leading-tight">
@@ -330,21 +343,21 @@ export function ProductClient({ product, initialIsLiked }: ProductClientProps) {
         <div className="flex flex-col gap-6 bg-white dark:bg-white/5 rounded-3xl p-8 border border-gray-200 dark:border-white/10 backdrop-blur-sm shadow-sm dark:shadow-xl">
           <div className="flex justify-between items-end">
             <div className="flex flex-col gap-1">
-              {product.discount > 0 && (
+              {(product.discount > 0 || hasDiscount) && (
                 <span className="text-gray-400 dark:text-gray-500 line-through text-lg">
-                  {basePrice.toLocaleString('fa-IR')} تومان
+                  {originalPrice.toLocaleString('fa-IR')} تومان
                 </span>
               )}
               <div className="flex items-center gap-3">
-                <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-500">
+                <span className={`text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r ${hasDiscount ? 'from-rose-600 to-pink-600 dark:from-rose-400 dark:to-pink-500' : 'from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-500'}`}>
                   {finalPrice.toLocaleString('fa-IR')}
                 </span>
                 <span className="text-xl text-gray-500 dark:text-gray-400 font-medium">تومان</span>
               </div>
             </div>
-            {product.discount > 0 && (
+            {(!hasDiscount && product.discount > 0) && (
               <div className="bg-pink-600/20 text-pink-400 px-3 py-1 rounded-lg text-sm font-bold border border-pink-500/30">
-                {(product.discount / basePrice * 100).toFixed(0)}% تخفیف
+                {(product.discount / originalPrice * 100).toFixed(0)}% تخفیف
               </div>
             )}
           </div>

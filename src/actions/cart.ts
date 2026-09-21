@@ -2,6 +2,7 @@
 
 import { db } from "@/prisma/db";
 import { getSession } from "@/lib/session";
+import { getEffectivePrice } from "@/lib/price";
 
 const RESERVATION_MINUTES = 15;
 
@@ -53,7 +54,7 @@ export async function fetchUserCart() {
   
   const cart = await db.orm.public.Cart
     .where({ userId })
-    .include("items", (i) => i.include("variant", (v) => v.include("product")))
+    .include("items", (i) => i.include("variant", (v) => v.include("product", (p) => p.include("flashSale"))))
     .first();
     
   if (!cart) return { success: true, items: [] };
@@ -64,7 +65,7 @@ export async function fetchUserCart() {
     variantId: item.variantId,
     name: item.variant?.product?.name || "محصول نامشخص",
     variantName: item.variant?.name || null,
-    price: item.variant?.price ?? item.variant?.product?.basePrice ?? 0,
+    price: getEffectivePrice(item.variant?.price ?? item.variant?.product?.basePrice ?? 0, item.variant?.product?.flashSale).finalPrice,
     quantity: item.quantity,
     image: item.variant?.product?.images[0] || "",
     reservedAt: item.reservedAt,

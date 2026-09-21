@@ -7,7 +7,8 @@ export async function getSimilarProducts(productId: string, categoryId: string, 
   const products = await db.orm.public.Product
     .where((p) => p.categoryId.eq(categoryId))
     .where((p) => p.id.neq(productId))
-    .include("variants", (v) => v.include("inventory"))
+    .include("variants", (v) => v.select("id", "name", "sku", "price").include("inventory"))
+    .include("flashSale")
     .orderBy((p) => p.salesCount.desc())
     .limit(limit)
     .all();
@@ -19,7 +20,8 @@ export async function getSimilarProducts(productId: string, categoryId: string, 
 export async function getPopularProducts(limit: number = 8) {
   // Fetch products with highest sales count and view count
   const products = await db.orm.public.Product
-    .include("variants", (v) => v.include("inventory"))
+    .include("variants", (v) => v.select("id", "name", "sku", "price").include("inventory"))
+    .include("flashSale")
     .orderBy([(p) => p.salesCount.desc(), (p) => p.viewCount.desc()])
     .limit(limit)
     .all();
@@ -32,7 +34,8 @@ export async function getSpecialOffers(limit: number = 8) {
   // Fetch products that have a discount > 0, ordered by highest discount
   const products = await db.orm.public.Product
     .where((p) => p.discount.gt(0))
-    .include("variants", (v) => v.include("inventory"))
+    .include("variants", (v) => v.select("id", "name", "sku", "price").include("inventory"))
+    .include("flashSale")
     .orderBy((p) => p.discount.desc())
     .limit(limit)
     .all();
@@ -44,7 +47,8 @@ export async function getSpecialOffers(limit: number = 8) {
 export async function getNewArrivals(limit: number = 8) {
   // Fetch the latest added products
   const products = await db.orm.public.Product
-    .include("variants", (v) => v.include("inventory"))
+    .include("variants", (v) => v.select("id", "name", "sku", "price").include("inventory"))
+    .include("flashSale")
     .orderBy((p) => p.createdAt.desc())
     .limit(limit)
     .all();
@@ -75,8 +79,9 @@ export async function getFrequentlyBoughtTogether(productId: string, limit: numb
   const relatedOrderItems = await db.orm.public.OrderItem
     .where((oi) => oi.orderId.in(orderIds))
     .include("variant", (v) => 
-      v.include("product", (p) => 
-        p.include("variants", (v2) => v2.include("inventory"))
+      v.select("productId").include("product", (p) => 
+        p.include("variants", (v2) => v2.select("id", "name", "sku", "price").include("inventory"))
+         .include("flashSale")
       )
     )
     .all();
@@ -103,6 +108,20 @@ export async function getFrequentlyBoughtTogether(productId: string, limit: numb
     .map(entry => entry.product);
 
   return sortedProducts;
+}
+
+// 5. Flash Sales
+export async function getFlashSales(limit: number = 8) {
+  const now = new Date().toISOString();
+  const sales = await db.orm.public.FlashSale
+    .where((f) => f.isActive.eq(true))
+    .where((f) => f.startTime.lte(now))
+    .where((f) => f.endTime.gte(now))
+    .include("product", (p) => p.include("variants", (v) => v.select("id", "name", "sku", "price").include("inventory")).include("flashSale"))
+    .limit(limit)
+    .all();
+    
+  return sales.map(s => s.product).filter(Boolean);
 }
 
 // Helper to asynchronously increment view count

@@ -8,13 +8,13 @@ type QuestionData = {
   id: string;
   text: string;
   createdAt: string;
-  user: { name: string | null };
+  user: { name: string | null } | null;
   answers: {
     id: string;
     text: string;
     createdAt: string;
     isAdmin: boolean;
-    user: { name: string | null };
+    user: { name: string | null } | null;
   }[];
 };
 
@@ -40,7 +40,7 @@ export function QASection({ productId, isLoggedIn, questions }: QASectionProps) 
                   </div>
                   <div className="flex flex-col flex-grow">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-gray-900 dark:text-white">{q.user.name || "کاربر ناشناس"}</span>
+                      <span className="font-bold text-gray-900 dark:text-white">{q.user?.name || "کاربر ناشناس"}</span>
                       <span className="text-xs text-gray-500 px-2 border-r border-gray-300 dark:border-gray-600">
                         {new Date(q.createdAt).toLocaleDateString("fa-IR")}
                       </span>
@@ -70,7 +70,7 @@ export function QASection({ productId, isLoggedIn, questions }: QASectionProps) 
                         <div className="flex flex-col z-10">
                           <div className="flex items-center gap-2">
                             <span className={`font-bold text-sm ${a.isAdmin ? "text-fuchsia-600 dark:text-fuchsia-400" : "text-gray-900 dark:text-white"}`}>
-                              {a.isAdmin ? "پاسخ فروشگاه" : (a.user.name || "کاربر")}
+                              {a.isAdmin ? "پاسخ فروشگاه" : (a.user?.name || "کاربر ناشناس")}
                             </span>
                             <span className="text-xs text-gray-500 px-2 border-r border-gray-300 dark:border-gray-600">
                               {new Date(a.createdAt).toLocaleDateString("fa-IR")}
