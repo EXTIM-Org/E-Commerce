@@ -75,22 +75,126 @@ export default async function ProductDetailPage({ params }: PageProps) {
     
   const { finalPrice } = getEffectivePrice(basePriceForCalculation - product.discount, product.flashSale);
 
-  // JSON-LD Schema for single product SEO
-  const jsonLd = {
-    '@context': 'https://schema.org',
+  // Calculate stock availability for JSON-LD
+  let inStock = true;
+  if (product.variants && product.variants.length > 0) {
+    inStock = product.variants.some((v: any) => v.inventory && v.inventory.quantity > 0);
+  }
+
+  // 1. Calculate Aggregate Rating & Reviews Schema
+  let aggregateRating = undefined;
+  let reviewsSchema = undefined;
+  
+  if (product.reviews && product.reviews.length > 0) {
+    const totalRating = product.reviews.reduce((sum: number, review: any) => sum + review.rating, 0);
+    const averageRating = (totalRating / product.reviews.length).toFixed(1);
+    
+    aggregateRating = {
+      '@type': 'AggregateRating',
+      'ratingValue': averageRating,
+      'reviewCount': product.reviews.length,
+      'bestRating': '5',
+      'worstRating': '1'
+    };
+
+    reviewsSchema = product.reviews.map((review: any) => ({
+      '@type': 'Review',
+      'reviewRating': {
+        '@type': 'Rating',
+        'ratingValue': review.rating,
+        'bestRating': '5',
+        'worstRating': '1'
+      },
+      'author': {
+        '@type': 'Person',
+        'name': review.user?.name || 'کاربر مهمان'
+      },
+      'reviewBody': review.comment,
+      'datePublished': new Date(review.createdAt).toISOString()
+    }));
+  }
+
+  // 2. FAQ Page Schema
+  let faqSchema = undefined;
+  if (product.questions && product.questions.length > 0) {
+    const questionsWithAnswers = product.questions.filter((q: any) => q.answers && q.answers.length > 0);
+    if (questionsWithAnswers.length > 0) {
+      faqSchema = {
+        '@type': 'FAQPage',
+        '@id': `https://extim.com/products/${product.slug}#faq`,
+        'mainEntity': questionsWithAnswers.map((q: any) => ({
+          '@type': 'Question',
+          'name': q.text,
+          'acceptedAnswer': {
+            '@type': 'Answer',
+            'text': q.answers[0].text
+          }
+        }))
+      };
+    }
+  }
+
+  // 3. BreadcrumbList Schema
+  const breadcrumbSchema = {
+    '@type': 'BreadcrumbList',
+    '@id': `https://extim.com/products/${product.slug}#breadcrumb`,
+    'itemListElement': [
+      {
+        '@type': 'ListItem',
+        'position': 1,
+        'name': 'فروشگاه EXTIM',
+        'item': 'https://extim.com/'
+      },
+      {
+        '@type': 'ListItem',
+        'position': 2,
+        'name': product.category?.name || 'محصولات',
+        'item': `https://extim.com/categories/${product.category?.slug || 'all'}`
+      },
+      {
+        '@type': 'ListItem',
+        'position': 3,
+        'name': product.name,
+        'item': `https://extim.com/products/${product.slug}`
+      }
+    ]
+  };
+
+  // 4. Product Schema
+  const productSchema = {
     '@type': 'Product',
+    '@id': `https://extim.com/products/${product.slug}#product`,
     'name': product.name,
     'description': product.description || undefined,
     'image': product.images,
     'sku': (product.variants && product.variants.length > 0) ? product.variants[0].sku : product.id,
+    'brand': {
+      '@type': 'Brand',
+      'name': 'EXTIM'
+    },
     'offers': {
       '@type': 'Offer',
       'url': `https://extim.com/products/${product.slug}`,
       'priceCurrency': 'IRR',
       'price': finalPrice,
-      'availability': 'https://schema.org/InStock',
+      'priceValidUntil': product.flashSale 
+        ? new Date(product.flashSale.endTime).toISOString().split('T')[0] 
+        : new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
+      'availability': inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       'itemCondition': 'https://schema.org/NewCondition',
     },
+    ...(aggregateRating && { aggregateRating }),
+    ...(reviewsSchema && { review: reviewsSchema }),
+  };
+
+  // JSON-LD Graph Payload
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      productSchema,
+      breadcrumbSchema,
+      ...(faqSchema ? [faqSchema] : [])
+    ]
   };
 
   return (
