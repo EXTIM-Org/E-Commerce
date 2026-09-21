@@ -115,6 +115,7 @@ The following features are the next logical steps for development:
 6. **Advanced Shop Page (Search & Filters)**: (✅ Completed) Server-side advanced search and filtering system.
 7. **User Dashboard & Wishlist**: (✅ Completed) Fully integrated user profile, order tracking, and wishlist.
 8. **Server-Side Cart & Inventory Reservation**: (✅ Completed) Intelligent inventory reservation for logged-in users with a 15-minute lazy-cleanup expiration and FOMO cart timers.
+9. **Technical Specifications & Admin UI Enhancements**: (✅ Completed) Added `ProductSpecification` model to Prisma, allowing flexible technical specifications per product. Upgraded `ProductForm.tsx` to automatically supply optional default dimension fields (Weight, Length, Width, Height) with dynamic placeholders. Adjusted Admin UI layout to place Specifications under Variants. Polished the Product Details tabs by reorganizing their order (Reviews -> Q&A -> Specs) and updating the active Reviews tab to a premium analogous color (`rose-500`). Fixed lingering `.next` caching errors leading to 404s on admin routes.
 
 ## 📌 Future Scope & Excluded Features
 - **Support Chat System**: Will use a third-party service in the future. Do not implement a custom chat system.

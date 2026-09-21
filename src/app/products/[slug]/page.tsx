@@ -34,6 +34,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const product = await db.orm.public.Product.where({ slug })
     .include('category')
     .include("variants", (v) => v.include("inventory"))
+    .include('specifications')
     .include('reviews', (r) => r.include('user').include('votes'))
     .include('questions', (q) => q.include('user').include('answers', (a) => a.include('user')))
     .first();
@@ -151,6 +152,23 @@ export default async function ProductDetailPage({ params }: PageProps) {
         }
         qaContent={
           <QASection productId={product.id} isLoggedIn={!!session?.userId} questions={product.questions || []} />
+        }
+        specificationsContent={
+          <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-3xl p-8">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">مشخصات فنی</h3>
+            {product.specifications && product.specifications.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {product.specifications.map((spec) => (
+                  <div key={spec.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 dark:bg-black/20 rounded-2xl">
+                    <span className="text-gray-500 dark:text-gray-400 font-medium mb-1 sm:mb-0">{spec.name}</span>
+                    <span className="text-gray-900 dark:text-white font-bold">{spec.value}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">مشخصات فنی برای این محصول ثبت نشده است.</p>
+            )}
+          </div>
         }
       />
 

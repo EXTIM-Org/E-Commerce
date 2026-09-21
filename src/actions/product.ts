@@ -176,6 +176,25 @@ export async function createProduct(prevState: unknown, formData: FormData) {
       }
     }
 
+    // Handle specifications
+    const specsJsonStr = formData.get("specificationsJson") as string;
+    if (specsJsonStr) {
+      try {
+        const specs = JSON.parse(specsJsonStr);
+        for (const spec of specs) {
+          if (spec.name && spec.value) {
+            await db.orm.public.ProductSpecification.create({
+              productId: product.id,
+              name: spec.name.trim(),
+              value: spec.value.trim(),
+            });
+          }
+        }
+      } catch (e) {
+        console.error("Error parsing specs:", e);
+      }
+    }
+
   } catch (error) {
     console.error("Error creating product:", error);
     return { error: "خطایی در ثبت محصول رخ داد." };
@@ -315,6 +334,29 @@ export async function updateProduct(id: string, prevState: unknown, formData: Fo
         }
       } catch (e) {
         console.error("Error parsing/syncing variants:", e);
+      }
+    }
+
+    // Handle specifications
+    const specsJsonStr = formData.get("specificationsJson") as string;
+    if (specsJsonStr) {
+      try {
+        const specs = JSON.parse(specsJsonStr);
+        
+        // Delete existing ones and recreate
+        await db.orm.public.ProductSpecification.where({ productId: id }).delete();
+        
+        for (const spec of specs) {
+          if (spec.name && spec.value) {
+            await db.orm.public.ProductSpecification.create({
+              productId: id,
+              name: spec.name.trim(),
+              value: spec.value.trim(),
+            });
+          }
+        }
+      } catch (e) {
+        console.error("Error parsing/syncing specs:", e);
       }
     }
 

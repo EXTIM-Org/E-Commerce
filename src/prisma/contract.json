@@ -48,6 +48,10 @@
       "model": "Product",
       "namespace": "public"
     },
+    "productSpecification": {
+      "model": "ProductSpecification",
+      "namespace": "public"
+    },
     "productVariant": {
       "model": "ProductVariant",
       "namespace": "public"
@@ -1470,6 +1474,21 @@
                   "namespace": "public"
                 }
               },
+              "specifications": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "productId"
+                  ]
+                },
+                "to": {
+                  "model": "ProductSpecification",
+                  "namespace": "public"
+                }
+              },
               "variants": {
                 "cardinality": "1:N",
                 "on": {
@@ -1542,6 +1561,94 @@
               },
               "namespaceId": "public",
               "table": "product"
+            }
+          },
+          "ProductSpecification": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "productId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "value": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "product": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "productId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Product",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "productId": {
+                  "column": "productId"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "value": {
+                  "column": "value"
+                }
+              },
+              "namespaceId": "public",
+              "table": "productSpecification"
             }
           },
           "ProductVariant": {
@@ -3501,6 +3608,86 @@
                 }
               ]
             },
+            "productSpecification": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "productId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "value": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "productId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "productSpecification"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "product"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "productId"
+                  ],
+                  "name": "productSpecification_productId_idx_5858600a",
+                  "prefix": "productSpecification_productId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "productId",
+                    "name"
+                  ]
+                }
+              ]
+            },
             "productVariant": {
               "columns": {
                 "id": {
@@ -4172,10 +4359,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "44897e20ef46155a637d7dd8d4d308ec8666f326477a78e6ee87df2ce3f49193"
+    "storageHash": "2c5fe76a838e3f9815d6371fb234a42f222b45a61d06d27333074c71afedf0fa"
   },
   "execution": {
-    "executionHash": "19fcb0bf883271ae1c357825b95e88264e00347d454f739319d326797bd923e2",
+    "executionHash": "da18441db5a5468dd3bad117bd8c40e00bac9e87c3ccd279c2bb168fbd756643",
     "mutations": {
       "defaults": [
         {
@@ -4387,6 +4574,32 @@
             "column": "updatedAt",
             "namespace": "public",
             "table": "product"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "productSpecification"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updatedAt",
+            "namespace": "public",
+            "table": "productSpecification"
           }
         },
         {
