@@ -7,6 +7,8 @@ import { getSession } from "@/lib/session";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
+import { Footer } from "@/components/layout/Footer";
+
 const vazirmatn = Vazirmatn({ 
   subsets: ["arabic", "latin"], 
   variable: "--font-vazirmatn",
@@ -56,6 +58,7 @@ export default async function RootLayout({
             <main className="flex-1 flex flex-col relative">
               {children}
             </main>
+            <Footer />
           </CartProvider>
         </ThemeProvider>
       </body>

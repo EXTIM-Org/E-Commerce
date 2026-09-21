@@ -10,6 +10,7 @@ import { ChevronDown, Check } from "lucide-react";
 const ROLE_OPTIONS = [
   { value: "USER", label: "کاربر عادی", color: "text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700" },
   { value: "BLOG_ADMIN", label: "مدیر وبلاگ", color: "text-blue-700 dark:text-blue-400 bg-blue-100/50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800" },
+  { value: "SUPPORT", label: "پشتیبانی", color: "text-teal-700 dark:text-teal-400 bg-teal-100/50 dark:bg-teal-900/30 border-teal-200 dark:border-teal-800" },
   { value: "ADMIN", label: "ادمین", color: "text-purple-700 dark:text-purple-400 bg-purple-100/50 dark:bg-purple-900/30 border-purple-200 dark:border-purple-800" },
   { value: "SUPER_ADMIN", label: "سوپر ادمین", color: "text-red-700 dark:text-red-400 bg-red-100/50 dark:bg-red-900/30 border-red-200 dark:border-red-800" },
 ];

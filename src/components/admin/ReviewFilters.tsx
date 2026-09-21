@@ -148,6 +148,7 @@ export function ReviewFilters() {
       }
     }, 500);
     return () => clearTimeout(delayDebounceFn);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
   const handleSelectChange = (name: string, value: string) => {

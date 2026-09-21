@@ -12,6 +12,10 @@ export default async function AdminDashboard() {
   if (session?.role === "BLOG_ADMIN") {
     redirect("/admin/blog");
   }
+  
+  if (session?.role === "SUPPORT") {
+    redirect("/admin/messages");
+  }
 
   // Fetch stats using Prisma 8
   const { count: productsCount } = await db.orm.public.Product.aggregate(a => ({ count: a.count() }));

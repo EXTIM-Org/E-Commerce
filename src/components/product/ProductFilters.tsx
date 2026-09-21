@@ -85,6 +85,7 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
       }
     }, 500);
     return () => clearTimeout(delayDebounceFn);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
   // Debounced Price Range
@@ -95,6 +96,7 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
       }
     }, 800);
     return () => clearTimeout(delayDebounceFn);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [minPrice, maxPrice]);
 
   const currentCategory = searchParams.get("category") || "";

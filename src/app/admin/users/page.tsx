@@ -51,11 +51,13 @@ export default async function UsersPage() {
                       user.role === "SUPER_ADMIN" ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300" :
                       user.role === "ADMIN" ? "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300" :
                       user.role === "BLOG_ADMIN" ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300" :
+                      user.role === "SUPPORT" ? "bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300" :
                       "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
                     }`}>
                       {user.role === "SUPER_ADMIN" ? "سوپر ادمین" :
                        user.role === "ADMIN" ? "ادمین" :
-                       user.role === "BLOG_ADMIN" ? "مدیر وبلاگ" : "کاربر عادی"}
+                       user.role === "BLOG_ADMIN" ? "مدیر وبلاگ" : 
+                       user.role === "SUPPORT" ? "پشتیبانی" : "کاربر عادی"}
                     </span>
                   </td>
                   <td className="px-6 py-4">

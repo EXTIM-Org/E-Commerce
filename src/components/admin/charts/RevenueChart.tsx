@@ -47,6 +47,7 @@ export function RevenueChart({ initialData }: { initialData: any[] }) {
     fetchNewData();
     
     return () => { isMounted = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [days, initialData]);
 
 

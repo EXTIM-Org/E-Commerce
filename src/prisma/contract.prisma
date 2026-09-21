@@ -5,6 +5,7 @@ enum Role {
   BLOG_ADMIN
   ADMIN
   SUPER_ADMIN
+  SUPPORT
 }
 
 enum OrderStatus {
@@ -49,6 +50,7 @@ model User {
   questions     Question[]
   answers       Answer[]
   articles      Article[]
+  contactMessages ContactMessage[]
 }
 
 model Address {
@@ -369,3 +371,16 @@ enum ArticleStatus {
   DRAFT
   PUBLISHED
 }
+
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String
+  contact   String
+  subject   String
+  message   String
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  isRead    Boolean  @default(false)
+  createdAt TimestamptzString @default(now())
+}
+

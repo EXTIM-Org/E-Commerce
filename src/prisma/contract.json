@@ -32,6 +32,10 @@
       "model": "Category",
       "namespace": "public"
     },
+    "contactMessage": {
+      "model": "ContactMessage",
+      "namespace": "public"
+    },
     "coupon": {
       "model": "Coupon",
       "namespace": "public"
@@ -170,6 +174,10 @@
               {
                 "name": "SUPER_ADMIN",
                 "value": "SUPER_ADMIN"
+              },
+              {
+                "name": "SUPPORT",
+                "value": "SUPPORT"
               }
             ]
           },
@@ -968,6 +976,114 @@
               },
               "namespaceId": "public",
               "table": "category"
+            }
+          },
+          "ContactMessage": {
+            "fields": {
+              "contact": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "isRead": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "message": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "subject": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "userId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "user": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "contact": {
+                  "column": "contact"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "isRead": {
+                  "column": "isRead"
+                },
+                "message": {
+                  "column": "message"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "subject": {
+                  "column": "subject"
+                },
+                "userId": {
+                  "column": "userId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "contactMessage"
             }
           },
           "Coupon": {
@@ -2692,6 +2808,21 @@
                   "namespace": "public"
                 }
               },
+              "contactMessages": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "ContactMessage",
+                  "namespace": "public"
+                }
+              },
               "orders": {
                 "cardinality": "1:N",
                 "on": {
@@ -3596,6 +3727,93 @@
                   ]
                 }
               ]
+            },
+            "contactMessage": {
+              "columns": {
+                "contact": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "isRead": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "message": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "subject": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "userId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "userId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "contactMessage"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "user"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "userId"
+                  ],
+                  "name": "contactMessage_userId_idx_a489d58a",
+                  "prefix": "contactMessage_userId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
             },
             "coupon": {
               "checks": [
@@ -4794,8 +5012,8 @@
             "user": {
               "checks": [
                 {
-                  "expression": "\"role\" IN ('USER', 'BLOG_ADMIN', 'ADMIN', 'SUPER_ADMIN')",
-                  "name": "user_role_check_d0e3c086",
+                  "expression": "\"role\" IN ('USER', 'BLOG_ADMIN', 'ADMIN', 'SUPER_ADMIN', 'SUPPORT')",
+                  "name": "user_role_check_c90e07ae",
                   "prefix": "user_role_check"
                 }
               ],
@@ -5068,7 +5286,8 @@
                 "USER",
                 "BLOG_ADMIN",
                 "ADMIN",
-                "SUPER_ADMIN"
+                "SUPER_ADMIN",
+                "SUPPORT"
               ]
             },
             "TransactionType": {
@@ -5086,10 +5305,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "25ab0c2f5643dbe86e5dd4e8b790ae48892161928534ddc03dd1967fd7749cc7"
+    "storageHash": "aebf9c8008b0af55df9cafdf469c586be4165d51a142c896ecbc127ee14053b1"
   },
   "execution": {
-    "executionHash": "6e86ffb38b0d0888124e3b499a635ac5aba890fec450a41376a79b3bc67e3ffb",
+    "executionHash": "349981cd28bf38ea9e5c60b0c74a36137c514cc0b5ce3d3c98821ebf6be64949",
     "mutations": {
       "defaults": [
         {
@@ -5227,6 +5446,17 @@
             "column": "updatedAt",
             "namespace": "public",
             "table": "category"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "contactMessage"
           }
         },
         {

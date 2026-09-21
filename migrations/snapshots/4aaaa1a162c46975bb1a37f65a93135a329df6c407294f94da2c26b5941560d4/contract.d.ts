@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'aebf9c8008b0af55df9cafdf469c586be4165d51a142c896ecbc127ee14053b1'>;
+  StorageHashBase<'4aaaa1a162c46975bb1a37f65a93135a329df6c407294f94da2c26b5941560d4'>;
 export type ExecutionHash =
   ExecutionHashBase<'349981cd28bf38ea9e5c60b0c74a36137c514cc0b5ce3d3c98821ebf6be64949'>;
 export type ProfileHash =
@@ -439,7 +439,7 @@ export type FieldOutputTypes = {
       readonly image: CodecTypes['pg/text@1']['output'] | null;
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly passwordHash: CodecTypes['pg/text@1']['output'];
-      readonly role: 'USER' | 'BLOG_ADMIN' | 'ADMIN' | 'SUPER_ADMIN' | 'SUPPORT';
+      readonly role: 'USER' | 'BLOG_ADMIN' | 'ADMIN' | 'SUPER_ADMIN';
       readonly resetToken: CodecTypes['pg/text@1']['output'] | null;
       readonly resetTokenExpiry: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -657,7 +657,7 @@ export type FieldInputTypes = {
       readonly image: CodecTypes['pg/text@1']['input'] | null;
       readonly email: CodecTypes['pg/text@1']['input'];
       readonly passwordHash: CodecTypes['pg/text@1']['input'];
-      readonly role: 'USER' | 'BLOG_ADMIN' | 'ADMIN' | 'SUPER_ADMIN' | 'SUPPORT';
+      readonly role: 'USER' | 'BLOG_ADMIN' | 'ADMIN' | 'SUPER_ADMIN';
       readonly resetToken: CodecTypes['pg/text@1']['input'] | null;
       readonly resetTokenExpiry: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
@@ -878,7 +878,7 @@ export type StorageColumnTypes = {
       readonly passwordHash: CodecTypes['pg/text@1']['output'];
       readonly resetToken: CodecTypes['pg/text@1']['output'] | null;
       readonly resetTokenExpiry: CodecTypes['pg/timestamptz-string@1']['output'] | null;
-      readonly role: 'USER' | 'BLOG_ADMIN' | 'ADMIN' | 'SUPER_ADMIN' | 'SUPPORT';
+      readonly role: 'USER' | 'BLOG_ADMIN' | 'ADMIN' | 'SUPER_ADMIN';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
     readonly wishlist: {
@@ -1096,7 +1096,7 @@ export type StorageColumnInputTypes = {
       readonly passwordHash: CodecTypes['pg/text@1']['input'];
       readonly resetToken: CodecTypes['pg/text@1']['input'] | null;
       readonly resetTokenExpiry: CodecTypes['pg/timestamptz-string@1']['input'] | null;
-      readonly role: 'USER' | 'BLOG_ADMIN' | 'ADMIN' | 'SUPER_ADMIN' | 'SUPPORT';
+      readonly role: 'USER' | 'BLOG_ADMIN' | 'ADMIN' | 'SUPER_ADMIN';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
     readonly wishlist: {
@@ -1120,7 +1120,7 @@ export namespace Models {
     image: CodecTypes['pg/text@1']['output'] | null;
     email: CodecTypes['pg/text@1']['output'];
     passwordHash: CodecTypes['pg/text@1']['output'];
-    role: 'USER' | 'BLOG_ADMIN' | 'ADMIN' | 'SUPER_ADMIN' | 'SUPPORT';
+    role: 'USER' | 'BLOG_ADMIN' | 'ADMIN' | 'SUPER_ADMIN';
     resetToken: CodecTypes['pg/text@1']['output'] | null;
     resetTokenExpiry: CodecTypes['pg/timestamptz-string@1']['output'] | null;
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -3149,7 +3149,7 @@ type ContractBase = Omit<
             };
             readonly Role: {
               readonly kind: 'valueSet';
-              readonly values: readonly ['USER', 'BLOG_ADMIN', 'ADMIN', 'SUPER_ADMIN', 'SUPPORT'];
+              readonly values: readonly ['USER', 'BLOG_ADMIN', 'ADMIN', 'SUPER_ADMIN'];
             };
             readonly TransactionType: {
               readonly kind: 'valueSet';
@@ -5087,7 +5087,6 @@ type ContractBase = Omit<
               { readonly name: 'BLOG_ADMIN'; readonly value: 'BLOG_ADMIN' },
               { readonly name: 'ADMIN'; readonly value: 'ADMIN' },
               { readonly name: 'SUPER_ADMIN'; readonly value: 'SUPER_ADMIN' },
-              { readonly name: 'SUPPORT'; readonly value: 'SUPPORT' },
             ];
           };
           readonly OrderStatus: {

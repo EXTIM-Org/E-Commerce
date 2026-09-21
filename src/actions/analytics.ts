@@ -84,10 +84,10 @@ export async function getTopProducts() {
     productSales[product.id].sales += item.quantity;
   }
 
-  // Sort and take top 5
+  // Sort and take top 7
   const topProducts = Object.values(productSales)
     .sort((a, b) => b.sales - a.sales)
-    .slice(0, 5);
+    .slice(0, 7);
 
   return topProducts;
 }

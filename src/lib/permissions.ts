@@ -1,11 +1,19 @@
-export type UserRole = "USER" | "BLOG_ADMIN" | "ADMIN" | "SUPER_ADMIN";
+export type UserRole = "USER" | "BLOG_ADMIN" | "ADMIN" | "SUPER_ADMIN" | "SUPPORT";
 
 /**
  * آیا کاربر حداقل دسترسی پنل ادمین را دارد؟ (شامل BLOG_ADMIN هم می‌شود)
  */
 export function hasAdminPanelAccess(role?: string | null): boolean {
   if (!role) return false;
-  return ["BLOG_ADMIN", "ADMIN", "SUPER_ADMIN"].includes(role);
+  return ["BLOG_ADMIN", "ADMIN", "SUPER_ADMIN", "SUPPORT"].includes(role);
+}
+
+/**
+ * آیا کاربر به بخش پیام‌های پشتیبانی دسترسی دارد؟
+ */
+export function canManageSupport(role?: string | null): boolean {
+  if (!role) return false;
+  return ["SUPPORT", "ADMIN", "SUPER_ADMIN"].includes(role);
 }
 
 /**
@@ -21,7 +29,7 @@ export function canManageStore(role?: string | null): boolean {
  */
 export function canManageBlog(role?: string | null): boolean {
   if (!role) return false;
-  return ["BLOG_ADMIN", "ADMIN", "SUPER_ADMIN"].includes(role);
+  return ["BLOG_ADMIN", "ADMIN", "SUPER_ADMIN", "SUPPORT"].includes(role);
 }
 
 /**
