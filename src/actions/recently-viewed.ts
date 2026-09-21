@@ -19,8 +19,8 @@ export async function getProductsByIds(ids: string[]) {
       and(
         f.productId.in(ids),
         f.isActive.eq(true),
-        f.startTime.lte(now),
-        f.endTime.gte(now)
+        f.startTime.lte(now.toISOString()),
+        f.endTime.gte(now.toISOString())
       )
     ).all();
 
