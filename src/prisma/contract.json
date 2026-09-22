@@ -862,6 +862,13 @@
           },
           "Category": {
             "fields": {
+              "colorGradient": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "createdAt": {
                 "nullable": false,
                 "type": {
@@ -869,8 +876,22 @@
                   "kind": "scalar"
                 }
               },
+              "iconName": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "id": {
                 "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "image": {
+                "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
@@ -955,11 +976,20 @@
             },
             "storage": {
               "fields": {
+                "colorGradient": {
+                  "column": "colorGradient"
+                },
                 "createdAt": {
                   "column": "createdAt"
                 },
+                "iconName": {
+                  "column": "iconName"
+                },
                 "id": {
                   "column": "id"
+                },
+                "image": {
+                  "column": "image"
                 },
                 "name": {
                   "column": "name"
@@ -3652,6 +3682,11 @@
             },
             "category": {
               "columns": {
+                "colorGradient": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
                 "createdAt": {
                   "codecId": "pg/timestamptz-string@1",
                   "default": {
@@ -3661,10 +3696,20 @@
                   "nativeType": "timestamptz",
                   "nullable": false
                 },
+                "iconName": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
                 "id": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": false
+                },
+                "image": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
                 },
                 "name": {
                   "codecId": "pg/text@1",
@@ -5305,7 +5350,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "aebf9c8008b0af55df9cafdf469c586be4165d51a142c896ecbc127ee14053b1"
+    "storageHash": "ab9ebbe4672e874075a565218e41f76caec59459f034875228a11c591af1023f"
   },
   "execution": {
     "executionHash": "349981cd28bf38ea9e5c60b0c74a36137c514cc0b5ce3d3c98821ebf6be64949",

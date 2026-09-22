@@ -25,6 +25,18 @@ export async function markOrderAsPaid(orderId: string) {
     await db.orm.public.Order.where({ id: orderId }).update({
       status: "PAID"
     });
+    
+    // 2.5 Increment salesCount for each product in the order
+    for (const item of order.items) {
+      if (item.variant?.productId) {
+        const plan = db.raw.sql`
+          UPDATE product
+          SET "salesCount" = "salesCount" + ${item.quantity}
+          WHERE id = ${item.variant.productId}
+        `.affectedCount().build();
+        await db.runtime().execute(plan);
+      }
+    }
 
     // 3. Prepare data for the Receipt Email
     if (order.user && order.user.email) {

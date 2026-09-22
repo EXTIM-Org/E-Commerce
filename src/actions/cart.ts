@@ -27,10 +27,13 @@ export async function lazyReleaseReservations() {
       
       if (inventory) {
         // Return stock from reserved to available
-        await db.orm.public.Inventory.where({ id: inventory.id }).update({
-          stockQuantity: inventory.stockQuantity + item.quantity,
-          reservedStock: Math.max(0, inventory.reservedStock - item.quantity),
-        });
+        const plan = db.raw.sql`
+          UPDATE inventory 
+          SET "stockQuantity" = "stockQuantity" + ${item.quantity}, 
+              "reservedStock" = GREATEST(0, "reservedStock" - ${item.quantity})
+          WHERE id = ${inventory.id}
+        `.affectedCount().build();
+        await db.runtime().execute(plan);
       }
       
       // Delete the expired cart item
@@ -92,6 +95,8 @@ export async function syncCartServer(localItems: { variantId: string; quantity: 
  * Add an item to the cart and reserve inventory.
  */
 export async function addToCartServer(variantId: string, quantity: number) {
+  if (quantity <= 0) return { success: false, error: "تعداد نامعتبر است." };
+  
   await lazyReleaseReservations();
   
   const session = await getSession();
@@ -106,7 +111,17 @@ export async function addToCartServer(variantId: string, quantity: number) {
       return { success: false, error: "موجودی این کالا یافت نشد." };
     }
     
-    if (inventory.stockQuantity < quantity) {
+    // Atomic Inventory Reservation
+    const plan = db.raw.sql`
+      UPDATE inventory 
+      SET "stockQuantity" = "stockQuantity" - ${quantity}, 
+          "reservedStock" = "reservedStock" + ${quantity}
+      WHERE id = ${inventory.id} AND "stockQuantity" >= ${quantity}
+    `.affectedCount().build();
+
+    const { affectedRows } = await db.runtime().execute(plan);
+
+    if (affectedRows === 0) {
       return { success: false, error: "موجودی کافی برای این تعداد وجود ندارد." };
     }
     
@@ -139,12 +154,6 @@ export async function addToCartServer(variantId: string, quantity: number) {
       });
     }
     
-    // Reserve Inventory
-    await db.orm.public.Inventory.where({ id: inventory.id }).update({
-      stockQuantity: inventory.stockQuantity - quantity,
-      reservedStock: inventory.reservedStock + quantity,
-    });
-    
     return { success: true, reservedAt };
   } catch (error) {
     console.error("Error adding to cart:", error);
@@ -156,6 +165,8 @@ export async function addToCartServer(variantId: string, quantity: number) {
  * Update the quantity of a cart item and adjust reservation.
  */
 export async function updateQuantityServer(variantId: string, quantity: number) {
+  if (quantity <= 0) return { success: false, error: "تعداد نامعتبر است." };
+  
   await lazyReleaseReservations();
   
   const session = await getSession();
@@ -176,22 +187,28 @@ export async function updateQuantityServer(variantId: string, quantity: number) 
     const diff = quantity - cartItem.quantity;
     
     if (diff > 0) {
-      // Increasing quantity
-      if (inventory.stockQuantity < diff) {
+      // Increasing quantity - atomic update
+      const plan = db.raw.sql`
+        UPDATE inventory 
+        SET "stockQuantity" = "stockQuantity" - ${diff}, 
+            "reservedStock" = "reservedStock" + ${diff}
+        WHERE id = ${inventory.id} AND "stockQuantity" >= ${diff}
+      `.affectedCount().build();
+      
+      const { affectedRows } = await db.runtime().execute(plan);
+      if (affectedRows === 0) {
         return { success: false, error: "موجودی کافی نیست." };
       }
-      
-      // Update Inventory
-      await db.orm.public.Inventory.where({ id: inventory.id }).update({
-        stockQuantity: inventory.stockQuantity - diff,
-        reservedStock: inventory.reservedStock + diff,
-      });
     } else if (diff < 0) {
-      // Decreasing quantity
-      await db.orm.public.Inventory.where({ id: inventory.id }).update({
-        stockQuantity: inventory.stockQuantity - diff, // diff is negative, so this adds
-        reservedStock: Math.max(0, inventory.reservedStock + diff), // diff is negative, so this subtracts
-      });
+      const absDiff = Math.abs(diff);
+      // Decreasing quantity - atomic update
+      const plan = db.raw.sql`
+        UPDATE inventory 
+        SET "stockQuantity" = "stockQuantity" + ${absDiff},
+            "reservedStock" = GREATEST(0, "reservedStock" - ${absDiff})
+        WHERE id = ${inventory.id}
+      `.affectedCount().build();
+      await db.runtime().execute(plan);
     }
     
     const reservedAt = new Date().toISOString();
@@ -223,14 +240,20 @@ export async function removeFromCartServer(variantId: string) {
     const cartItem = await db.orm.public.CartItem.where({ cartId: cart.id, variantId }).first();
     if (!cartItem) return { success: false };
     
-    // Release inventory
+    const item = cartItem;
+    
+    // Release inventory atomically
     const inventory = await db.orm.public.Inventory.where({ variantId }).first();
-    if (inventory) {
-      await db.orm.public.Inventory.where({ id: inventory.id }).update({
-        stockQuantity: inventory.stockQuantity + cartItem.quantity,
-        reservedStock: Math.max(0, inventory.reservedStock - cartItem.quantity),
-      });
-    }
+      if (inventory) {
+        // Return stock from reserved to available
+        const plan = db.raw.sql`
+          UPDATE inventory 
+          SET "stockQuantity" = "stockQuantity" + ${item.quantity}, 
+              "reservedStock" = GREATEST(0, "reservedStock" - ${item.quantity})
+          WHERE id = ${inventory.id}
+        `.affectedCount().build();
+        await db.runtime().execute(plan);
+      }
     
     await db.orm.public.CartItem.where({ id: cartItem.id }).delete();
     

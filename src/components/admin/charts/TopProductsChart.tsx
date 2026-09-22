@@ -27,6 +27,7 @@ export function TopProductsChart({ data }: { data: any[] }) {
     "#3b82f6", // Blue
     "#06b6d4", // Cyan
     "#10b981", // Emerald
+    "#6366f1", // Indigo
   ];
 
   return (

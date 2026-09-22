@@ -130,77 +130,97 @@ export async function processCheckout(prevState: unknown, formData: FormData) {
     
     const finalTotal = totalAmount + shipping - discountAmount;
 
-    // 3. Create the Order
-    const order = await db.orm.public.Order.create({
-      userId: session.userId as string,
-      status: 'PENDING',
-      totalAmount: finalTotal,
-      couponId: appliedCouponId,
-      discountAmount,
-      receiverName,
-      phone,
-      shippingAddress: fullAddress,
-      postalCode,
-    });
-    
-    // Increment coupon usage
-    if (appliedCouponId) {
-      const coupon = await db.orm.public.Coupon.where({ id: appliedCouponId }).first();
-      if (coupon) {
-        await db.orm.public.Coupon.where({ id: appliedCouponId }).update({
-          usedCount: coupon.usedCount + 1
-        });
-      }
-    }
-
-    // 4. Create OrderItems & Update Inventory
-    const cart = await db.orm.public.Cart.where({ userId: session.userId as string }).first();
-
-    for (const item of validatedOrderItems) {
-      await db.orm.public.OrderItem.create({
-        orderId: order.id,
-        variantId: item.variantId,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
+    // 3. Create the Order and process items in a Transaction
+    const txResult = await db.transaction(async (tx) => {
+      const newOrder = await tx.orm.public.Order.create({
+        userId: session.userId as string,
+        status: 'PENDING',
+        totalAmount: finalTotal,
+        couponId: appliedCouponId,
+        discountAmount,
+        receiverName,
+        phone,
+        shippingAddress: fullAddress,
+        postalCode,
       });
-
-      // Find inventory
-      const inventory = await db.orm.public.Inventory.where({ variantId: item.variantId }).first();
       
-      if (inventory) {
-        // Check if there is an active reservation
-        let cartItem = null;
-        if (cart) {
-          cartItem = await db.orm.public.CartItem.where({ cartId: cart.id, variantId: item.variantId }).first();
-        }
-
-        if (cartItem) {
-          // Has reservation, deduct from reservedStock
-          await db.orm.public.Inventory.where({ id: inventory.id }).update({
-            reservedStock: Math.max(0, inventory.reservedStock - item.quantity)
-          });
-          
-          // Remove cart item
-          await db.orm.public.CartItem.where({ id: cartItem.id }).delete();
-        } else {
-          // No reservation (maybe expired), deduct from stockQuantity if available
-          if (inventory.stockQuantity < item.quantity) {
-             throw new Error(`موجودی کالای ${item.variantId} به پایان رسیده است.`);
-          }
-          await db.orm.public.Inventory.where({ id: inventory.id }).update({
-            stockQuantity: inventory.stockQuantity - item.quantity
+      // Increment coupon usage
+      if (appliedCouponId) {
+        const coupon = await tx.orm.public.Coupon.where({ id: appliedCouponId }).first();
+        if (coupon) {
+          await tx.orm.public.Coupon.where({ id: appliedCouponId }).update({
+            usedCount: coupon.usedCount + 1
           });
         }
-
-        // Log transaction
-        await db.orm.public.InventoryTransaction.create({
-          inventoryId: inventory.id,
-          type: 'SALE',
-          quantity: -item.quantity,
-          reference: order.id
-        });
       }
+
+      // 4. Create OrderItems & Update Inventory
+      const cart = await tx.orm.public.Cart.where({ userId: session.userId as string }).first();
+
+      for (const item of validatedOrderItems) {
+        await tx.orm.public.OrderItem.create({
+          orderId: newOrder.id,
+          variantId: item.variantId,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+        });
+
+        // Find inventory
+        const inventory = await tx.orm.public.Inventory.where({ variantId: item.variantId }).first();
+        
+        if (inventory) {
+          // Check if there is an active reservation
+          let cartItem = null;
+          if (cart) {
+            cartItem = await tx.orm.public.CartItem.where({ cartId: cart.id, variantId: item.variantId }).first();
+          }
+
+          if (cartItem) {
+            // Has reservation, deduct from reservedStock atomically
+            const plan = db.raw.sql`
+              UPDATE inventory 
+              SET "reservedStock" = GREATEST(0, "reservedStock" - ${item.quantity})
+              WHERE id = ${inventory.id}
+            `.affectedCount().build();
+            await tx.execute(plan);
+            
+            // Remove cart item
+            await tx.orm.public.CartItem.where({ id: cartItem.id }).delete();
+          } else {
+            // No reservation (maybe expired), deduct from stockQuantity if available atomically
+            const plan = db.raw.sql`
+              UPDATE inventory 
+              SET "stockQuantity" = "stockQuantity" - ${item.quantity}
+              WHERE id = ${inventory.id} AND "stockQuantity" >= ${item.quantity}
+            `.affectedCount().build();
+            const { affectedRows } = await tx.execute(plan);
+            
+            if (affectedRows === 0) {
+               throw new Error(`موجودی کالای ${item.variantId} به پایان رسیده است.`);
+            }
+          }
+
+          // Log transaction
+          await tx.orm.public.InventoryTransaction.create({
+            inventoryId: inventory.id,
+            type: 'SALE',
+            quantity: -item.quantity,
+            reference: newOrder.id
+          });
+        }
+      }
+      
+      return { order: newOrder };
+    }).catch(e => {
+       console.error("Transaction failed:", e);
+       return { error: e instanceof Error ? e.message : "خطایی در ثبت سفارش رخ داد." };
+    });
+
+    if ('error' in txResult) {
+      return { error: txResult.error || "خطایی در پردازش سفارش رخ داد." };
     }
+    
+    const order = txResult.order;
     
     // 4. Auto-save Address if it doesn't exist
     const existingAddress = await db.orm.public.Address.where({ 

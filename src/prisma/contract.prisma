@@ -74,6 +74,10 @@ model Category {
   parent        Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
   subcategories Category[] @relation("CategoryHierarchy")
   
+  iconName      String?   // Lucide icon name, e.g. "Smartphone"
+  colorGradient String?   // Tailwind gradient, e.g. "from-pink-500 to-rose-500"
+  image         String?   // Custom uploaded image/icon URL
+  
   products      Product[]
   createdAt     TimestamptzString @default(now())
   updatedAt     temporal.updatedAtString()

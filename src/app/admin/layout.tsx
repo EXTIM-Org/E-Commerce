@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
-import { LayoutDashboard, Package, Tags, ShoppingCart, HelpCircle, MessageSquare, Users } from "lucide-react";
+import { LayoutDashboard, Package, Tags, ShoppingCart, HelpCircle, MessageSquare, LayoutList, Users } from "lucide-react";
 import { hasAdminPanelAccess, canManageStore, canManageBlog, canManageRoles, canManageSupport } from "@/lib/permissions";
 
 export default async function AdminLayout({
@@ -69,7 +69,7 @@ export default async function AdminLayout({
                     <span>محصولات</span>
                   </Link>
                   <Link href="/admin/categories" className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-                    <Tags className="w-5 h-5" />
+                    <LayoutList className="w-5 h-5" />
                     <span>دسته‌بندی‌ها</span>
                   </Link>
                   <Link href="/admin/flash-sales" className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
