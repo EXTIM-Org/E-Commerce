@@ -4,10 +4,11 @@ import { Plus, Trash2, Power, PowerOff } from "lucide-react";
 import { toggleFlashSale, deleteFlashSale } from "@/actions/flashSale";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
+import { canManageStore } from "@/lib/permissions";
 
 export default async function AdminFlashSalesPage() {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !canManageStore(session.role as string)) {
     redirect("/");
   }
 

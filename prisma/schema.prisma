@@ -49,7 +49,8 @@ model User {
   questions        Question[]
   answers          Answer[]
   articles         Article[]
-  contactMessages  ContactMessage[]
+  tickets          Ticket[]
+  ticketMessages   TicketMessage[]
 }
 
 model Address {
@@ -94,6 +95,7 @@ model Product {
   reviews       Review[]
   questions     Question[]
   flashSale     FlashSale?
+  tickets       Ticket[]
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -175,6 +177,7 @@ model Order {
   trackingCode    String?
   
   items         OrderItem[]
+  tickets       Ticket[]
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -304,15 +307,61 @@ enum ArticleStatus {
   PUBLISHED
 }
 
-model ContactMessage {
-  id        String   @id @default(cuid())
-  name      String
-  contact   String
-  subject   String
-  message   String
-  userId    String?
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_FOR_USER
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketDepartment {
+  SALES
+  SUPPORT
+  TECHNICAL
+}
+
+model Ticket {
+  id          String   @id @default(cuid())
+  subject     String
+  status      TicketStatus @default(OPEN)
+  priority    TicketPriority @default(MEDIUM)
+  department  TicketDepartment @default(SUPPORT)
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  orderId     String?
+  order       Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  
+  messages    TicketMessage[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TicketMessage {
+  id          String   @id @default(cuid())
+  ticketId    String
+  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  text        String
+  attachments String[] @default([])
+  isInternal  Boolean  @default(false)
+  
+  createdAt   DateTime @default(now())
 }
 

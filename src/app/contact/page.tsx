@@ -1,7 +1,7 @@
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
-import { ContactForm } from "./ContactForm";
 import { getSession } from "@/lib/session";
-import { db } from "@/prisma/db";
+import Link from "next/link";
+import { MessageSquare, ArrowLeft } from "lucide-react";
 
 export const metadata = {
   title: 'تماس با ما',
@@ -10,22 +10,7 @@ export const metadata = {
 
 export default async function ContactPage() {
   const session = await getSession();
-  
-  let initialName = "";
-  let initialContact = "";
-
-  if (session?.userId) {
-    // User is logged in, fetch their info from DB to prefill
-    const user = await db.orm.public.User
-      .where({ id: session.userId as string })
-      .select("name", "email")
-      .first();
-    
-    if (user) {
-      initialName = user.name || "";
-      initialContact = user.email || "";
-    }
-  }
+  const isLoggedIn = !!session?.userId;
 
   const contactInfo = [
     {
@@ -102,9 +87,40 @@ export default async function ContactPage() {
             ))}
           </div>
 
-          {/* Left Column: Contact Form */}
+          {/* Left Column: Ticketing System */}
           <div className="w-full lg:w-7/12">
-            <ContactForm initialName={initialName} initialContact={initialContact} />
+            <div className="bg-white/50 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-3xl p-8 md:p-12 text-center backdrop-blur-sm h-full flex flex-col justify-center items-center">
+              <div className="w-20 h-20 bg-violet-100 dark:bg-violet-500/20 rounded-full flex items-center justify-center mb-6 text-violet-600 dark:text-violet-400">
+                <MessageSquare className="w-10 h-10" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">سیستم تیکتینگ یکپارچه</h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md leading-relaxed">
+                برای پیگیری بهتر درخواست‌ها، ارسال فایل و ارتباط دوطرفه با کارشناسان ما، لطفاً از سیستم تیکتینگ استفاده کنید.
+              </p>
+              
+              {isLoggedIn ? (
+                <Link 
+                  href="/profile/tickets/new" 
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl transition-all font-bold shadow-lg shadow-violet-600/20 hover:-translate-y-1"
+                >
+                  ثبت تیکت جدید
+                  <ArrowLeft className="w-5 h-5 rtl:rotate-180" />
+                </Link>
+              ) : (
+                <div className="flex flex-col items-center gap-4">
+                  <Link 
+                    href="/login?callbackUrl=/profile/tickets/new" 
+                    className="inline-flex items-center gap-2 px-8 py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl transition-all font-bold shadow-lg shadow-violet-600/20 hover:-translate-y-1"
+                  >
+                    ورود به حساب و ثبت تیکت
+                    <ArrowLeft className="w-5 h-5 rtl:rotate-180" />
+                  </Link>
+                  <p className="text-sm text-gray-500">
+                    حساب کاربری ندارید؟ <Link href="/register" className="text-violet-600 font-bold hover:underline">ثبت‌نام کنید</Link>
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
 
         </div>

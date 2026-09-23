@@ -1,6 +1,7 @@
 import { db } from "@/prisma/db";
-import { PackageOpen, MapPin, Clock } from "lucide-react";
+import { PackageOpen, MapPin, Clock, Eye, ChevronLeft } from "lucide-react";
 import { StatusUpdater } from "@/components/admin/StatusUpdater";
+import Link from "next/link";
 
 export default async function AdminOrdersPage() {
   // Fetch all orders with user and items
@@ -56,10 +57,19 @@ export default async function AdminOrdersPage() {
                   </div>
                 </div>
 
-                {/* Status Updater Component */}
-                <div className="flex flex-col gap-1 min-w-[200px]">
+                {/* Status Updater Component & Details Link */}
+                <div className="flex flex-col gap-2 min-w-[200px] shrink-0">
                   <span className="text-xs text-gray-500">وضعیت سفارش</span>
                   <StatusUpdater orderId={order.id} currentStatus={order.status} />
+                  
+                  <Link 
+                    href={`/admin/orders/${order.id}`}
+                    className="flex items-center justify-center gap-1.5 w-full mt-2 py-2 px-4 rounded-xl bg-violet-50 hover:bg-violet-100 dark:bg-violet-500/10 dark:hover:bg-violet-500/20 text-violet-600 dark:text-violet-400 text-sm font-bold transition-colors border border-violet-500/20"
+                  >
+                    <Eye className="w-4 h-4" />
+                    جزئیات سفارش
+                    <ChevronLeft className="w-4 h-4 mr-auto" />
+                  </Link>
                 </div>
               </div>
 

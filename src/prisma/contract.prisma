@@ -50,7 +50,8 @@ model User {
   questions     Question[]
   answers       Answer[]
   articles      Article[]
-  contactMessages ContactMessage[]
+  tickets       Ticket[]
+  ticketMessages TicketMessage[]
 }
 
 model Address {
@@ -90,6 +91,7 @@ model Product {
   description   String?
   categoryId    String
   category      Category  @relation(fields: [categoryId], references: [id])
+  tickets       Ticket[]
   
   basePrice     Float     // The base/display price of the product
   discount      Float     @default(0) // Discount percentage or amount
@@ -211,6 +213,7 @@ model Order {
   user          User      @relation(fields: [userId], references: [id])
   
   status        OrderStatus @default(PENDING)
+  tickets       Ticket[]
   totalAmount   Float
   
   couponId      String?
@@ -376,15 +379,62 @@ enum ArticleStatus {
   PUBLISHED
 }
 
-model ContactMessage {
-  id        String   @id @default(uuid())
-  name      String
-  contact   String
-  subject   String
-  message   String
-  userId    String?
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  isRead    Boolean  @default(false)
-  createdAt TimestamptzString @default(now())
+enum TicketStatus {
+  OPEN
+  SEEN
+  IN_PROGRESS
+  WAITING_FOR_USER
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketDepartment {
+  SALES
+  SUPPORT
+  TECHNICAL
+}
+
+model Ticket {
+  id          String   @id @default(uuid())
+  subject     String
+  status      TicketStatus @default(OPEN)
+  priority    TicketPriority @default(MEDIUM)
+  department  TicketDepartment @default(SUPPORT)
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  orderId     String?
+  order       Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  
+  messages    TicketMessage[]
+  
+  createdAt   TimestamptzString @default(now())
+  updatedAt   temporal.updatedAtString()
+}
+
+model TicketMessage {
+  id          String   @id @default(uuid())
+  ticketId    String
+  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  text        String
+  attachments String[] @default([])
+  isInternal  Boolean  @default(false)
+  
+  createdAt   TimestamptzString @default(now())
 }
 

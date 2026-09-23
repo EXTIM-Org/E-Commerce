@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { ReviewList } from "@/components/admin/ReviewList";
 import { ReviewFilters } from "@/components/admin/ReviewFilters";
 import { or } from "@prisma/orm-postgres/orm-client";
+import { canManageStore } from "@/lib/permissions";
 
 export const metadata = {
   title: "مدیریت نظرات | پنل ادمین EXTIM",
@@ -13,7 +14,7 @@ export default async function AdminReviewsPage(props: {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !canManageStore(session.role as string)) {
     redirect("/login");
   }
 

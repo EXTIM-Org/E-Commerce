@@ -4,11 +4,12 @@ import { notFound, redirect } from "next/navigation";
 import { OrderTimeline } from "@/components/orders/OrderTimeline";
 import { AdminOrderControls } from "@/components/admin/AdminOrderControls";
 import { MapPin, Clock, ArrowRight, User } from "lucide-react";
+import { canManageStore } from "@/lib/permissions";
 import Link from "next/link";
 
 export default async function AdminOrderDetailPage(props: { params: Promise<{ id: string }> }) {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !canManageStore(session.role as string)) {
     redirect("/login");
   }
 

@@ -34,9 +34,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'d0eb92ed68518e718d9d98dd2855d36c63f354acf3ad8464ce11e6dead140b79'>;
+  StorageHashBase<'ab9ebbe4672e874075a565218e41f76caec59459f034875228a11c591af1023f'>;
 export type ExecutionHash =
-  ExecutionHashBase<'d455b3b52922192f651fa3d57539b75c09fdbf0d935a65b4b8ba98a12ee03da5'>;
+  ExecutionHashBase<'349981cd28bf38ea9e5c60b0c74a36137c514cc0b5ce3d3c98821ebf6be64949'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -307,6 +307,16 @@ export type FieldOutputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
+    readonly ContactMessage: {
+      readonly id: CodecTypes['pg/text@1']['output'];
+      readonly name: CodecTypes['pg/text@1']['output'];
+      readonly contact: CodecTypes['pg/text@1']['output'];
+      readonly subject: CodecTypes['pg/text@1']['output'];
+      readonly message: CodecTypes['pg/text@1']['output'];
+      readonly userId: CodecTypes['pg/text@1']['output'] | null;
+      readonly isRead: CodecTypes['pg/bool@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    };
     readonly Coupon: {
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly code: CodecTypes['pg/text@1']['output'];
@@ -424,27 +434,6 @@ export type FieldOutputTypes = {
       readonly reviewId: CodecTypes['pg/text@1']['output'];
       readonly userId: CodecTypes['pg/text@1']['output'];
       readonly isLike: CodecTypes['pg/bool@1']['output'];
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    };
-    readonly Ticket: {
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly subject: CodecTypes['pg/text@1']['output'];
-      readonly status: 'OPEN' | 'SEEN' | 'IN_PROGRESS' | 'WAITING_FOR_USER' | 'RESOLVED' | 'CLOSED';
-      readonly priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-      readonly department: 'SALES' | 'SUPPORT' | 'TECHNICAL';
-      readonly userId: CodecTypes['pg/text@1']['output'];
-      readonly orderId: CodecTypes['pg/text@1']['output'] | null;
-      readonly productId: CodecTypes['pg/text@1']['output'] | null;
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    };
-    readonly TicketMessage: {
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly ticketId: CodecTypes['pg/text@1']['output'];
-      readonly userId: CodecTypes['pg/text@1']['output'];
-      readonly text: CodecTypes['pg/text@1']['output'];
-      readonly attachments: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-      readonly isInternal: CodecTypes['pg/bool@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
     readonly User: {
@@ -539,6 +528,16 @@ export type FieldInputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
+    readonly ContactMessage: {
+      readonly id: CodecTypes['pg/text@1']['input'];
+      readonly name: CodecTypes['pg/text@1']['input'];
+      readonly contact: CodecTypes['pg/text@1']['input'];
+      readonly subject: CodecTypes['pg/text@1']['input'];
+      readonly message: CodecTypes['pg/text@1']['input'];
+      readonly userId: CodecTypes['pg/text@1']['input'] | null;
+      readonly isRead: CodecTypes['pg/bool@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+    };
     readonly Coupon: {
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly code: CodecTypes['pg/text@1']['input'];
@@ -658,27 +657,6 @@ export type FieldInputTypes = {
       readonly isLike: CodecTypes['pg/bool@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
-    readonly Ticket: {
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly subject: CodecTypes['pg/text@1']['input'];
-      readonly status: 'OPEN' | 'SEEN' | 'IN_PROGRESS' | 'WAITING_FOR_USER' | 'RESOLVED' | 'CLOSED';
-      readonly priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-      readonly department: 'SALES' | 'SUPPORT' | 'TECHNICAL';
-      readonly userId: CodecTypes['pg/text@1']['input'];
-      readonly orderId: CodecTypes['pg/text@1']['input'] | null;
-      readonly productId: CodecTypes['pg/text@1']['input'] | null;
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
-    };
-    readonly TicketMessage: {
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly ticketId: CodecTypes['pg/text@1']['input'];
-      readonly userId: CodecTypes['pg/text@1']['input'];
-      readonly text: CodecTypes['pg/text@1']['input'];
-      readonly attachments: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
-      readonly isInternal: CodecTypes['pg/bool@1']['input'];
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
-    };
     readonly User: {
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly name: CodecTypes['pg/text@1']['input'] | null;
@@ -770,6 +748,16 @@ export type StorageColumnTypes = {
       readonly parentId: CodecTypes['pg/text@1']['output'] | null;
       readonly slug: CodecTypes['pg/text@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    };
+    readonly contactMessage: {
+      readonly contact: CodecTypes['pg/text@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly id: CodecTypes['pg/text@1']['output'];
+      readonly isRead: CodecTypes['pg/bool@1']['output'];
+      readonly message: CodecTypes['pg/text@1']['output'];
+      readonly name: CodecTypes['pg/text@1']['output'];
+      readonly subject: CodecTypes['pg/text@1']['output'];
+      readonly userId: CodecTypes['pg/text@1']['output'] | null;
     };
     readonly coupon: {
       readonly code: CodecTypes['pg/text@1']['output'];
@@ -890,27 +878,6 @@ export type StorageColumnTypes = {
       readonly reviewId: CodecTypes['pg/text@1']['output'];
       readonly userId: CodecTypes['pg/text@1']['output'];
     };
-    readonly ticket: {
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly department: 'SALES' | 'SUPPORT' | 'TECHNICAL';
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly orderId: CodecTypes['pg/text@1']['output'] | null;
-      readonly priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-      readonly productId: CodecTypes['pg/text@1']['output'] | null;
-      readonly status: 'OPEN' | 'SEEN' | 'IN_PROGRESS' | 'WAITING_FOR_USER' | 'RESOLVED' | 'CLOSED';
-      readonly subject: CodecTypes['pg/text@1']['output'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly userId: CodecTypes['pg/text@1']['output'];
-    };
-    readonly ticketMessage: {
-      readonly attachments: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly isInternal: CodecTypes['pg/bool@1']['output'];
-      readonly text: CodecTypes['pg/text@1']['output'];
-      readonly ticketId: CodecTypes['pg/text@1']['output'];
-      readonly userId: CodecTypes['pg/text@1']['output'];
-    };
     readonly user: {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly email: CodecTypes['pg/text@1']['output'];
@@ -1002,6 +969,16 @@ export type StorageColumnInputTypes = {
       readonly parentId: CodecTypes['pg/text@1']['input'] | null;
       readonly slug: CodecTypes['pg/text@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+    };
+    readonly contactMessage: {
+      readonly contact: CodecTypes['pg/text@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly id: CodecTypes['pg/text@1']['input'];
+      readonly isRead: CodecTypes['pg/bool@1']['input'];
+      readonly message: CodecTypes['pg/text@1']['input'];
+      readonly name: CodecTypes['pg/text@1']['input'];
+      readonly subject: CodecTypes['pg/text@1']['input'];
+      readonly userId: CodecTypes['pg/text@1']['input'] | null;
     };
     readonly coupon: {
       readonly code: CodecTypes['pg/text@1']['input'];
@@ -1122,27 +1099,6 @@ export type StorageColumnInputTypes = {
       readonly reviewId: CodecTypes['pg/text@1']['input'];
       readonly userId: CodecTypes['pg/text@1']['input'];
     };
-    readonly ticket: {
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly department: 'SALES' | 'SUPPORT' | 'TECHNICAL';
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly orderId: CodecTypes['pg/text@1']['input'] | null;
-      readonly priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-      readonly productId: CodecTypes['pg/text@1']['input'] | null;
-      readonly status: 'OPEN' | 'SEEN' | 'IN_PROGRESS' | 'WAITING_FOR_USER' | 'RESOLVED' | 'CLOSED';
-      readonly subject: CodecTypes['pg/text@1']['input'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly userId: CodecTypes['pg/text@1']['input'];
-    };
-    readonly ticketMessage: {
-      readonly attachments: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly isInternal: CodecTypes['pg/bool@1']['input'];
-      readonly text: CodecTypes['pg/text@1']['input'];
-      readonly ticketId: CodecTypes['pg/text@1']['input'];
-      readonly userId: CodecTypes['pg/text@1']['input'];
-    };
     readonly user: {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly email: CodecTypes['pg/text@1']['input'];
@@ -1185,24 +1141,22 @@ export namespace Models {
     answers: public_Answer[];
     articles: public_Article[];
     cart: public_Cart | null;
+    contactMessages: public_ContactMessage[];
     orders: public_Order[];
     questions: public_Question[];
     reviewVotes: public_ReviewVote[];
     reviews: public_Review[];
-    ticketMessages: public_TicketMessage[];
-    tickets: public_Ticket[];
     wishlist: public_Wishlist | null;
     readonly [RelationKeys]?:
       | 'addresses'
       | 'answers'
       | 'articles'
       | 'cart'
+      | 'contactMessages'
       | 'orders'
       | 'questions'
       | 'reviewVotes'
       | 'reviews'
-      | 'ticketMessages'
-      | 'tickets'
       | 'wishlist';
   };
   export type public_Address = {
@@ -1251,7 +1205,6 @@ export namespace Models {
     questions: public_Question[];
     reviews: public_Review[];
     specifications: public_ProductSpecification[];
-    tickets: public_Ticket[];
     variants: public_ProductVariant[];
     wishlistItems: public_WishlistItem[];
     readonly [RelationKeys]?:
@@ -1260,7 +1213,6 @@ export namespace Models {
       | 'questions'
       | 'reviews'
       | 'specifications'
-      | 'tickets'
       | 'variants'
       | 'wishlistItems';
   };
@@ -1363,9 +1315,8 @@ export namespace Models {
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     coupon: public_Coupon | null;
     items: public_OrderItem[];
-    tickets: public_Ticket[];
     user: public_User;
-    readonly [RelationKeys]?: 'coupon' | 'items' | 'tickets' | 'user';
+    readonly [RelationKeys]?: 'coupon' | 'items' | 'user';
   };
   export type public_OrderItem = {
     id: CodecTypes['pg/text@1']['output'];
@@ -1478,34 +1429,17 @@ export namespace Models {
     category: public_ArticleCategory;
     readonly [RelationKeys]?: 'author' | 'category';
   };
-  export type public_Ticket = {
+  export type public_ContactMessage = {
     id: CodecTypes['pg/text@1']['output'];
+    name: CodecTypes['pg/text@1']['output'];
+    contact: CodecTypes['pg/text@1']['output'];
     subject: CodecTypes['pg/text@1']['output'];
-    status: 'OPEN' | 'SEEN' | 'IN_PROGRESS' | 'WAITING_FOR_USER' | 'RESOLVED' | 'CLOSED';
-    priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-    department: 'SALES' | 'SUPPORT' | 'TECHNICAL';
-    userId: CodecTypes['pg/text@1']['output'];
-    orderId: CodecTypes['pg/text@1']['output'] | null;
-    productId: CodecTypes['pg/text@1']['output'] | null;
+    message: CodecTypes['pg/text@1']['output'];
+    userId: CodecTypes['pg/text@1']['output'] | null;
+    isRead: CodecTypes['pg/bool@1']['output'];
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    messages: public_TicketMessage[];
-    order: public_Order | null;
-    product: public_Product | null;
-    user: public_User;
-    readonly [RelationKeys]?: 'messages' | 'order' | 'product' | 'user';
-  };
-  export type public_TicketMessage = {
-    id: CodecTypes['pg/text@1']['output'];
-    ticketId: CodecTypes['pg/text@1']['output'];
-    userId: CodecTypes['pg/text@1']['output'];
-    text: CodecTypes['pg/text@1']['output'];
-    attachments: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-    isInternal: CodecTypes['pg/bool@1']['output'];
-    createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    ticket: public_Ticket;
-    user: public_User;
-    readonly [RelationKeys]?: 'ticket' | 'user';
+    user: public_User | null;
+    readonly [RelationKeys]?: 'user';
   };
 }
 
@@ -1533,8 +1467,7 @@ export declare const models: {
     ProductSpecification: Models.public_ProductSpecification;
     ArticleCategory: Models.public_ArticleCategory;
     Article: Models.public_Article;
-    Ticket: Models.public_Ticket;
-    TicketMessage: Models.public_TicketMessage;
+    ContactMessage: Models.public_ContactMessage;
   };
 };
 
@@ -2051,6 +1984,79 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'category';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly contactMessage: {
+              columns: {
+                readonly id: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly name: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly contact: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly subject: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly message: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly userId: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly isRead: {
+                  readonly nativeType: 'bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                };
+                readonly createdAt: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'contactMessage_userId_idx_a489d58a';
+                  readonly prefix: 'contactMessage_userId_idx';
+                  readonly columns: readonly ['userId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'contactMessage';
+                    readonly columns: readonly ['userId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'user';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -2980,223 +2986,6 @@ type ContractBase = Omit<
                 },
               ];
             };
-            readonly ticket: {
-              columns: {
-                readonly id: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly subject: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly status: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/text@1', 'OPEN'>;
-                  };
-                };
-                readonly priority: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/text@1', 'MEDIUM'>;
-                  };
-                };
-                readonly department: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/text@1', 'SUPPORT'>;
-                  };
-                };
-                readonly userId: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly orderId: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                };
-                readonly productId: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                };
-                readonly createdAt: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
-                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
-                };
-                readonly updatedAt: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
-                };
-              };
-              primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [];
-              indexes: readonly [
-                {
-                  readonly name: 'ticket_userId_idx_a489d58a';
-                  readonly prefix: 'ticket_userId_idx';
-                  readonly columns: readonly ['userId'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'ticket_orderId_idx_d284871b';
-                  readonly prefix: 'ticket_orderId_idx';
-                  readonly columns: readonly ['orderId'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'ticket_productId_idx_5858600a';
-                  readonly prefix: 'ticket_productId_idx';
-                  readonly columns: readonly ['productId'];
-                  readonly unique: false;
-                },
-              ];
-              foreignKeys: readonly [
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'ticket';
-                    readonly columns: readonly ['userId'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'user';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'ticket';
-                    readonly columns: readonly ['orderId'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'order';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'ticket';
-                    readonly columns: readonly ['productId'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'product';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-              ];
-            };
-            readonly ticketMessage: {
-              columns: {
-                readonly id: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly ticketId: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly userId: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly text: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly attachments: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/text@1', readonly []>;
-                  };
-                };
-                readonly isInternal: {
-                  readonly nativeType: 'bool';
-                  readonly codecId: 'pg/bool@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
-                  };
-                };
-                readonly createdAt: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
-                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
-                };
-              };
-              primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [];
-              indexes: readonly [
-                {
-                  readonly name: 'ticketMessage_ticketId_idx_2fe526c3';
-                  readonly prefix: 'ticketMessage_ticketId_idx';
-                  readonly columns: readonly ['ticketId'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'ticketMessage_userId_idx_a489d58a';
-                  readonly prefix: 'ticketMessage_userId_idx';
-                  readonly columns: readonly ['userId'];
-                  readonly unique: false;
-                },
-              ];
-              foreignKeys: readonly [
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'ticketMessage';
-                    readonly columns: readonly ['ticketId'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'ticket';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'ticketMessage';
-                    readonly columns: readonly ['userId'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'user';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-              ];
-            };
             readonly user: {
               columns: {
                 readonly id: {
@@ -3392,25 +3181,6 @@ type ContractBase = Omit<
               readonly kind: 'valueSet';
               readonly values: readonly ['USER', 'BLOG_ADMIN', 'ADMIN', 'SUPER_ADMIN', 'SUPPORT'];
             };
-            readonly TicketDepartment: {
-              readonly kind: 'valueSet';
-              readonly values: readonly ['SALES', 'SUPPORT', 'TECHNICAL'];
-            };
-            readonly TicketPriority: {
-              readonly kind: 'valueSet';
-              readonly values: readonly ['LOW', 'MEDIUM', 'HIGH', 'URGENT'];
-            };
-            readonly TicketStatus: {
-              readonly kind: 'valueSet';
-              readonly values: readonly [
-                'OPEN',
-                'SEEN',
-                'IN_PROGRESS',
-                'WAITING_FOR_USER',
-                'RESOLVED',
-                'CLOSED',
-              ];
-            };
             readonly TransactionType: {
               readonly kind: 'valueSet';
               readonly values: readonly ['RESTOCK', 'SALE', 'RETURN', 'ADJUSTMENT'];
@@ -3466,10 +3236,9 @@ type ContractBase = Omit<
       readonly model: 'ArticleCategory';
     };
     readonly article: { readonly namespace: 'public' & NamespaceId; readonly model: 'Article' };
-    readonly ticket: { readonly namespace: 'public' & NamespaceId; readonly model: 'Ticket' };
-    readonly ticketMessage: {
+    readonly contactMessage: {
       readonly namespace: 'public' & NamespaceId;
-      readonly model: 'TicketMessage';
+      readonly model: 'ContactMessage';
     };
   };
   readonly domain: {
@@ -3988,6 +3757,70 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly ContactMessage: {
+            readonly fields: {
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly name: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly contact: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly subject: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly message: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly userId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly isRead: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+            };
+            readonly relations: {
+              readonly user: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['userId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'contactMessage';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly id: { readonly column: 'id' };
+                readonly name: { readonly column: 'name' };
+                readonly contact: { readonly column: 'contact' };
+                readonly subject: { readonly column: 'subject' };
+                readonly message: { readonly column: 'message' };
+                readonly userId: { readonly column: 'userId' };
+                readonly isRead: { readonly column: 'isRead' };
+                readonly createdAt: { readonly column: 'createdAt' };
+              };
+            };
+          };
           readonly Coupon: {
             readonly fields: {
               readonly id: {
@@ -4374,17 +4207,6 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['orderId'];
                 };
               };
-              readonly tickets: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Ticket';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['orderId'];
-                };
-              };
               readonly user: {
                 readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
                 readonly cardinality: 'N:1';
@@ -4587,17 +4409,6 @@ type ContractBase = Omit<
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'ProductSpecification';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['productId'];
-                };
-              };
-              readonly tickets: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Ticket';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
@@ -5023,190 +4834,6 @@ type ContractBase = Omit<
               };
             };
           };
-          readonly Ticket: {
-            readonly fields: {
-              readonly id: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly subject: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly status: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly priority: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly department: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly userId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly orderId: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly productId: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly createdAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-              readonly updatedAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-            };
-            readonly relations: {
-              readonly messages: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'TicketMessage';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['ticketId'];
-                };
-              };
-              readonly order: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Order';
-                };
-                readonly cardinality: 'N:1';
-                readonly nullable: true;
-                readonly on: {
-                  readonly localFields: readonly ['orderId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-              readonly product: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Product';
-                };
-                readonly cardinality: 'N:1';
-                readonly nullable: true;
-                readonly on: {
-                  readonly localFields: readonly ['productId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-              readonly user: {
-                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
-                readonly cardinality: 'N:1';
-                readonly nullable: false;
-                readonly on: {
-                  readonly localFields: readonly ['userId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-            };
-            readonly storage: {
-              readonly table: 'ticket';
-              readonly namespaceId: 'public';
-              readonly fields: {
-                readonly id: { readonly column: 'id' };
-                readonly subject: { readonly column: 'subject' };
-                readonly status: { readonly column: 'status' };
-                readonly priority: { readonly column: 'priority' };
-                readonly department: { readonly column: 'department' };
-                readonly userId: { readonly column: 'userId' };
-                readonly orderId: { readonly column: 'orderId' };
-                readonly productId: { readonly column: 'productId' };
-                readonly createdAt: { readonly column: 'createdAt' };
-                readonly updatedAt: { readonly column: 'updatedAt' };
-              };
-            };
-          };
-          readonly TicketMessage: {
-            readonly fields: {
-              readonly id: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly ticketId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly userId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly text: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly attachments: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-                readonly many: true;
-              };
-              readonly isInternal: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
-              };
-              readonly createdAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-            };
-            readonly relations: {
-              readonly ticket: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Ticket';
-                };
-                readonly cardinality: 'N:1';
-                readonly nullable: false;
-                readonly on: {
-                  readonly localFields: readonly ['ticketId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-              readonly user: {
-                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
-                readonly cardinality: 'N:1';
-                readonly nullable: false;
-                readonly on: {
-                  readonly localFields: readonly ['userId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-            };
-            readonly storage: {
-              readonly table: 'ticketMessage';
-              readonly namespaceId: 'public';
-              readonly fields: {
-                readonly id: { readonly column: 'id' };
-                readonly ticketId: { readonly column: 'ticketId' };
-                readonly userId: { readonly column: 'userId' };
-                readonly text: { readonly column: 'text' };
-                readonly attachments: { readonly column: 'attachments' };
-                readonly isInternal: { readonly column: 'isInternal' };
-                readonly createdAt: { readonly column: 'createdAt' };
-              };
-            };
-          };
           readonly User: {
             readonly fields: {
               readonly id: {
@@ -5302,6 +4929,17 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['userId'];
                 };
               };
+              readonly contactMessages: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'ContactMessage';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['userId'];
+                };
+              };
               readonly orders: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -5339,28 +4977,6 @@ type ContractBase = Omit<
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'Review';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['userId'];
-                };
-              };
-              readonly ticketMessages: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'TicketMessage';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['userId'];
-                };
-              };
-              readonly tickets: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Ticket';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
@@ -5553,34 +5169,6 @@ type ContractBase = Omit<
               { readonly name: 'PUBLISHED'; readonly value: 'PUBLISHED' },
             ];
           };
-          readonly TicketStatus: {
-            readonly codecId: 'pg/text@1';
-            readonly members: readonly [
-              { readonly name: 'OPEN'; readonly value: 'OPEN' },
-              { readonly name: 'SEEN'; readonly value: 'SEEN' },
-              { readonly name: 'IN_PROGRESS'; readonly value: 'IN_PROGRESS' },
-              { readonly name: 'WAITING_FOR_USER'; readonly value: 'WAITING_FOR_USER' },
-              { readonly name: 'RESOLVED'; readonly value: 'RESOLVED' },
-              { readonly name: 'CLOSED'; readonly value: 'CLOSED' },
-            ];
-          };
-          readonly TicketPriority: {
-            readonly codecId: 'pg/text@1';
-            readonly members: readonly [
-              { readonly name: 'LOW'; readonly value: 'LOW' },
-              { readonly name: 'MEDIUM'; readonly value: 'MEDIUM' },
-              { readonly name: 'HIGH'; readonly value: 'HIGH' },
-              { readonly name: 'URGENT'; readonly value: 'URGENT' },
-            ];
-          };
-          readonly TicketDepartment: {
-            readonly codecId: 'pg/text@1';
-            readonly members: readonly [
-              { readonly name: 'SALES'; readonly value: 'SALES' },
-              { readonly name: 'SUPPORT'; readonly value: 'SUPPORT' },
-              { readonly name: 'TECHNICAL'; readonly value: 'TECHNICAL' },
-            ];
-          };
         };
       };
     };
@@ -5699,6 +5287,14 @@ type ContractBase = Omit<
           };
           readonly onCreate: { readonly kind: 'generator'; readonly id: 'timestampNow' };
           readonly onUpdate: { readonly kind: 'generator'; readonly id: 'timestampNow' };
+        },
+        {
+          readonly ref: {
+            readonly namespace: 'public';
+            readonly table: 'contactMessage';
+            readonly column: 'id';
+          };
+          readonly onCreate: { readonly kind: 'generator'; readonly id: 'uuidv4' };
         },
         {
           readonly ref: {
@@ -5846,31 +5442,6 @@ type ContractBase = Omit<
           readonly ref: {
             readonly namespace: 'public';
             readonly table: 'reviewVote';
-            readonly column: 'id';
-          };
-          readonly onCreate: { readonly kind: 'generator'; readonly id: 'uuidv4' };
-        },
-        {
-          readonly ref: {
-            readonly namespace: 'public';
-            readonly table: 'ticket';
-            readonly column: 'id';
-          };
-          readonly onCreate: { readonly kind: 'generator'; readonly id: 'uuidv4' };
-        },
-        {
-          readonly ref: {
-            readonly namespace: 'public';
-            readonly table: 'ticket';
-            readonly column: 'updatedAt';
-          };
-          readonly onCreate: { readonly kind: 'generator'; readonly id: 'timestampNow' };
-          readonly onUpdate: { readonly kind: 'generator'; readonly id: 'timestampNow' };
-        },
-        {
-          readonly ref: {
-            readonly namespace: 'public';
-            readonly table: 'ticketMessage';
             readonly column: 'id';
           };
           readonly onCreate: { readonly kind: 'generator'; readonly id: 'uuidv4' };

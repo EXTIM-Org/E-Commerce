@@ -3,11 +3,12 @@ import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { FlashSaleForm } from "@/components/admin/FlashSaleForm";
 import { ArrowRight } from "lucide-react";
+import { canManageStore } from "@/lib/permissions";
 import Link from "next/link";
 
 export default async function NewFlashSalePage() {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !canManageStore(session.role as string)) {
     redirect("/");
   }
 

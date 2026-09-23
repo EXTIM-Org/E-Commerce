@@ -2,6 +2,7 @@ import { db } from "@/prisma/db";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { QAList } from "@/components/admin/QAList";
+import { canManageStore } from "@/lib/permissions";
 
 export const metadata = {
   title: "مدیریت پرسش و پاسخ | پنل ادمین EXTIM",
@@ -9,7 +10,7 @@ export const metadata = {
 
 export default async function AdminQAPage() {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !canManageStore(session.role as string)) {
     redirect("/login");
   }
 

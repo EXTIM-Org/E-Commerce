@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
-import { User, ShoppingBag, MapPin, Heart, LogOut } from "lucide-react";
+import { User, ShoppingBag, MapPin, Heart, LogOut, MessageSquare } from "lucide-react";
 import { logoutUser } from "@/actions/auth";
 import { AvatarUpload } from "@/components/profile/AvatarUpload";
 
@@ -48,6 +48,10 @@ export default async function ProfileLayout({
               <Link href="/profile/wishlist" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
                 <Heart className="w-5 h-5" />
                 علاقه‌مندی‌ها
+              </Link>
+              <Link href="/profile/tickets" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                <MessageSquare className="w-5 h-5" />
+                تیکت‌های پشتیبانی
               </Link>
               
               <div className="h-px w-full bg-black/10 dark:bg-white/10 my-2"></div>

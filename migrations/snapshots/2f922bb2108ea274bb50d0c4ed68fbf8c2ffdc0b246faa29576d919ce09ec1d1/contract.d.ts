@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'d0eb92ed68518e718d9d98dd2855d36c63f354acf3ad8464ce11e6dead140b79'>;
+  StorageHashBase<'2f922bb2108ea274bb50d0c4ed68fbf8c2ffdc0b246faa29576d919ce09ec1d1'>;
 export type ExecutionHash =
   ExecutionHashBase<'d455b3b52922192f651fa3d57539b75c09fdbf0d935a65b4b8ba98a12ee03da5'>;
 export type ProfileHash =
@@ -429,7 +429,7 @@ export type FieldOutputTypes = {
     readonly Ticket: {
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly subject: CodecTypes['pg/text@1']['output'];
-      readonly status: 'OPEN' | 'SEEN' | 'IN_PROGRESS' | 'WAITING_FOR_USER' | 'RESOLVED' | 'CLOSED';
+      readonly status: 'OPEN' | 'IN_PROGRESS' | 'WAITING_FOR_USER' | 'RESOLVED' | 'CLOSED';
       readonly priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
       readonly department: 'SALES' | 'SUPPORT' | 'TECHNICAL';
       readonly userId: CodecTypes['pg/text@1']['output'];
@@ -661,7 +661,7 @@ export type FieldInputTypes = {
     readonly Ticket: {
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly subject: CodecTypes['pg/text@1']['input'];
-      readonly status: 'OPEN' | 'SEEN' | 'IN_PROGRESS' | 'WAITING_FOR_USER' | 'RESOLVED' | 'CLOSED';
+      readonly status: 'OPEN' | 'IN_PROGRESS' | 'WAITING_FOR_USER' | 'RESOLVED' | 'CLOSED';
       readonly priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
       readonly department: 'SALES' | 'SUPPORT' | 'TECHNICAL';
       readonly userId: CodecTypes['pg/text@1']['input'];
@@ -897,7 +897,7 @@ export type StorageColumnTypes = {
       readonly orderId: CodecTypes['pg/text@1']['output'] | null;
       readonly priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
       readonly productId: CodecTypes['pg/text@1']['output'] | null;
-      readonly status: 'OPEN' | 'SEEN' | 'IN_PROGRESS' | 'WAITING_FOR_USER' | 'RESOLVED' | 'CLOSED';
+      readonly status: 'OPEN' | 'IN_PROGRESS' | 'WAITING_FOR_USER' | 'RESOLVED' | 'CLOSED';
       readonly subject: CodecTypes['pg/text@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly userId: CodecTypes['pg/text@1']['output'];
@@ -1129,7 +1129,7 @@ export type StorageColumnInputTypes = {
       readonly orderId: CodecTypes['pg/text@1']['input'] | null;
       readonly priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
       readonly productId: CodecTypes['pg/text@1']['input'] | null;
-      readonly status: 'OPEN' | 'SEEN' | 'IN_PROGRESS' | 'WAITING_FOR_USER' | 'RESOLVED' | 'CLOSED';
+      readonly status: 'OPEN' | 'IN_PROGRESS' | 'WAITING_FOR_USER' | 'RESOLVED' | 'CLOSED';
       readonly subject: CodecTypes['pg/text@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly userId: CodecTypes['pg/text@1']['input'];
@@ -1481,7 +1481,7 @@ export namespace Models {
   export type public_Ticket = {
     id: CodecTypes['pg/text@1']['output'];
     subject: CodecTypes['pg/text@1']['output'];
-    status: 'OPEN' | 'SEEN' | 'IN_PROGRESS' | 'WAITING_FOR_USER' | 'RESOLVED' | 'CLOSED';
+    status: 'OPEN' | 'IN_PROGRESS' | 'WAITING_FOR_USER' | 'RESOLVED' | 'CLOSED';
     priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
     department: 'SALES' | 'SUPPORT' | 'TECHNICAL';
     userId: CodecTypes['pg/text@1']['output'];
@@ -3404,7 +3404,6 @@ type ContractBase = Omit<
               readonly kind: 'valueSet';
               readonly values: readonly [
                 'OPEN',
-                'SEEN',
                 'IN_PROGRESS',
                 'WAITING_FOR_USER',
                 'RESOLVED',
@@ -5557,7 +5556,6 @@ type ContractBase = Omit<
             readonly codecId: 'pg/text@1';
             readonly members: readonly [
               { readonly name: 'OPEN'; readonly value: 'OPEN' },
-              { readonly name: 'SEEN'; readonly value: 'SEEN' },
               { readonly name: 'IN_PROGRESS'; readonly value: 'IN_PROGRESS' },
               { readonly name: 'WAITING_FOR_USER'; readonly value: 'WAITING_FOR_USER' },
               { readonly name: 'RESOLVED'; readonly value: 'RESOLVED' },

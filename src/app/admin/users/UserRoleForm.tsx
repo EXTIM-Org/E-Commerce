@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { updateUserRole } from "@/actions/users";
 import { UserRole } from "@/lib/permissions";
 import toast from "react-hot-toast";
-import { ChevronDown, Check } from "lucide-react";
+import { ChevronDown, Check, AlertCircle, Loader2 } from "lucide-react";
 
 const ROLE_OPTIONS = [
   { value: "USER", label: "کاربر عادی", color: "text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700" },
@@ -20,6 +20,8 @@ export function UserRoleForm({ userId, currentRole }: { userId: string, currentR
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownStyle, setDropdownStyle] = useState({ top: 0, left: 0, width: 0 });
   const [position, setPosition] = useState<"bottom" | "top">("bottom");
+  const [showModal, setShowModal] = useState(false);
+  const [pendingRole, setPendingRole] = useState<UserRole | null>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -51,21 +53,26 @@ export function UserRoleForm({ userId, currentRole }: { userId: string, currentR
     };
   }, [isOpen]);
 
-  const handleRoleChange = (newRoleValue: string) => {
+  const handleRoleSelect = (newRoleValue: string) => {
     setIsOpen(false);
     const newRole = newRoleValue as UserRole;
     if (newRole === currentRole) return;
 
-    if (!confirm(`آیا از تغییر نقش این کاربر به ${ROLE_OPTIONS.find(r => r.value === newRole)?.label} اطمینان دارید؟`)) {
-      return;
-    }
+    setPendingRole(newRole);
+    setShowModal(true);
+  };
+
+  const confirmRoleChange = () => {
+    if (!pendingRole) return;
 
     startTransition(async () => {
-      const res = await updateUserRole(userId, newRole);
+      const res = await updateUserRole(userId, pendingRole);
       if (res && res.error) {
         toast.error(res.error);
       } else {
         toast.success("نقش کاربر با موفقیت بروزرسانی شد");
+        setShowModal(false);
+        setPendingRole(null);
       }
     });
   };
@@ -129,7 +136,7 @@ export function UserRoleForm({ userId, currentRole }: { userId: string, currentR
             {ROLE_OPTIONS.map(opt => (
               <button
                 key={opt.value}
-                onClick={() => handleRoleChange(opt.value)}
+                onClick={() => handleRoleSelect(opt.value)}
                 className={`flex items-center justify-between w-full px-3 py-2 text-xs sm:text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/10 ${
                   currentRole === opt.value 
                     ? "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-500/10" 
@@ -145,6 +152,53 @@ export function UserRoleForm({ userId, currentRole }: { userId: string, currentR
         document.body
       )}
       
+      {/* Confirmation Modal */}
+      {showModal && typeof window !== "undefined" && createPortal(
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 sm:p-0">
+          <div 
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity animate-in fade-in"
+            onClick={() => !isPending && setShowModal(false)}
+          ></div>
+          
+          <div className="relative bg-white dark:bg-[#1a1b26] border border-gray-200 dark:border-white/10 rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-6 text-center">
+              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-500/20 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                تغییر نقش کاربر
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-8">
+                آیا از تغییر نقش این کاربر به <span className="font-bold text-gray-900 dark:text-white">&quot;{ROLE_OPTIONS.find(r => r.value === pendingRole)?.label}&quot;</span> اطمینان دارید؟
+              </p>
+              
+              <div className="flex items-center gap-3 w-full">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  disabled={isPending}
+                  className="flex-1 py-3 px-4 bg-gray-100 hover:bg-gray-200 dark:bg-white/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 rounded-xl font-bold transition-colors disabled:opacity-50"
+                >
+                  انصراف
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmRoleChange}
+                  disabled={isPending}
+                  className="flex-1 py-3 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg shadow-blue-500/20"
+                >
+                  {isPending ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    "تایید تغییر"
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
