@@ -5,8 +5,7 @@ import { db } from "@/prisma/db";
 import { getSession } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 import { render } from "@react-email/render";
-import { sendEmail } from "@/lib/email";
-import { sendSms } from "@/lib/sms";
+import { notificationQueue } from "@/jobs/queues";
 import { OrderStatusEmail } from "@/emails/OrderStatusEmail";
 import React from "react";
 import { markOrderAsPaid } from "@/services/order";
@@ -54,19 +53,25 @@ export async function updateOrderStatus(orderId: string, newStatus: string) {
             })
           );
           
-          // Fire and forget (don't await so we don't block the UI response)
-          sendEmail({
-            to: order.user.email,
-            subject: `بروزرسانی وضعیت سفارش #${order.id.split('-')[0]}`,
-            html,
-          }).catch(console.error);
+          // Send via BullMQ queue
+          await notificationQueue.add("send-email", {
+            type: "email",
+            payload: {
+              to: order.user.email,
+              subject: `بروزرسانی وضعیت سفارش #${order.id.split('-')[0]}`,
+              html,
+            }
+          });
         }
 
         if (order.user.phoneNumber) {
-          sendSms({
-            to: order.user.phoneNumber,
-            text: `اکستیم\nسفارش #${order.id.split('-')[0]} شما به وضعیت ${newStatus} تغییر یافت.`,
-          }).catch(console.error);
+          await notificationQueue.add("send-sms", {
+            type: "sms",
+            payload: {
+              to: order.user.phoneNumber,
+              text: `اکستیم\nسفارش #${order.id.split('-')[0]} شما به وضعیت ${newStatus} تغییر یافت.`,
+            }
+          });
         }
       }
     }

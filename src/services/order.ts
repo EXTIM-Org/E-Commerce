@@ -1,6 +1,6 @@
 import { db } from "@/prisma/db";
 import { render } from "@react-email/render";
-import { sendEmail } from "@/lib/email";
+import { notificationQueue } from "@/jobs/queues";
 import { OrderReceiptEmail } from "@/emails/OrderReceiptEmail";
 import React from "react";
 import { getLogger } from "@/lib/logger";
@@ -73,13 +73,14 @@ export async function markOrderAsPaid(orderId: string) {
         })
       );
       
-      // Fire and forget (don't block)
-      sendEmail({
-        to: order.user.email,
-        subject: `رسید پرداخت سفارش #${order.id.split('-')[0]}`,
-        html,
-      }).catch(e => {
-        log.error({ err: e, orderId }, "Failed to send receipt email");
+      // Send via BullMQ queue
+      await notificationQueue.add("send-email", {
+        type: "email",
+        payload: {
+          to: order.user.email,
+          subject: `رسید پرداخت سفارش #${order.id.split('-')[0]}`,
+          html,
+        }
       });
     }
 

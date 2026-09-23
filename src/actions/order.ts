@@ -4,7 +4,7 @@ import { canManageStore } from "@/lib/permissions";
 import { db } from "@/prisma/db";
 import { getSession } from "@/lib/session";
 import { revalidatePath } from "next/cache";
-import { sendEmail } from "@/lib/email";
+import { notificationQueue } from "@/jobs/queues";
 
 type OrderStatus = "PENDING" | "PAID" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
 
@@ -43,7 +43,10 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
         </div>
       `;
       
-      await sendEmail({ to: order.user.email, subject, html });
+      await notificationQueue.add("send-email", {
+        type: "email",
+        payload: { to: order.user.email, subject, html }
+      });
     }
 
     revalidatePath(`/admin/orders/${orderId}`);

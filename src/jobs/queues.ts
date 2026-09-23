@@ -27,3 +27,17 @@ export const keyRotationQueue = new Queue('key-rotation-queue', {
     removeOnFail: 10,
   },
 });
+
+// Setup Notification Queue (Email & SMS)
+export const notificationQueue = new Queue('notification-queue', {
+  connection: redis,
+  defaultJobOptions: {
+    removeOnComplete: true,
+    removeOnFail: 10,
+    attempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 5000,
+    },
+  },
+});

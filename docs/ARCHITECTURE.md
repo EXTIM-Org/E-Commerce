@@ -16,3 +16,11 @@ In the first phase, this system will include:
 1. **Content-based Filtering:** Suggesting similar products based on categories and tags.
 2. **Collaborative Filtering (User Behavior):** Tracking customer shopping carts and displaying complementary products.
 3. **Popular Products:** Intelligently displaying top-selling and most-viewed items using optimized database queries.
+
+## Performance, Infrastructure & Security
+To handle enterprise-level scale and ensure maximum reliability, the following systems have been integrated:
+- **Redis Caching:** Complex database queries (like popular products, flash sales) are cached in memory via Redis with automated TTLs and cache-invalidation hooks to eliminate database bottlenecks.
+- **Background Workers (BullMQ):** Heavy and recurring operations (e.g., Cart item reservations cleanup, Flash Sale expiration, and automated JWT Key Rotation) are offloaded to Redis-backed queues and processed by dedicated background workers.
+- **Sentry & Pino (Monitoring):** Application runtime errors are continuously tracked by Sentry, while application logs are structured natively using Pino to capture request traces, user IDs, and critical transactional steps.
+- **Security & Rate Limiting:** A Redis-backed atomic (LUA scripted) Rate Limiter protects critical endpoints (Login, OTP generation) from brute-force and SMS bombing. JWT Secrets are dynamically rotated via automated background jobs.
+- **Database Indexing:** High-traffic relational foreign keys and lookup tables are heavily indexed in PostgreSQL to ensure O(log N) lookup speeds.

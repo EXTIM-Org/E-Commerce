@@ -6,8 +6,7 @@ import { createSession, deleteSession, getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import crypto from "crypto";
 import { render } from "@react-email/render";
-import { sendEmail } from "@/lib/email";
-import { sendSms } from "@/lib/sms";
+import { notificationQueue } from "@/jobs/queues";
 import { ResetPasswordEmail } from "@/emails/ResetPasswordEmail";
 import React from "react";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
@@ -145,10 +144,13 @@ export async function requestPasswordReset(prevState: unknown, formData: FormDat
     );
 
     if (user.email) {
-      await sendEmail({
-        to: user.email,
-        subject: "بازیابی رمز عبور",
-        html,
+      await notificationQueue.add("send-email", {
+        type: "email",
+        payload: {
+          to: user.email,
+          subject: "بازیابی رمز عبور",
+          html,
+        }
       });
     }
 
@@ -235,9 +237,12 @@ export async function sendOtp(prevState: unknown, formData: FormData) {
     }
 
     // Send SMS
-    await sendSms({
-      to: phoneNumber,
-      text: `کد تایید شما در اکستیم: ${otpCode}\nاین کد تا ۲ دقیقه معتبر است.`,
+    await notificationQueue.add("send-sms", {
+      type: "sms",
+      payload: {
+        to: phoneNumber,
+        text: `کد تایید شما در اکستیم: ${otpCode}\nاین کد تا ۲ دقیقه معتبر است.`,
+      }
     });
 
     return { success: true, message: "کد تایید با موفقیت ارسال شد." };

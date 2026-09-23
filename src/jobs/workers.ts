@@ -4,6 +4,8 @@ import { db } from '../prisma/db';
 import crypto from 'crypto';
 import { keyRotationQueue } from './queues';
 import { invalidateCachePattern } from '../lib/cache';
+import { sendEmail } from '../lib/email';
+import { sendSms } from '../lib/sms';
 
 export function setupWorkers() {
   console.log('[BullMQ] Setting up background workers...');
@@ -54,9 +56,26 @@ export function setupWorkers() {
     console.log('[BullMQ] JWT Keys rotated successfully.');
   }, { connection: redis });
 
+  const notificationWorker = new Worker('notification-queue', async (job: Job) => {
+    const { type, payload } = job.data;
+    console.log(`[BullMQ] Processing notification: ${type}`);
+    
+    try {
+      if (type === 'email') {
+        await sendEmail(payload);
+      } else if (type === 'sms') {
+        await sendSms(payload);
+      }
+    } catch (error) {
+      console.error(`[BullMQ] Failed to send ${type} notification:`, error);
+      throw error; // Triggers BullMQ retry mechanism
+    }
+  }, { connection: redis });
+
   cartWorker.on('failed', (job, err) => console.error(`Cart Job ${job?.id} failed:`, err));
   flashSaleWorker.on('failed', (job, err) => console.error(`FlashSale Job ${job?.id} failed:`, err));
   keyRotationWorker.on('failed', (job, err) => console.error(`KeyRotation Job ${job?.id} failed:`, err));
+  notificationWorker.on('failed', (job, err) => console.error(`Notification Job ${job?.id} failed:`, err));
 
   // Schedule monthly key rotation (Runs at 00:00 on day-of-month 1)
   keyRotationQueue.upsertJobScheduler('monthly-rotation', {
@@ -66,5 +85,5 @@ export function setupWorkers() {
     data: {},
   });
 
-  return { cartWorker, flashSaleWorker, keyRotationWorker };
+  return { cartWorker, flashSaleWorker, keyRotationWorker, notificationWorker };
 }

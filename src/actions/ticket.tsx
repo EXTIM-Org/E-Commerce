@@ -4,8 +4,7 @@ import { db } from "@/prisma/db";
 import { getSession } from "@/lib/session";
 import { canManageSupport } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
-import { sendEmail } from "@/lib/email";
-import { sendSms } from "@/lib/sms";
+import { notificationQueue } from "@/jobs/queues";
 import { render } from "@react-email/render";
 import TicketReplyEmail from "@/emails/TicketReplyEmail";
 
@@ -43,6 +42,39 @@ export async function createTicket(formData: FormData) {
       text: message,
       isInternal: false,
     });
+
+    // Send notifications
+    const user = await db.orm.public.User.where({ id: session.userId as string }).first();
+    if (user) {
+      if (user.email) {
+        const html = `
+          <div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; line-height: 1.6; color: #333;">
+            <h2>سلام ${user.name || "کاربر عزیز"}،</h2>
+            <p>تیکت جدید شما با موضوع <strong>"${subject}"</strong> با موفقیت ثبت شد.</p>
+            <p>همکاران ما در بخش پشتیبانی به زودی به تیکت شما پاسخ خواهند داد.</p>
+            <p>با تشکر،<br/>تیم پشتیبانی</p>
+          </div>
+        `;
+        await notificationQueue.add("send-email", {
+          type: "email",
+          payload: {
+            to: user.email,
+            subject: "تیکت شما با موفقیت ثبت شد",
+            html,
+          }
+        });
+      }
+      
+      if (user.phoneNumber) {
+        await notificationQueue.add("send-sms", {
+          type: "sms",
+          payload: {
+            to: user.phoneNumber,
+            text: `اکستیم\nتیکت جدید شما با موضوع "${subject}" ثبت شد و به زودی پاسخ داده خواهد شد.`,
+          }
+        });
+      }
+    }
 
     revalidatePath("/profile/tickets");
     return { success: true, ticketId: ticket.id };
@@ -112,17 +144,23 @@ export async function addTicketMessage(ticketId: string, formData: FormData) {
               />
             );
             
-            await sendEmail({
-              to: user.email,
-              subject: `پاسخ جدید به تیکت: ${ticket.subject}`,
-              html,
+            await notificationQueue.add("send-email", {
+              type: "email",
+              payload: {
+                to: user.email,
+                subject: `پاسخ جدید به تیکت: ${ticket.subject}`,
+                html,
+              }
             });
           }
 
           if (user.phoneNumber) {
-            await sendSms({
-              to: user.phoneNumber,
-              text: `اکستیم\nپاسخ جدیدی برای تیکت "${ticket.subject}" ثبت شد.\nجهت مشاهده به پروفایل خود مراجعه کنید.`,
+            await notificationQueue.add("send-sms", {
+              type: "sms",
+              payload: {
+                to: user.phoneNumber,
+                text: `اکستیم\nپاسخ جدیدی برای تیکت "${ticket.subject}" ثبت شد.\nجهت مشاهده به پروفایل خود مراجعه کنید.`,
+              }
             });
           }
         }

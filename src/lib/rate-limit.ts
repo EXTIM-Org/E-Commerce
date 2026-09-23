@@ -19,15 +19,20 @@ export async function rateLimit(
   const key = `ratelimit:${action}:${identifier}`;
   
   try {
-    const currentCount = await redis.incr(key);
-    
-    // If it's the first request in the window, set the expiry
-    if (currentCount === 1) {
-      await redis.pexpire(key, windowMs);
-    }
+    // Lua script to perform INCR and PEXPIRE atomically
+    // This eliminates any race conditions where a key might be incremented but never expire
+    const script = `
+      local current = redis.call("INCR", KEYS[1])
+      if current == 1 then
+        redis.call("PEXPIRE", KEYS[1], ARGV[1])
+      end
+      return {current, redis.call("PTTL", KEYS[1])}
+    `;
 
-    // Get the remaining TTL for the resetAt calculation
-    const ttl = await redis.pttl(key);
+    const result = await redis.eval(script, 1, key, windowMs) as [number, number];
+    const currentCount = result[0];
+    const ttl = result[1];
+
     const resetAt = Date.now() + (ttl > 0 ? ttl : windowMs);
 
     return {

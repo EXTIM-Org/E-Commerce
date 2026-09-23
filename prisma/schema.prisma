@@ -103,6 +103,9 @@ model Product {
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  @@index([categoryId])
+  @@index([createdAt])
 }
 
 model ProductVariant {
@@ -166,6 +169,9 @@ model CartItem {
   
   quantity      Int
   reservedAt    DateTime? // Timestamp for the 15-min reservation release logic
+
+  @@index([cartId])
+  @@index([variantId])
 }
 
 model Order {
@@ -185,6 +191,10 @@ model Order {
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model OrderItem {
@@ -218,6 +228,9 @@ model Review {
   votes         ReviewVote[]
   
   createdAt     DateTime  @default(now())
+
+  @@index([productId])
+  @@index([userId])
 }
 
 model Question {
@@ -231,6 +244,9 @@ model Question {
   
   answers   Answer[]
   createdAt DateTime @default(now())
+
+  @@index([productId])
+  @@index([userId])
 }
 
 model Answer {
@@ -244,6 +260,9 @@ model Answer {
   isAdmin    Boolean  @default(false)
   
   createdAt  DateTime @default(now())
+
+  @@index([questionId])
+  @@index([userId])
 }
 
 model ReviewVote {
@@ -257,6 +276,8 @@ model ReviewVote {
   createdAt DateTime @default(now())
 
   @@unique([reviewId, userId])
+  @@index([reviewId])
+  @@index([userId])
 }
 
 model FlashSale {
@@ -271,6 +292,9 @@ model FlashSale {
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([endTime])
 }
 
 model ArticleCategory {
@@ -304,6 +328,10 @@ model Article {
   publishedAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+
+  @@index([categoryId])
+  @@index([authorId])
+  @@index([status])
 }
 
 enum ArticleStatus {
@@ -352,6 +380,9 @@ model Ticket {
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
 }
 
 model TicketMessage {
@@ -367,5 +398,8 @@ model TicketMessage {
   isInternal  Boolean  @default(false)
   
   createdAt   DateTime @default(now())
+
+  @@index([ticketId])
+  @@index([userId])
 }
 
