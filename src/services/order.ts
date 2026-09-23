@@ -3,8 +3,11 @@ import { render } from "@react-email/render";
 import { sendEmail } from "@/lib/email";
 import { OrderReceiptEmail } from "@/emails/OrderReceiptEmail";
 import React from "react";
+import { getLogger } from "@/lib/logger";
 
 export async function markOrderAsPaid(orderId: string) {
+  // We can't know userId yet, so we use base logger until we fetch order
+  const baseLog = getLogger();
   try {
     // 1. Fetch the order with its user and items
     const order = await db.orm.public.Order
@@ -14,10 +17,14 @@ export async function markOrderAsPaid(orderId: string) {
       .first();
 
     if (!order) {
+      baseLog.warn({ orderId }, "markOrderAsPaid called but order not found");
       return { success: false, error: "سفارش یافت نشد." };
     }
+    
+    const log = getLogger(order.userId);
 
     if (order.status === "PAID") {
+      log.warn({ orderId }, "Order is already paid");
       return { success: false, error: "این سفارش قبلاً پرداخت شده است." };
     }
 
@@ -25,6 +32,8 @@ export async function markOrderAsPaid(orderId: string) {
     await db.orm.public.Order.where({ id: orderId }).update({
       status: "PAID"
     });
+    
+    log.info({ orderId, amount: order.totalAmount }, "Order marked as PAID successfully");
     
     // 2.5 Increment salesCount for each product in the order
     for (const item of order.items) {
@@ -69,12 +78,14 @@ export async function markOrderAsPaid(orderId: string) {
         to: order.user.email,
         subject: `رسید پرداخت سفارش #${order.id.split('-')[0]}`,
         html,
-      }).catch(console.error);
+      }).catch(e => {
+        log.error({ err: e, orderId }, "Failed to send receipt email");
+      });
     }
 
     return { success: true };
   } catch (error) {
-    console.error("Failed to mark order as paid:", error);
+    baseLog.error({ err: error, orderId }, "Failed to mark order as paid");
     return { success: false, error: "خطایی رخ داد." };
   }
 }

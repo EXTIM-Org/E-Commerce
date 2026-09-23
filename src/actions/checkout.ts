@@ -6,6 +6,7 @@ import { z } from "zod";
 import { markOrderAsPaid } from "@/services/order";
 import { validateCoupon } from "@/actions/coupon";
 import { getEffectivePrice } from "@/lib/price";
+import { getLogger } from "@/lib/logger";
 
 const checkoutSchema = z.object({
   receiverName: z.string().min(2, "نام تحویل گیرنده باید حداقل ۲ کاراکتر باشد."),
@@ -44,6 +45,9 @@ export async function processCheckout(prevState: unknown, formData: FormData) {
     if (!session || !session.userId) {
       return { error: "برای ثبت سفارش باید وارد حساب کاربری شوید." };
     }
+    
+    const log = getLogger(session.userId as string);
+    log.info("Checkout process started");
 
     const fullAddress = formData.get("address") as string;
     const receiverName = formData.get("receiverName") as string;
@@ -55,6 +59,7 @@ export async function processCheckout(prevState: unknown, formData: FormData) {
     
     // Simulate failed payment
     if (simulationType === "FAIL") {
+      log.warn({ amount: "unknown", reason: "Simulated failure" }, "Checkout failed due to simulation");
       return { error: "پرداخت ناموفق بود (شبیه‌سازی خطا توسط درگاه پرداخت). لطفاً مجدداً تلاش کنید." };
     }
     
@@ -207,12 +212,14 @@ export async function processCheckout(prevState: unknown, formData: FormData) {
             quantity: -item.quantity,
             reference: newOrder.id
           });
+          
+          log.info({ variantId: item.variantId, quantity: item.quantity, orderId: newOrder.id }, "Inventory deducted successfully");
         }
       }
       
       return { order: newOrder };
     }).catch(e => {
-       console.error("Transaction failed:", e);
+       log.error({ err: e }, "Transaction failed during checkout");
        return { error: e instanceof Error ? e.message : "خطایی در ثبت سفارش رخ داد." };
     });
 
@@ -239,12 +246,14 @@ export async function processCheckout(prevState: unknown, formData: FormData) {
     
     // 5. Simulated Payment Success -> Trigger receipt email
     await markOrderAsPaid(order.id);
+    
+    log.info({ orderId: order.id, amount: finalTotal }, "Checkout process completed successfully");
 
     // Returning success to trigger client-side clear cart
     return { success: true, orderId: order.id };
 
   } catch (error) {
-    console.error("Checkout error:", error);
+    console.error("Checkout error:", error); // Keep console for unhandled outer catch if needed, but we can also use base logger
     return { error: "خطایی در پردازش سفارش رخ داد. لطفاً دوباره تلاش کنید." };
   }
 }

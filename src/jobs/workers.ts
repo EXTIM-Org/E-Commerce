@@ -1,6 +1,9 @@
 import { Worker, Job } from 'bullmq';
 import { redis } from '../lib/redis';
 import { db } from '../prisma/db';
+import crypto from 'crypto';
+import { keyRotationQueue } from './queues';
+import { invalidateCachePattern } from '../lib/cache';
 
 export function setupWorkers() {
   console.log('[BullMQ] Setting up background workers...');
@@ -37,12 +40,31 @@ export function setupWorkers() {
     console.log(`[BullMQ] Expiring flash sale ${flashSaleId}`);
     
     await db.orm.public.FlashSale.where({ id: flashSaleId }).update({ isActive: false });
-    // Cache revalidation from external worker requires calling a webhook on the Next.js server.
-    // For now, the DB is updated and Next.js Time-based Revalidation will pick it up.
+    await invalidateCachePattern("cache:products:*");
+  }, { connection: redis });
+
+  const keyRotationWorker = new Worker('key-rotation-queue', async (job: Job) => {
+    console.log('[BullMQ] Rotating JWT Keys...');
+    const current = await redis.get('jwt:secret:current');
+    if (current) {
+      await redis.set('jwt:secret:previous', current);
+    }
+    const newSecret = crypto.randomBytes(32).toString('hex');
+    await redis.set('jwt:secret:current', newSecret);
+    console.log('[BullMQ] JWT Keys rotated successfully.');
   }, { connection: redis });
 
   cartWorker.on('failed', (job, err) => console.error(`Cart Job ${job?.id} failed:`, err));
   flashSaleWorker.on('failed', (job, err) => console.error(`FlashSale Job ${job?.id} failed:`, err));
+  keyRotationWorker.on('failed', (job, err) => console.error(`KeyRotation Job ${job?.id} failed:`, err));
 
-  return { cartWorker, flashSaleWorker };
+  // Schedule monthly key rotation (Runs at 00:00 on day-of-month 1)
+  keyRotationQueue.upsertJobScheduler('monthly-rotation', {
+    pattern: '0 0 1 * *',
+  }, {
+    name: 'rotate-keys',
+    data: {},
+  });
+
+  return { cartWorker, flashSaleWorker, keyRotationWorker };
 }

@@ -1,30 +1,79 @@
 import { SignJWT, jwtVerify, type JWTPayload } from 'jose';
 import { cookies } from 'next/headers';
+import { redis } from './redis';
 
-const secretKey = process.env.JWT_SECRET;
+let cachedSecrets: { current: Uint8Array; previous: Uint8Array | null; fetchedAt: number } | null = null;
+const CACHE_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours
 
-if (!secretKey) {
-  throw new Error("JWT_SECRET is not defined in environment variables");
+async function getSecrets() {
+  const now = Date.now();
+  if (cachedSecrets && now - cachedSecrets.fetchedAt < CACHE_TTL_MS) {
+    return cachedSecrets;
+  }
+
+  try {
+    let current = await redis.get('jwt:secret:current');
+    let previous = await redis.get('jwt:secret:previous');
+
+    if (!current) {
+      current = process.env.JWT_SECRET!;
+      previous = process.env.JWT_PREVIOUS_SECRET || null;
+      if (current) {
+        await redis.set('jwt:secret:current', current);
+        if (previous) {
+          await redis.set('jwt:secret:previous', previous);
+        }
+      } else {
+        throw new Error("JWT_SECRET is not defined in environment variables or Redis");
+      }
+    }
+
+    cachedSecrets = {
+      current: new TextEncoder().encode(current),
+      previous: previous ? new TextEncoder().encode(previous) : null,
+      fetchedAt: now,
+    };
+    return cachedSecrets;
+  } catch (error) {
+    console.error('Failed to fetch JWT secrets from Redis, falling back to env', error);
+    if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET is missing");
+    
+    return {
+      current: new TextEncoder().encode(process.env.JWT_SECRET),
+      previous: process.env.JWT_PREVIOUS_SECRET ? new TextEncoder().encode(process.env.JWT_PREVIOUS_SECRET) : null,
+      fetchedAt: 0,
+    };
+  }
 }
-const encodedKey = new TextEncoder().encode(secretKey);
 
 export async function encrypt(payload: JWTPayload) {
+  const secrets = await getSecrets();
   return new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('7d')
-    .sign(encodedKey);
+    .sign(secrets.current);
 }
 
 export async function decrypt(session: string | undefined = '') {
   if (!session) return null;
+  const secrets = await getSecrets();
   try {
-    const { payload } = await jwtVerify(session, encodedKey, {
+    const { payload } = await jwtVerify(session, secrets.current, {
       algorithms: ['HS256'],
     });
     return payload;
   } catch (error) {
-    console.error('Failed to verify session', error);
+    if (secrets.previous) {
+      try {
+        const { payload } = await jwtVerify(session, secrets.previous, {
+          algorithms: ['HS256'],
+        });
+        return payload;
+      } catch (innerError) {
+        return null;
+      }
+    }
     return null;
   }
 }

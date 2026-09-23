@@ -18,3 +18,12 @@ export const flashSaleQueue = new Queue('flash-sale-queue', {
     removeOnFail: 10,
   },
 });
+
+// Setup Key Rotation Queue
+export const keyRotationQueue = new Queue('key-rotation-queue', {
+  connection: redis,
+  defaultJobOptions: {
+    removeOnComplete: true,
+    removeOnFail: 10,
+  },
+});

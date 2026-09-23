@@ -6,6 +6,7 @@ import { getSession } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { flashSaleQueue } from "@/jobs/queues";
+import { invalidateCachePattern } from "@/lib/cache";
 
 export async function createFlashSale(formData: FormData): Promise<void> {
   const session = await getSession();
@@ -58,6 +59,7 @@ export async function createFlashSale(formData: FormData): Promise<void> {
     const delay = Math.max(0, endTime.getTime() - Date.now());
     await flashSaleQueue.add('expire', { flashSaleId: finalFlashSaleId }, { delay });
 
+    await invalidateCachePattern("cache:products:*");
     revalidatePath("/");
     revalidatePath("/products");
     revalidatePath("/admin/flash-sales");
@@ -77,6 +79,7 @@ export async function toggleFlashSale(id: string, isActive: boolean) {
 
   try {
     await db.orm.public.FlashSale.where({ id }).update({ isActive });
+    await invalidateCachePattern("cache:products:*");
     revalidatePath("/");
     revalidatePath("/products");
     revalidatePath("/admin/flash-sales");
@@ -94,6 +97,7 @@ export async function deleteFlashSale(id: string) {
 
   try {
     await db.orm.public.FlashSale.where({ id }).delete();
+    await invalidateCachePattern("cache:products:*");
     revalidatePath("/");
     revalidatePath("/products");
     revalidatePath("/admin/flash-sales");

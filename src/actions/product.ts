@@ -5,6 +5,7 @@ import { db } from "@/prisma/db";
 import { getSession } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { invalidateCachePattern } from "@/lib/cache";
 import { writeFile, mkdir, unlink } from "fs/promises";
 import { join } from "path";
 import { existsSync } from "fs";
@@ -201,6 +202,7 @@ export async function createProduct(prevState: unknown, formData: FormData) {
     return { error: "خطایی در ثبت محصول رخ داد." };
   }
 
+  await invalidateCachePattern("cache:products:*");
   revalidatePath("/admin/products");
   redirect("/admin/products");
 }
@@ -366,6 +368,7 @@ export async function updateProduct(id: string, prevState: unknown, formData: Fo
     return { error: "خطایی در ویرایش محصول رخ داد." };
   }
 
+  await invalidateCachePattern("cache:products:*");
   revalidatePath("/admin/products");
   redirect("/admin/products");
 }
@@ -385,6 +388,7 @@ export async function deleteProduct(id: string) {
       await deletePhysicalImages(oldProduct.images);
     }
     
+    await invalidateCachePattern("cache:products:*");
     revalidatePath("/admin/products");
     return { success: true };
   } catch (error) {
