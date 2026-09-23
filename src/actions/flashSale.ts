@@ -5,6 +5,7 @@ import { db } from "@/prisma/db";
 import { getSession } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { flashSaleQueue } from "@/jobs/queues";
 
 export async function createFlashSale(formData: FormData): Promise<void> {
   const session = await getSession();
@@ -32,7 +33,10 @@ export async function createFlashSale(formData: FormData): Promise<void> {
     // Upsert FlashSale (since it's 1-to-1)
     const existing = await db.orm.public.FlashSale.where({ productId }).first();
     
+    let finalFlashSaleId = "";
+
     if (existing) {
+      finalFlashSaleId = existing.id;
       await db.orm.public.FlashSale.where({ id: existing.id }).update({
         discountPercent,
         startTime: startTime.toISOString(),
@@ -40,14 +44,19 @@ export async function createFlashSale(formData: FormData): Promise<void> {
         isActive: true,
       });
     } else {
-      await db.orm.public.FlashSale.create({
+      const createdFlashSale = await db.orm.public.FlashSale.create({
         productId,
         discountPercent,
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
         isActive: true,
       });
+      finalFlashSaleId = createdFlashSale.id;
     }
+
+    // Schedule automatic expiration
+    const delay = Math.max(0, endTime.getTime() - Date.now());
+    await flashSaleQueue.add('expire', { flashSaleId: finalFlashSaleId }, { delay });
 
     revalidatePath("/");
     revalidatePath("/products");

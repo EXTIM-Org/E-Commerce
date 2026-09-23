@@ -1,7 +1,11 @@
 import { SignJWT, jwtVerify, type JWTPayload } from 'jose';
 import { cookies } from 'next/headers';
 
-const secretKey = process.env.JWT_SECRET || 'super-secret-extim-key-for-development';
+const secretKey = process.env.JWT_SECRET;
+
+if (!secretKey) {
+  throw new Error("JWT_SECRET is not defined in environment variables");
+}
 const encodedKey = new TextEncoder().encode(secretKey);
 
 export async function encrypt(payload: JWTPayload) {

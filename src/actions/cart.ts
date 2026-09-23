@@ -4,51 +4,14 @@ import { db } from "@/prisma/db";
 import { getSession } from "@/lib/session";
 import { getEffectivePrice } from "@/lib/price";
 
+import { cartCleanupQueue } from "@/jobs/queues";
+
 const RESERVATION_MINUTES = 15;
-
-/**
- * Lazy cleanup of expired reservations across the entire system.
- * This runs before any cart mutation to ensure max availability.
- */
-export async function lazyReleaseReservations() {
-  try {
-    const expiryTime = new Date(Date.now() - RESERVATION_MINUTES * 60 * 1000).toISOString();
-
-    // Find all expired cart items that have a reservation
-    const expiredItems = await db.orm.public.CartItem
-      .where((item) => item.reservedAt.lte(expiryTime))
-      .all();
-
-    if (expiredItems.length === 0) return;
-
-    // Release each item
-    for (const item of expiredItems) {
-      const inventory = await db.orm.public.Inventory.where({ variantId: item.variantId }).first();
-      
-      if (inventory) {
-        // Return stock from reserved to available
-        const plan = db.raw.sql`
-          UPDATE inventory 
-          SET "stockQuantity" = "stockQuantity" + ${item.quantity}, 
-              "reservedStock" = GREATEST(0, "reservedStock" - ${item.quantity})
-          WHERE id = ${inventory.id}
-        `.affectedCount().build();
-        await db.runtime().execute(plan);
-      }
-      
-      // Delete the expired cart item
-      await db.orm.public.CartItem.where({ id: item.id }).delete();
-    }
-  } catch (error) {
-    console.error("Error in lazyReleaseReservations:", error);
-  }
-}
 
 /**
  * Fetch the user's cart from the server.
  */
 export async function fetchUserCart() {
-  await lazyReleaseReservations();
   
   const session = await getSession();
   if (!session || !session.userId) return { success: false, guest: true, items: [] };
@@ -97,8 +60,6 @@ export async function syncCartServer(localItems: { variantId: string; quantity: 
 export async function addToCartServer(variantId: string, quantity: number) {
   if (quantity <= 0) return { success: false, error: "تعداد نامعتبر است." };
   
-  await lazyReleaseReservations();
-  
   const session = await getSession();
   if (!session || !session.userId) return { guest: true };
   
@@ -138,21 +99,35 @@ export async function addToCartServer(variantId: string, quantity: number) {
       
     const reservedAt = new Date().toISOString();
     
+    let targetCartItemId = "";
+    let newQuantity = quantity;
+
     if (existingItem) {
+      targetCartItemId = existingItem.id;
+      newQuantity = existingItem.quantity + quantity;
       // Update existing item
       await db.orm.public.CartItem.where({ id: existingItem.id }).update({
-        quantity: existingItem.quantity + quantity,
+        quantity: newQuantity,
         reservedAt
       });
     } else {
       // Create new item
-      await db.orm.public.CartItem.create({
+      const newItem = await db.orm.public.CartItem.create({
         cartId: cart.id,
         variantId,
         quantity,
         reservedAt
       });
+      targetCartItemId = newItem.id;
     }
+    
+    // Schedule BullMQ job to release reservation after 15 minutes
+    await cartCleanupQueue.add('cleanup', {
+      cartItemId: targetCartItemId,
+      variantId,
+      quantity: newQuantity,
+      reservedAt
+    }, { delay: RESERVATION_MINUTES * 60 * 1000 });
     
     return { success: true, reservedAt };
   } catch (error) {
@@ -166,8 +141,6 @@ export async function addToCartServer(variantId: string, quantity: number) {
  */
 export async function updateQuantityServer(variantId: string, quantity: number) {
   if (quantity <= 0) return { success: false, error: "تعداد نامعتبر است." };
-  
-  await lazyReleaseReservations();
   
   const session = await getSession();
   if (!session || !session.userId) return { guest: true };
@@ -216,6 +189,14 @@ export async function updateQuantityServer(variantId: string, quantity: number) 
       quantity,
       reservedAt
     });
+    
+    // Schedule BullMQ job to release reservation after 15 minutes
+    await cartCleanupQueue.add('cleanup', {
+      cartItemId: cartItem.id,
+      variantId,
+      quantity,
+      reservedAt
+    }, { delay: RESERVATION_MINUTES * 60 * 1000 });
     
     return { success: true, reservedAt };
   } catch (error) {

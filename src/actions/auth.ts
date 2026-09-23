@@ -10,9 +10,14 @@ import { sendEmail } from "@/lib/email";
 import { sendSms } from "@/lib/sms";
 import { ResetPasswordEmail } from "@/emails/ResetPasswordEmail";
 import React from "react";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function registerUser(prevState: unknown, formData: FormData) {
   try {
+    const ip = await getClientIp();
+    const rate = await rateLimit(ip, "REGISTER", 3, 60 * 60 * 1000); // 3 per hour
+    if (!rate.success) return { error: "تعداد درخواست‌های ثبت‌نام بیش از حد مجاز است. لطفاً ۱ ساعت دیگر تلاش کنید." };
+
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
@@ -48,6 +53,10 @@ export async function registerUser(prevState: unknown, formData: FormData) {
 
 export async function loginUser(prevState: unknown, formData: FormData) {
   try {
+    const ip = await getClientIp();
+    const rate = await rateLimit(ip, "LOGIN", 5, 5 * 60 * 1000); // 5 per 5 minutes
+    if (!rate.success) return { error: "تعداد تلاش‌های ورود بیش از حد مجاز است. لطفاً ۵ دقیقه دیگر تلاش کنید." };
+
     const identifier = formData.get("email") as string; // The frontend passes identifier as "email"
     const password = formData.get("password") as string;
 
@@ -90,6 +99,10 @@ export async function logoutUser() {
 
 export async function requestPasswordReset(prevState: unknown, formData: FormData) {
   try {
+    const ip = await getClientIp();
+    const rate = await rateLimit(ip, "RESET_PASSWORD", 3, 15 * 60 * 1000); // 3 per 15 minutes
+    if (!rate.success) return { error: "درخواست‌های بازیابی بیش از حد مجاز است. لطفاً ۱۵ دقیقه دیگر تلاش کنید." };
+
     const email = formData.get("email") as string;
     
     if (!email) {
@@ -118,7 +131,11 @@ export async function requestPasswordReset(prevState: unknown, formData: FormDat
     });
 
     // Send email
-    const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/reset-password?token=${token}`;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+    if (!appUrl) {
+      throw new Error("NEXT_PUBLIC_APP_URL is not defined in environment variables");
+    }
+    const resetUrl = `${appUrl}/reset-password?token=${token}`;
     
     const html = await render(
       React.createElement(ResetPasswordEmail, {
@@ -182,6 +199,10 @@ export async function resetPassword(prevState: unknown, formData: FormData) {
 
 export async function sendOtp(prevState: unknown, formData: FormData) {
   try {
+    const ip = await getClientIp();
+    const rate = await rateLimit(ip, "SEND_OTP", 3, 10 * 60 * 1000); // 3 per 10 minutes
+    if (!rate.success) return { error: "درخواست‌های ارسال پیامک بیش از حد مجاز است. لطفاً ۱۰ دقیقه دیگر تلاش کنید." };
+
     const phoneNumber = formData.get("phoneNumber") as string;
     
     if (!phoneNumber || !/^09[0-9]{9}$/.test(phoneNumber)) {

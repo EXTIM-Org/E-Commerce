@@ -98,13 +98,17 @@ export async function addTicketMessage(ticketId: string, formData: FormData) {
         const user = await db.orm.public.User.where({ id: ticket.userId }).first();
         if (user) {
           if (user.email) {
+            const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+            if (!appUrl) {
+              throw new Error("NEXT_PUBLIC_APP_URL is not defined in environment variables");
+            }
             const html = await render(
               <TicketReplyEmail
                 customerName={user.name || "کاربر عزیز"}
                 ticketId={ticket.id}
                 ticketSubject={ticket.subject}
                 replyText={text}
-                ticketUrl={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/profile/tickets/${ticket.id}`}
+                ticketUrl={`${appUrl}/profile/tickets/${ticket.id}`}
               />
             );
             
