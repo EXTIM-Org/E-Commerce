@@ -6,6 +6,7 @@ import { getSession } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 import { render } from "@react-email/render";
 import { sendEmail } from "@/lib/email";
+import { sendSms } from "@/lib/sms";
 import { OrderStatusEmail } from "@/emails/OrderStatusEmail";
 import React from "react";
 import { markOrderAsPaid } from "@/services/order";
@@ -42,22 +43,31 @@ export async function updateOrderStatus(orderId: string, newStatus: string) {
 
     // Send email notification if status is one that users care about
     if (["SHIPPED", "DELIVERED", "CANCELLED"].includes(newStatus)) {
-      if (order.user && order.user.email) {
-        // Render the email template to an HTML string
-        const html = await render(
-          React.createElement(OrderStatusEmail, {
-            customerName: order.user.name || "کاربر",
-            orderId: order.id,
-            status: newStatus,
-          })
-        );
-        
-        // Fire and forget (don't await so we don't block the UI response)
-        sendEmail({
-          to: order.user.email,
-          subject: `بروزرسانی وضعیت سفارش #${order.id.split('-')[0]}`,
-          html,
-        }).catch(console.error);
+      if (order.user) {
+        if (order.user.email) {
+          // Render the email template to an HTML string
+          const html = await render(
+            React.createElement(OrderStatusEmail, {
+              customerName: order.user.name || "کاربر",
+              orderId: order.id,
+              status: newStatus,
+            })
+          );
+          
+          // Fire and forget (don't await so we don't block the UI response)
+          sendEmail({
+            to: order.user.email,
+            subject: `بروزرسانی وضعیت سفارش #${order.id.split('-')[0]}`,
+            html,
+          }).catch(console.error);
+        }
+
+        if (order.user.phoneNumber) {
+          sendSms({
+            to: order.user.phoneNumber,
+            text: `اکستیم\nسفارش #${order.id.split('-')[0]} شما به وضعیت ${newStatus} تغییر یافت.`,
+          }).catch(console.error);
+        }
       }
     }
 

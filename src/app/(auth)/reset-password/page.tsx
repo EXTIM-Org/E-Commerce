@@ -34,7 +34,6 @@ export default function ResetPasswordPage() {
         setCountdown((prev) => {
           if (prev <= 1) {
             clearInterval(timer);
-            router.push("/login");
             return 0;
           }
           return prev - 1;
@@ -42,7 +41,13 @@ export default function ResetPasswordPage() {
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [state?.success, router]);
+  }, [state?.success]);
+
+  useEffect(() => {
+    if (countdown === 0) {
+      router.push("/login");
+    }
+  }, [countdown, router]);
 
   if (!token) {
     return (

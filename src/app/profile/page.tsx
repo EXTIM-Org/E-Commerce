@@ -18,6 +18,7 @@ export default async function ProfileDashboardPage() {
   const userData = {
     name: user.name,
     email: user.email,
+    phoneNumber: user.phoneNumber,
     joinDate: joinDate,
   };
 

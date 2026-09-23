@@ -43,7 +43,7 @@ const SortableHeader = ({
   );
 };
 
-export function TicketsList({ initialTickets, isSuperAdmin }: { initialTickets: any[], isSuperAdmin: boolean }) {
+export function TicketsList({ initialTickets }: { initialTickets: any[] }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortField, setSortField] = useState<string>("updatedAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");

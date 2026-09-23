@@ -3008,7 +3008,7 @@
                 }
               },
               "email": {
-                "nullable": false,
+                "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
@@ -3035,10 +3035,38 @@
                   "kind": "scalar"
                 }
               },
-              "passwordHash": {
-                "nullable": false,
+              "otpCode": {
+                "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "otpExpiry": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "passwordHash": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "phoneNumber": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "phoneVerified": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
                   "kind": "scalar"
                 }
               },
@@ -3263,8 +3291,20 @@
                 "name": {
                   "column": "name"
                 },
+                "otpCode": {
+                  "column": "otpCode"
+                },
+                "otpExpiry": {
+                  "column": "otpExpiry"
+                },
                 "passwordHash": {
                   "column": "passwordHash"
+                },
+                "phoneNumber": {
+                  "column": "phoneNumber"
+                },
+                "phoneVerified": {
+                  "column": "phoneVerified"
                 },
                 "resetToken": {
                   "column": "resetToken"
@@ -5613,7 +5653,7 @@
                 "email": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
-                  "nullable": false
+                  "nullable": true
                 },
                 "id": {
                   "codecId": "pg/text@1",
@@ -5630,9 +5670,33 @@
                   "nativeType": "text",
                   "nullable": true
                 },
+                "otpCode": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "otpExpiry": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
                 "passwordHash": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
+                  "nullable": true
+                },
+                "phoneNumber": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "phoneVerified": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
                   "nullable": false
                 },
                 "resetToken": {
@@ -5677,6 +5741,11 @@
                 {
                   "columns": [
                     "email"
+                  ]
+                },
+                {
+                  "columns": [
+                    "phoneNumber"
                   ]
                 },
                 {
@@ -5916,7 +5985,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "d0eb92ed68518e718d9d98dd2855d36c63f354acf3ad8464ce11e6dead140b79"
+    "storageHash": "234adf5a006c37779fa4fcc884793f678f5ec48feb08dfd149b4e3c09c21d755"
   },
   "execution": {
     "executionHash": "d455b3b52922192f651fa3d57539b75c09fdbf0d935a65b4b8ba98a12ee03da5",

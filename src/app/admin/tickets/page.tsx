@@ -28,7 +28,7 @@ export default async function AdminTicketsPage() {
         </p>
       </div>
 
-      <TicketsList initialTickets={tickets} isSuperAdmin={session.role === "SUPER_ADMIN"} />
+      <TicketsList initialTickets={tickets} />
     </div>
   );
 }

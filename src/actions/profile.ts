@@ -12,15 +12,30 @@ export async function updateProfile(prevState: unknown, formData: FormData) {
   }
 
   const name = formData.get("name") as string;
+  const phoneNumber = formData.get("phoneNumber") as string;
+
   if (!name || name.trim().length < 2) {
     return { error: "نام باید حداقل ۲ کاراکتر باشد" };
+  }
+
+  if (phoneNumber && !/^09[0-9]{9}$/.test(phoneNumber)) {
+    return { error: "شماره موبایل وارد شده نامعتبر است" };
   }
 
   try {
     const newName = name.trim();
     
+    // Check phone uniqueness
+    if (phoneNumber) {
+      const existing = await db.orm.public.User.where({ phoneNumber }).first();
+      if (existing && existing.id !== session.userId) {
+        return { error: "این شماره موبایل توسط کاربر دیگری استفاده شده است" };
+      }
+    }
+    
     await db.orm.public.User.where({ id: session.userId as string }).update({
       name: newName,
+      ...(phoneNumber && { phoneNumber }),
     });
 
     // Update the session cookie with the new name
@@ -63,8 +78,8 @@ export async function changePassword(prevState: unknown, formData: FormData) {
 
   try {
     const user = await db.orm.public.User.where({ id: session.userId as string }).first();
-    if (!user) {
-      return { error: "کاربر یافت نشد" };
+    if (!user || !user.passwordHash) {
+      return { error: "کاربر یافت نشد یا فاقد رمز عبور است" };
     }
 
     const isPasswordValid = await bcrypt.compare(currentPassword, user.passwordHash);

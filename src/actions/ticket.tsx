@@ -5,6 +5,7 @@ import { getSession } from "@/lib/session";
 import { canManageSupport } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
 import { sendEmail } from "@/lib/email";
+import { sendSms } from "@/lib/sms";
 import { render } from "@react-email/render";
 import TicketReplyEmail from "@/emails/TicketReplyEmail";
 
@@ -92,25 +93,34 @@ export async function addTicketMessage(ticketId: string, formData: FormData) {
     if (!isCustomer && !isInternal) {
       await db.orm.public.Ticket.where({ id: ticketId }).update({ status: "WAITING_FOR_USER" });
       
-      // Send email
+      // Send notifications
       if (ticket.userId) {
         const user = await db.orm.public.User.where({ id: ticket.userId }).first();
-        if (user && user.email) {
-          const html = await render(
-            <TicketReplyEmail
-              customerName={user.name || "کاربر عزیز"}
-              ticketId={ticket.id}
-              ticketSubject={ticket.subject}
-              replyText={text}
-              ticketUrl={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/profile/tickets/${ticket.id}`}
-            />
-          );
-          
-          await sendEmail({
-            to: user.email,
-            subject: `پاسخ جدید به تیکت: ${ticket.subject}`,
-            html,
-          });
+        if (user) {
+          if (user.email) {
+            const html = await render(
+              <TicketReplyEmail
+                customerName={user.name || "کاربر عزیز"}
+                ticketId={ticket.id}
+                ticketSubject={ticket.subject}
+                replyText={text}
+                ticketUrl={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/profile/tickets/${ticket.id}`}
+              />
+            );
+            
+            await sendEmail({
+              to: user.email,
+              subject: `پاسخ جدید به تیکت: ${ticket.subject}`,
+              html,
+            });
+          }
+
+          if (user.phoneNumber) {
+            await sendSms({
+              to: user.phoneNumber,
+              text: `اکستیم\nپاسخ جدیدی برای تیکت "${ticket.subject}" ثبت شد.\nجهت مشاهده به پروفایل خود مراجعه کنید.`,
+            });
+          }
         }
       }
     } else if (isCustomer) {
