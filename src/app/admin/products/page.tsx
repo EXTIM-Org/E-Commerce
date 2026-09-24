@@ -1,9 +1,10 @@
 import { db } from "@/prisma/db";
 import Link from "next/link";
-import { Plus, Edit2, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Edit2, ArrowUp, ArrowDown, Download } from "lucide-react";
 import { deleteProduct } from "@/actions/product";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { ProductFilters } from "@/components/admin/ProductFilters";
+import { BulkImportModal } from "@/components/admin/BulkImportModal";
 
 function SortableHeader({ 
   label, 
@@ -86,10 +87,17 @@ export default async function AdminProductsPage(props: { searchParams: Promise<{
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">مدیریت محصولات</h1>
           <p className="text-gray-600 dark:text-gray-400">مشاهده و ویرایش لیست محصولات فروشگاه</p>
         </div>
-        <Link href="/admin/products/new" className="flex items-center gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity font-medium">
-          <Plus className="w-5 h-5" />
-          افزودن محصول جدید
-        </Link>
+        <div className="flex gap-3">
+          <a href="/api/admin/products/export" className="flex items-center gap-2 bg-black/5 dark:bg-white/10 text-gray-700 dark:text-gray-200 border border-black/10 dark:border-white/10 px-4 py-2.5 rounded-xl hover:bg-black/10 dark:hover:bg-white/20 transition-colors font-medium">
+            <Download className="w-5 h-5" />
+            خروجی اکسل
+          </a>
+          <BulkImportModal />
+          <Link href="/admin/products/new" className="flex items-center gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity font-medium">
+            <Plus className="w-5 h-5" />
+            افزودن محصول
+          </Link>
+        </div>
       </div>
 
       <ProductFilters categories={categories} />

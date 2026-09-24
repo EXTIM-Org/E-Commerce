@@ -41,3 +41,13 @@ export const notificationQueue = new Queue('notification-queue', {
     },
   },
 });
+
+// Setup Bulk Import Queue
+export const bulkImportQueue = new Queue('bulk-import-queue', {
+  connection: redis,
+  defaultJobOptions: {
+    removeOnComplete: true,
+    removeOnFail: 10,
+  },
+});
+

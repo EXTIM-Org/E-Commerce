@@ -6,6 +6,7 @@ import { keyRotationQueue } from './queues';
 import { invalidateCachePattern } from '../lib/cache';
 import { sendEmail } from '../lib/email';
 import { sendSms } from '../lib/sms';
+import './bulk-import-worker';
 
 export function setupWorkers() {
   console.log('[BullMQ] Setting up background workers...');
