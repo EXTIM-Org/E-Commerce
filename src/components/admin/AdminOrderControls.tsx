@@ -4,7 +4,7 @@ import { updateOrderStatus, updateTrackingCode } from "@/actions/order";
 import { useState, useRef, useEffect } from "react";
 import { Loader2, ChevronDown, Check } from "lucide-react";
 
-type OrderStatus = "PENDING" | "PAID" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
+type OrderStatus = "PENDING" | "PAID" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "RETURNED";
 
 export function AdminOrderControls({ 
   orderId, 

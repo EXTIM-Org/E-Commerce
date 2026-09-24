@@ -2,6 +2,7 @@ import { getSession } from "@/lib/session";
 import { db } from "@/prisma/db";
 import { notFound, redirect } from "next/navigation";
 import { OrderTimeline } from "@/components/orders/OrderTimeline";
+import { ReturnItemButton } from "@/components/orders/ReturnItemButton";
 import { MapPin, Clock, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
@@ -13,7 +14,7 @@ export default async function ProfileOrderDetailPage(props: { params: Promise<{ 
   const orderId = params.id;
 
   const order = await db.orm.public.Order.where({ id: orderId, userId: session.userId as string })
-    .include("items", (i) => i.include("variant", (v) => v.include("product")))
+    .include("items", (i) => i.include("variant", (v) => v.include("product")).include("returnRequest"))
     .first();
 
   if (!order) {
@@ -88,6 +89,16 @@ export default async function ProfileOrderDetailPage(props: { params: Promise<{ 
                       {item.quantity} عدد
                     </span>
                   </div>
+                  
+                  {order.status === 'DELIVERED' && (
+                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-white/5 flex justify-end">
+                      <ReturnItemButton 
+                        orderItemId={item.id} 
+                        productName={item.variant?.product?.name || "محصول"} 
+                        existingReturn={item.returnRequest as any} 
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

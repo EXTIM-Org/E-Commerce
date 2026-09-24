@@ -75,7 +75,15 @@ The core schema is fully designed, pushed to the database, and synced. It includ
 - Fully functional discount system where admins can create coupon codes (percentage or fixed amount, with expiry and usage limits).
 - Users can apply these codes during checkout to receive dynamic discounts on their cart total.
 
+### 14. Notifications & RMA Background Processing
+- **Granular Notification Settings**: Admins can enable/disable SMS and Email notifications per specific lifecycle stage of Orders and Returns via `/admin/settings/notifications`.
+- **RMA (Return Merchandise Authorization)**: 
+  - `SUBMITTED` state added and enforced as the default schema status ("ثبت شده") for newly created return requests.
+  - Automatically transitions to `PENDING` ("در حال بررسی") when loaded in the Admin Dashboard, preventing premature resolution.
+  - **Dynamic Visual Tagging**: Returned items (with `REFUNDED` status) dynamically render with grayscale, line-through, and red badge styling natively across Admin Order pages through automated database relationship checks.
+
 ---
+
 
 ## ⚠️ CRITICAL: Prisma 8 (Contract-First) Syntax Rules
 This project uses **Prisma 8**, which has breaking syntax changes compared to older Prisma versions. The previous agent encountered and resolved several errors by learning these rules:

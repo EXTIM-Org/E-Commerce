@@ -3,7 +3,7 @@
 import { CheckCircle2, Clock, Home, Package, Truck, XCircle, Copy, Check } from "lucide-react";
 import { useState } from "react";
 
-type OrderStatus = "PENDING" | "PAID" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
+type OrderStatus = "PENDING" | "PAID" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "RETURNED";
 
 const STEPS = [
   { id: "PAID", label: "تایید سفارش", icon: CheckCircle2 },

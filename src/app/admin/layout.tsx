@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
-import { LayoutDashboard, Package, Tags, ShoppingCart, HelpCircle, MessageSquare, LayoutList, Users } from "lucide-react";
+import { LayoutDashboard, Package, Tags, ShoppingCart, HelpCircle, MessageSquare, LayoutList, Users, PackageMinus, BellRing } from "lucide-react";
 import { hasAdminPanelAccess, canManageStore, canManageBlog, canManageRoles, canManageSupport } from "@/lib/permissions";
 
 export default async function AdminLayout({
@@ -64,6 +64,10 @@ export default async function AdminLayout({
                     <ShoppingCart className="w-5 h-5 text-emerald-500" />
                     <span>سفارشات</span>
                   </Link>
+                  <Link href="/admin/returns" className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    <PackageMinus className="w-5 h-5 text-red-500" />
+                    <span>مرجوعی‌ها</span>
+                  </Link>
                   <Link href="/admin/products" className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
                     <Package className="w-5 h-5" />
                     <span>محصولات</span>
@@ -121,6 +125,10 @@ export default async function AdminLayout({
                   <Link href="/admin/users" className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
                     <Users className="w-5 h-5 text-indigo-500" />
                     <span>مدیریت کاربران</span>
+                  </Link>
+                  <Link href="/admin/settings/notifications" className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    <BellRing className="w-5 h-5 text-rose-500" />
+                    <span>تنظیمات اطلاع‌رسانی</span>
                   </Link>
                 </div>
               )}

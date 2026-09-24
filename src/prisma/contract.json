@@ -72,6 +72,10 @@
       "model": "Question",
       "namespace": "public"
     },
+    "returnRequest": {
+      "model": "ReturnRequest",
+      "namespace": "public"
+    },
     "review": {
       "model": "Review",
       "namespace": "public"
@@ -157,6 +161,35 @@
               {
                 "name": "CANCELLED",
                 "value": "CANCELLED"
+              },
+              {
+                "name": "RETURNED",
+                "value": "RETURNED"
+              }
+            ]
+          },
+          "ReturnStatus": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "SUBMITTED",
+                "value": "SUBMITTED"
+              },
+              {
+                "name": "PENDING",
+                "value": "PENDING"
+              },
+              {
+                "name": "APPROVED",
+                "value": "APPROVED"
+              },
+              {
+                "name": "REJECTED",
+                "value": "REJECTED"
+              },
+              {
+                "name": "REFUNDED",
+                "value": "REFUNDED"
               }
             ]
           },
@@ -1822,6 +1855,22 @@
                   "namespace": "public"
                 }
               },
+              "returnRequest": {
+                "cardinality": "1:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "orderItemId"
+                  ]
+                },
+                "to": {
+                  "model": "ReturnRequest",
+                  "namespace": "public"
+                }
+              },
               "variant": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -2435,6 +2484,157 @@
               },
               "namespaceId": "public",
               "table": "question"
+            }
+          },
+          "ReturnRequest": {
+            "fields": {
+              "adminNote": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "description": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "images": {
+                "many": true,
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "orderItemId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "reason": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "ReturnStatus",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "userId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "orderItem": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "orderItemId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "OrderItem",
+                  "namespace": "public"
+                }
+              },
+              "user": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "adminNote": {
+                  "column": "adminNote"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "description": {
+                  "column": "description"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "images": {
+                  "column": "images"
+                },
+                "orderItemId": {
+                  "column": "orderItemId"
+                },
+                "reason": {
+                  "column": "reason"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "userId": {
+                  "column": "userId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "returnRequest"
             }
           },
           "Review": {
@@ -3194,6 +3394,21 @@
                 },
                 "to": {
                   "model": "Question",
+                  "namespace": "public"
+                }
+              },
+              "returnRequests": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "ReturnRequest",
                   "namespace": "public"
                 }
               },
@@ -4483,8 +4698,8 @@
             "order": {
               "checks": [
                 {
-                  "expression": "\"status\" IN ('PENDING', 'PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED')",
-                  "name": "order_status_check_65f69eb4",
+                  "expression": "\"status\" IN ('PENDING', 'PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'RETURNED')",
+                  "name": "order_status_check_2d59eb86",
                   "prefix": "order_status_check"
                 }
               ],
@@ -5100,6 +5315,147 @@
                 ]
               },
               "uniques": []
+            },
+            "returnRequest": {
+              "checks": [
+                {
+                  "expression": "array_position(\"images\", NULL) IS NULL",
+                  "name": "returnRequest_images_elem_not_null_2f12556f",
+                  "prefix": "returnRequest_images_elem_not_null"
+                },
+                {
+                  "expression": "\"status\" IN ('SUBMITTED', 'PENDING', 'APPROVED', 'REJECTED', 'REFUNDED')",
+                  "name": "returnRequest_status_check_e2635168",
+                  "prefix": "returnRequest_status_check"
+                }
+              ],
+              "columns": {
+                "adminNote": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "description": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "images": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": []
+                  },
+                  "many": true,
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "orderItemId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "reason": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "SUBMITTED"
+                  },
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "ReturnStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "userId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "orderItemId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "returnRequest"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "orderItem"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "userId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "returnRequest"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "user"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "userId"
+                  ],
+                  "name": "returnRequest_userId_idx_a489d58a",
+                  "prefix": "returnRequest_userId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "orderItemId"
+                  ]
+                }
+              ]
             },
             "review": {
               "columns": {
@@ -5929,7 +6285,18 @@
                 "PROCESSING",
                 "SHIPPED",
                 "DELIVERED",
-                "CANCELLED"
+                "CANCELLED",
+                "RETURNED"
+              ]
+            },
+            "ReturnStatus": {
+              "kind": "valueSet",
+              "values": [
+                "SUBMITTED",
+                "PENDING",
+                "APPROVED",
+                "REJECTED",
+                "REFUNDED"
               ]
             },
             "Role": {
@@ -5985,10 +6352,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "234adf5a006c37779fa4fcc884793f678f5ec48feb08dfd149b4e3c09c21d755"
+    "storageHash": "bbee69b289ec7fc092072686e3faf73aa4647fc387acb132e69d4875adbd1d46"
   },
   "execution": {
-    "executionHash": "d455b3b52922192f651fa3d57539b75c09fdbf0d935a65b4b8ba98a12ee03da5",
+    "executionHash": "3dfcc150f9690fa5f6ee206cb98e32c158b0e5f09fd1d063e65b876d1e342b7a",
     "mutations": {
       "defaults": [
         {
@@ -6326,6 +6693,32 @@
             "column": "id",
             "namespace": "public",
             "table": "question"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "returnRequest"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updatedAt",
+            "namespace": "public",
+            "table": "returnRequest"
           }
         },
         {

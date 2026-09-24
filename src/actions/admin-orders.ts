@@ -41,9 +41,49 @@ export async function updateOrderStatus(orderId: string, newStatus: string) {
     });
 
     // Send email notification if status is one that users care about
-    if (["SHIPPED", "DELIVERED", "CANCELLED"].includes(newStatus)) {
+    if (["PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"].includes(newStatus)) {
       if (order.user) {
-        if (order.user.email) {
+        // Read Notification Settings
+        const { getNotificationSettings } = await import("@/actions/settings");
+        const notifSettings = await getNotificationSettings().catch(() => ({
+          globalSms: true,
+          globalEmail: true,
+          orders_processing_sms: true,
+          orders_processing_email: true,
+          orders_shipped_sms: true,
+          orders_shipped_email: true,
+          orders_delivered_sms: true,
+          orders_delivered_email: true,
+          orders_cancelled_sms: true,
+          orders_cancelled_email: true,
+        }));
+        
+        let specificSmsEnabled = false;
+        let specificEmailEnabled = false;
+        
+        switch (newStatus) {
+          case "PROCESSING":
+            specificSmsEnabled = notifSettings.orders_processing_sms;
+            specificEmailEnabled = notifSettings.orders_processing_email;
+            break;
+          case "SHIPPED":
+            specificSmsEnabled = notifSettings.orders_shipped_sms;
+            specificEmailEnabled = notifSettings.orders_shipped_email;
+            break;
+          case "DELIVERED":
+            specificSmsEnabled = notifSettings.orders_delivered_sms;
+            specificEmailEnabled = notifSettings.orders_delivered_email;
+            break;
+          case "CANCELLED":
+            specificSmsEnabled = notifSettings.orders_cancelled_sms;
+            specificEmailEnabled = notifSettings.orders_cancelled_email;
+            break;
+        }
+        
+        const canSendSms = notifSettings.globalSms && specificSmsEnabled;
+        const canSendEmail = notifSettings.globalEmail && specificEmailEnabled;
+
+        if (canSendEmail && order.user.email) {
           // Render the email template to an HTML string
           const html = await render(
             React.createElement(OrderStatusEmail, {
@@ -64,12 +104,19 @@ export async function updateOrderStatus(orderId: string, newStatus: string) {
           });
         }
 
-        if (order.user.phoneNumber) {
+        if (canSendSms && order.user.phoneNumber) {
+          let persianStatus = newStatus;
+          switch (newStatus) {
+            case "PROCESSING": persianStatus = "در حال پردازش"; break;
+            case "SHIPPED": persianStatus = "ارسال شده"; break;
+            case "DELIVERED": persianStatus = "تحویل داده شده"; break;
+            case "CANCELLED": persianStatus = "لغو شده"; break;
+          }
           await notificationQueue.add("send-sms", {
             type: "sms",
             payload: {
               to: order.user.phoneNumber,
-              text: `اکستیم\nسفارش #${order.id.split('-')[0]} شما به وضعیت ${newStatus} تغییر یافت.`,
+              text: `اکستیم\nسفارش #${order.id.split('-')[0]} شما به وضعیت ${persianStatus} تغییر یافت.`,
             }
           });
         }

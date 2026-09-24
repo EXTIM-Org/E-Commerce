@@ -15,6 +15,7 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+  RETURNED
 }
 
 enum TransactionType {
@@ -56,6 +57,7 @@ model User {
   articles      Article[]
   tickets       Ticket[]
   ticketMessages TicketMessage[]
+  returnRequests ReturnRequest[]
 }
 
 model Address {
@@ -251,6 +253,8 @@ model OrderItem {
   
   quantity      Int
   unitPrice     Float     // Snapshot of price at the time of purchase
+  
+  returnRequest ReturnRequest?
 }
 
 model Review {
@@ -442,3 +446,25 @@ model TicketMessage {
   createdAt   TimestamptzString @default(now())
 }
 
+enum ReturnStatus {
+  SUBMITTED
+  PENDING
+  APPROVED
+  REJECTED
+  REFUNDED
+}
+
+model ReturnRequest {
+  id          String   @id @default(uuid())
+  orderItemId String   @unique
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  reason      String
+  description String?
+  images      String[] @default([])
+  status      ReturnStatus @default(SUBMITTED)
+  adminNote   String?
+  createdAt   TimestamptzString @default(now())
+  updatedAt   temporal.updatedAtString()
+}

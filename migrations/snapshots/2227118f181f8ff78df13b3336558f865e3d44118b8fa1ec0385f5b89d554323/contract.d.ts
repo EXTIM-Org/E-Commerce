@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'bbee69b289ec7fc092072686e3faf73aa4647fc387acb132e69d4875adbd1d46'>;
+  StorageHashBase<'2227118f181f8ff78df13b3336558f865e3d44118b8fa1ec0385f5b89d554323'>;
 export type ExecutionHash =
   ExecutionHashBase<'3dfcc150f9690fa5f6ee206cb98e32c158b0e5f09fd1d063e65b876d1e342b7a'>;
 export type ProfileHash =
@@ -415,7 +415,7 @@ export type FieldOutputTypes = {
       readonly reason: CodecTypes['pg/text@1']['output'];
       readonly description: CodecTypes['pg/text@1']['output'] | null;
       readonly images: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-      readonly status: 'SUBMITTED' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'REFUNDED';
+      readonly status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REFUNDED';
       readonly adminNote: CodecTypes['pg/text@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -664,7 +664,7 @@ export type FieldInputTypes = {
       readonly reason: CodecTypes['pg/text@1']['input'];
       readonly description: CodecTypes['pg/text@1']['input'] | null;
       readonly images: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
-      readonly status: 'SUBMITTED' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'REFUNDED';
+      readonly status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REFUNDED';
       readonly adminNote: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
@@ -914,7 +914,7 @@ export type StorageColumnTypes = {
       readonly images: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
       readonly orderItemId: CodecTypes['pg/text@1']['output'];
       readonly reason: CodecTypes['pg/text@1']['output'];
-      readonly status: 'SUBMITTED' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'REFUNDED';
+      readonly status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REFUNDED';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly userId: CodecTypes['pg/text@1']['output'];
     };
@@ -1163,7 +1163,7 @@ export type StorageColumnInputTypes = {
       readonly images: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
       readonly orderItemId: CodecTypes['pg/text@1']['input'];
       readonly reason: CodecTypes['pg/text@1']['input'];
-      readonly status: 'SUBMITTED' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'REFUNDED';
+      readonly status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REFUNDED';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly userId: CodecTypes['pg/text@1']['input'];
     };
@@ -1589,7 +1589,7 @@ export namespace Models {
     reason: CodecTypes['pg/text@1']['output'];
     description: CodecTypes['pg/text@1']['output'] | null;
     images: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-    status: 'SUBMITTED' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'REFUNDED';
+    status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REFUNDED';
     adminNote: CodecTypes['pg/text@1']['output'] | null;
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -2940,7 +2940,7 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly default: {
                     readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/text@1', 'SUBMITTED'>;
+                    readonly value: DefaultLiteralValue<'pg/text@1', 'PENDING'>;
                   };
                 };
                 readonly adminNote: {
@@ -3606,13 +3606,7 @@ type ContractBase = Omit<
             };
             readonly ReturnStatus: {
               readonly kind: 'valueSet';
-              readonly values: readonly [
-                'SUBMITTED',
-                'PENDING',
-                'APPROVED',
-                'REJECTED',
-                'REFUNDED',
-              ];
+              readonly values: readonly ['PENDING', 'APPROVED', 'REJECTED', 'REFUNDED'];
             };
             readonly Role: {
               readonly kind: 'valueSet';
@@ -5951,7 +5945,6 @@ type ContractBase = Omit<
           readonly ReturnStatus: {
             readonly codecId: 'pg/text@1';
             readonly members: readonly [
-              { readonly name: 'SUBMITTED'; readonly value: 'SUBMITTED' },
               { readonly name: 'PENDING'; readonly value: 'PENDING' },
               { readonly name: 'APPROVED'; readonly value: 'APPROVED' },
               { readonly name: 'REJECTED'; readonly value: 'REJECTED' },

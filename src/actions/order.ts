@@ -6,7 +6,7 @@ import { getSession } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 import { notificationQueue } from "@/jobs/queues";
 
-type OrderStatus = "PENDING" | "PAID" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
+type OrderStatus = "PENDING" | "PAID" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "RETURNED";
 
 export async function updateOrderStatus(orderId: string, status: OrderStatus) {
   const session = await getSession();

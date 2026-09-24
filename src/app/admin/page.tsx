@@ -6,11 +6,9 @@ import { getRevenueData, getTopProducts } from "@/actions/analytics";
 
 // Lazy load heavy chart components (with disabled SSR to prevent hydration errors and reduce server load)
 const RevenueChart = dynamic(() => import("@/components/admin/charts/RevenueChart").then((mod) => mod.RevenueChart), { 
-  ssr: false, 
   loading: () => <div className="animate-pulse h-[400px] w-full bg-black/5 dark:bg-white/5 rounded-3xl" /> 
 });
 const TopProductsChart = dynamic(() => import("@/components/admin/charts/TopProductsChart").then((mod) => mod.TopProductsChart), { 
-  ssr: false, 
   loading: () => <div className="animate-pulse h-[400px] w-full bg-black/5 dark:bg-white/5 rounded-3xl" /> 
 });
 import { getSession } from "@/lib/session";
@@ -35,8 +33,21 @@ export default async function AdminDashboard() {
   const revenueAgg = await db.orm.public.Order
     .where((o) => o.status.neq('CANCELLED'))
     .aggregate((a) => ({ total: a.sum('totalAmount') }));
+    
+  // Calculate refunded amount
+  const refundedRequests = await db.orm.public.ReturnRequest
+    .where((r) => r.status.eq('REFUNDED'))
+    .include('orderItem')
+    .all();
+    
+  const totalRefunded = refundedRequests.reduce((acc, req) => {
+    if (req.orderItem) {
+      return acc + (req.orderItem.unitPrice * req.orderItem.quantity);
+    }
+    return acc;
+  }, 0);
   
-  const totalRevenue = revenueAgg.total ?? 0;
+  const totalRevenue = (revenueAgg.total ?? 0) - totalRefunded;
   
   // Fetch chart data
   const initialRevenueData = await getRevenueData(7);

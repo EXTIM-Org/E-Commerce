@@ -7,7 +7,7 @@ export default async function AdminOrdersPage() {
   // Fetch all orders with user and items
   const orders = await db.orm.public.Order
     .include("user")
-    .include("items", (i) => i.include("variant", (v) => v.include("product")))
+    .include("items", (i) => i.include("variant", (v) => v.include("product")).include("returnRequest"))
     .orderBy((o) => o.createdAt.desc())
     .all();
 
@@ -101,19 +101,25 @@ export default async function AdminOrdersPage() {
                 <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200 mb-3 px-2">اقلام سفارش</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                   {order.items.map((item) => (
-                    <div key={item.id} className="flex items-center gap-3 p-3 rounded-xl border border-black/5 dark:border-white/5 bg-white/40 dark:bg-white/5">
-                      <div className="w-14 h-14 rounded-lg bg-black/5 dark:bg-black/30 overflow-hidden flex-shrink-0">
+                    <div key={item.id} className="flex items-center gap-3 p-3 rounded-xl border border-black/5 dark:border-white/5 bg-white/40 dark:bg-white/5 relative overflow-hidden">
+                      {item.returnRequest?.status === 'REFUNDED' && (
+                        <div className="absolute top-0 right-0 bg-red-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-bl-lg z-10 shadow-sm">
+                          مرجوع شده
+                        </div>
+                      )}
+                      
+                      <div className={`w-14 h-14 rounded-lg bg-black/5 dark:bg-black/30 overflow-hidden flex-shrink-0 ${item.returnRequest?.status === 'REFUNDED' ? 'opacity-50 grayscale' : ''}`}>
                         <img 
                           src={item.variant?.product?.images[0] || "https://picsum.photos/seed/placeholder/100"} 
                           alt=""
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div className="flex flex-col flex-1 overflow-hidden">
+                      <div className={`flex flex-col flex-1 overflow-hidden ${item.returnRequest?.status === 'REFUNDED' ? 'opacity-60' : ''}`}>
                         <span className="text-sm font-bold text-gray-800 dark:text-gray-200 truncate">
                           {item.variant?.product?.name}
                         </span>
-                        <div className="flex items-center justify-between mt-2">
+                        <div className={`flex items-center justify-between mt-2 ${item.returnRequest?.status === 'REFUNDED' ? 'line-through decoration-red-500' : ''}`}>
                           <span className="text-xs font-bold text-violet-600 dark:text-violet-400">
                             {item.unitPrice.toLocaleString('fa-IR')} تومان
                           </span>
