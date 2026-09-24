@@ -1,9 +1,18 @@
 import { db } from "@/prisma/db";
 import { Package, ShoppingCart, Users, DollarSign } from "lucide-react";
 import Link from "next/link";
-import { RevenueChart } from "@/components/admin/charts/RevenueChart";
-import { TopProductsChart } from "@/components/admin/charts/TopProductsChart";
+import dynamic from 'next/dynamic';
 import { getRevenueData, getTopProducts } from "@/actions/analytics";
+
+// Lazy load heavy chart components (with disabled SSR to prevent hydration errors and reduce server load)
+const RevenueChart = dynamic(() => import("@/components/admin/charts/RevenueChart").then((mod) => mod.RevenueChart), { 
+  ssr: false, 
+  loading: () => <div className="animate-pulse h-[400px] w-full bg-black/5 dark:bg-white/5 rounded-3xl" /> 
+});
+const TopProductsChart = dynamic(() => import("@/components/admin/charts/TopProductsChart").then((mod) => mod.TopProductsChart), { 
+  ssr: false, 
+  loading: () => <div className="animate-pulse h-[400px] w-full bg-black/5 dark:bg-white/5 rounded-3xl" /> 
+});
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 

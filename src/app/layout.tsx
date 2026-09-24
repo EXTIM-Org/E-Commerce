@@ -16,8 +16,34 @@ const vazirmatn = Vazirmatn({
 });
 
 export const metadata: Metadata = {
-  title: "EXTIM E-Commerce Platform",
-  description: "A high-performance, SEO-optimized e-commerce platform.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
+  title: {
+    template: "%s | فروشگاه اکستیم",
+    default: "فروشگاه اینترنتی اکستیم",
+  },
+  description: "تجربه خریدی متفاوت با پلتفرم سریع و مدرن اکستیم",
+  openGraph: {
+    title: "فروشگاه اینترنتی اکستیم",
+    description: "تجربه خریدی متفاوت با پلتفرم سریع و مدرن اکستیم",
+    url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+    siteName: "Extim Store",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Extim E-Commerce Platform",
+      },
+    ],
+    locale: "fa_IR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "فروشگاه اینترنتی اکستیم",
+    description: "تجربه خریدی متفاوت با پلتفرم سریع و مدرن اکستیم",
+    images: ["/og-image.jpg"],
+  },
 };
 
 export default async function RootLayout({

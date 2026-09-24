@@ -100,7 +100,7 @@ export const bulkImportWorker = new Worker('bulk-import-queue', async (job: Job)
       }
 
       // Process Images for this SKU
-      let imageUrls: string[] = [];
+      const imageUrls: string[] = [];
       if (hasImages) {
         const allImages = fs.readdirSync(imagesDir);
         // Find images matching SKU.* or SKU-*.*
