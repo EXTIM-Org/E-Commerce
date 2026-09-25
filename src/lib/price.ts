@@ -1,5 +1,6 @@
 export function getEffectivePrice(
-  currentPrice: number,
+  basePrice: number,
+  baseDiscountPercent: number = 0,
   flashSale?: { isActive: boolean; startTime: string | Date; endTime: string | Date; discountPercent: number } | null
 ): {
   originalPrice: number;
@@ -8,8 +9,14 @@ export function getEffectivePrice(
   discountPercent: number;
 } {
   let hasDiscount = false;
-  let finalPrice = currentPrice;
-  let discountPercent = 0;
+  let finalPrice = basePrice;
+  let activeDiscountPercent = 0;
+
+  if (baseDiscountPercent > 0) {
+    hasDiscount = true;
+    activeDiscountPercent = baseDiscountPercent;
+    finalPrice = basePrice - (basePrice * baseDiscountPercent) / 100;
+  }
 
   if (flashSale && flashSale.isActive) {
     const now = new Date();
@@ -17,15 +24,15 @@ export function getEffectivePrice(
     const end = new Date(flashSale.endTime);
     if (now >= start && now <= end) {
       hasDiscount = true;
-      discountPercent = flashSale.discountPercent;
-      finalPrice = currentPrice - (currentPrice * discountPercent) / 100;
+      activeDiscountPercent = Math.max(activeDiscountPercent, flashSale.discountPercent);
+      finalPrice = basePrice - (basePrice * activeDiscountPercent) / 100;
     }
   }
 
   return {
-    originalPrice: currentPrice,
+    originalPrice: basePrice,
     finalPrice: Math.round(finalPrice),
     hasDiscount,
-    discountPercent,
+    discountPercent: activeDiscountPercent,
   };
 }

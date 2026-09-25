@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Search, Eye, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Eye, ArrowUp, ArrowDown } from "lucide-react";
 import { Pagination } from "@/components/ui/Pagination";
 
 const SortableHeader = ({ 

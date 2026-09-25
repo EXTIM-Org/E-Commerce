@@ -3,7 +3,7 @@ import { ReturnStatusUpdater } from "@/components/admin/ReturnStatusUpdater";
 import { AdminReturnsFilter } from "@/components/admin/AdminReturnsFilter";
 import { Pagination } from "@/components/ui/Pagination";
 import Link from "next/link";
-import { PackageX, ChevronRight } from "lucide-react";
+import { PackageX } from "lucide-react";
 
 export const metadata = {
   title: 'مدیریت مرجوعی‌ها | داشبورد ادمین',

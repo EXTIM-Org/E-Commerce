@@ -11,6 +11,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { createProduct, updateProduct } from "@/actions/product";
+import { p2e } from "@/lib/persian";
 
 export function ProductForm({
   categories,
@@ -24,6 +25,13 @@ export function ProductForm({
     ? updateProduct.bind(null, product.id)
     : createProduct;
   const [state, formAction, isPending] = useActionState(action, null);
+
+  const [basePrice, setBasePrice] = useState(product?.basePrice?.toString() || "");
+  const [discount, setDiscount] = useState(product?.discount?.toString() || "0");
+  
+  const parsedBasePrice = parseFloat(p2e(basePrice)) || 0;
+  const parsedDiscount = parseFloat(p2e(discount)) || 0;
+  const finalPrice = Math.max(0, parsedBasePrice - (parsedBasePrice * parsedDiscount) / 100);
 
   type MediaItem =
     | { id: string; type: "existing"; url: string }
@@ -421,7 +429,8 @@ export function ProductForm({
                 type="text"
                 inputMode="numeric"
                 name="basePrice"
-                defaultValue={product?.basePrice}
+                value={basePrice}
+                onChange={(e) => setBasePrice(e.target.value)}
                 required
                 className="w-full bg-white/50 dark:bg-black/50 border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all text-gray-900 dark:text-white"
               />
@@ -434,10 +443,16 @@ export function ProductForm({
                 type="text"
                 inputMode="numeric"
                 name="discount"
-                defaultValue={product?.discount || 0}
+                value={discount}
+                onChange={(e) => setDiscount(e.target.value)}
                 className="w-full bg-white/50 dark:bg-black/50 border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all text-gray-900 dark:text-white"
               />
             </div>
+          </div>
+          
+          <div className="bg-violet-500/10 border border-violet-500/20 text-violet-700 dark:text-violet-300 p-4 rounded-xl flex items-center justify-between">
+            <span className="font-medium">قیمت نهایی پس از تخفیف:</span>
+            <span className="text-xl font-bold">{finalPrice.toLocaleString('fa-IR')} تومان</span>
           </div>
 
           <div>

@@ -4,7 +4,7 @@ import { canManageRoles } from "@/lib/permissions";
 import { redirect } from "next/navigation";
 import { UserRoleForm } from "./UserRoleForm";
 import Link from "next/link";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+
 import { AdminUsersFilter } from "@/components/admin/AdminUsersFilter";
 import { Pagination } from "@/components/ui/Pagination";
 

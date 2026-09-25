@@ -46,7 +46,7 @@ export function setupWorkers() {
     await invalidateCachePattern("cache:products:*");
   }, { connection: redis });
 
-  const keyRotationWorker = new Worker('key-rotation-queue', async (job: Job) => {
+  const keyRotationWorker = new Worker('key-rotation-queue', async (_job: Job) => {
     console.log('[BullMQ] Rotating JWT Keys...');
     const current = await redis.get('jwt:secret:current');
     if (current) {
@@ -78,7 +78,7 @@ export function setupWorkers() {
   keyRotationWorker.on('failed', (job, err) => console.error(`KeyRotation Job ${job?.id} failed:`, err));
   notificationWorker.on('failed', (job, err) => console.error(`Notification Job ${job?.id} failed:`, err));
 
-  const ticketAutoCloseWorker = new Worker('ticket-auto-close-queue', async (job: Job) => {
+  const ticketAutoCloseWorker = new Worker('ticket-auto-close-queue', async (_job: Job) => {
     console.log('[BullMQ] Checking for inactive tickets to auto-close...');
     const seventyTwoHoursAgo = Date.now() - 72 * 60 * 60 * 1000;
     

@@ -31,7 +31,7 @@ export async function fetchUserCart() {
     variantId: item.variantId,
     name: item.variant?.product?.name || "محصول نامشخص",
     variantName: item.variant?.name || null,
-    price: getEffectivePrice(item.variant?.price ?? item.variant?.product?.basePrice ?? 0, item.variant?.product?.flashSale).finalPrice,
+    price: getEffectivePrice(item.variant?.price ?? item.variant?.product?.basePrice ?? 0, item.variant?.product?.discount ?? 0, item.variant?.product?.flashSale).finalPrice,
     quantity: item.quantity,
     image: item.variant?.product?.images[0] || "",
     reservedAt: item.reservedAt,

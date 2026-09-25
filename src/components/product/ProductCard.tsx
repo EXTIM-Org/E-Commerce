@@ -26,7 +26,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, initialIsLiked = false }: ProductCardProps) {
-  const { originalPrice, finalPrice, hasDiscount, discountPercent } = getEffectivePrice(product.basePrice - product.discount, product.flashSale);
+  const { originalPrice, finalPrice, hasDiscount, discountPercent } = getEffectivePrice(product.basePrice, product.discount, product.flashSale);
   const totalStock = product.variants?.reduce((acc: number, v: any) => acc + (v.inventory?.stockQuantity || 0), 0) ?? 0;
   const isOutOfStock = totalStock === 0 && product.variants && product.variants.length > 0;
   const isLowStock = !isOutOfStock && totalStock > 0 && totalStock <= 5;

@@ -107,7 +107,7 @@ export async function processCheckout(prevState: unknown, formData: FormData) {
       const dbVariant = dbVariantMap.get(item.variantId)!;
       // Price logic: if variant has specific price use it, else use base product price
       const basePrice = dbVariant.price ?? dbVariant.product?.basePrice ?? 0;
-      const { finalPrice } = getEffectivePrice(basePrice, dbVariant.product?.flashSale);
+      const { finalPrice } = getEffectivePrice(basePrice, dbVariant.product?.discount ?? 0, dbVariant.product?.flashSale);
       
       totalAmount += finalPrice * item.quantity;
       

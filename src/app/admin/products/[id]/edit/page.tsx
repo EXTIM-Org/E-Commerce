@@ -13,6 +13,7 @@ export default async function EditProductPage(props: { params: Promise<{ id: str
   const product = await db.orm.public.Product
     .where({ id: params.id })
     .include('variants', (v) => v.include('inventory'))
+    .include('specifications')
     .first();
 
   if (!product) {

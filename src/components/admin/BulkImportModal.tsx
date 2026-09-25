@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Upload, X, FileUp, Download } from "lucide-react";
+import { Upload, X, FileUp } from "lucide-react";
 import { uploadBulkImportZip, checkBulkImportProgress } from "@/actions/bulk-import";
 import toast from "react-hot-toast";
 

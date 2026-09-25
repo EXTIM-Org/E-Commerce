@@ -105,7 +105,7 @@ export function ProductClient({ product, initialIsLiked }: ProductClientProps) {
   }
 
   const basePriceForCalculation = selectedVariant?.price ?? product.basePrice;
-  const { originalPrice, finalPrice, hasDiscount, discountPercent } = getEffectivePrice(basePriceForCalculation - product.discount, product.flashSale);
+  const { originalPrice, finalPrice, hasDiscount, discountPercent } = getEffectivePrice(basePriceForCalculation, product.discount, product.flashSale);
 
   const reviewCount = product.reviews?.length || 0;
   const averageRating = reviewCount > 0 

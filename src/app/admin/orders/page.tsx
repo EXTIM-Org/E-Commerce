@@ -1,6 +1,6 @@
 import { db } from "@/prisma/db";
 import { or } from "@prisma/orm-postgres/orm-client";
-import { PackageOpen, MapPin, Clock, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { PackageOpen, MapPin, Clock, Eye, ChevronLeft } from "lucide-react";
 import { StatusUpdater } from "@/components/admin/StatusUpdater";
 import Link from "next/link";
 import { AdminOrdersFilter } from "@/components/admin/AdminOrdersFilter";

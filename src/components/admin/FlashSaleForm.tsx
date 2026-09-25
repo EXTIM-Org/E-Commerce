@@ -16,6 +16,7 @@ const TimePicker = dynamic(() => import("react-multi-date-picker/plugins/time_pi
 type ProductInfo = {
   id: string;
   name: string;
+  basePrice: number;
 };
 
 interface FlashSaleFormProps {
@@ -26,6 +27,7 @@ export function FlashSaleForm({ products }: FlashSaleFormProps) {
   const [startTime, setStartTime] = useState<DateObject | null>(null);
   const [endTime, setEndTime] = useState<DateObject | null>(null);
   const [productId, setProductId] = useState<string>("");
+  const [discountPercent, setDiscountPercent] = useState<string>("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { resolvedTheme } = useTheme();
@@ -42,6 +44,10 @@ export function FlashSaleForm({ products }: FlashSaleFormProps) {
   }, []);
 
   const selectedProduct = products.find(p => p.id === productId);
+  
+  const parsedDiscount = parseFloat(discountPercent) || 0;
+  const basePrice = selectedProduct?.basePrice || 0;
+  const finalPrice = Math.max(0, basePrice - (basePrice * parsedDiscount) / 100);
 
   return (
     <form action={createFlashSale} className="flex flex-col gap-6">
@@ -106,10 +112,19 @@ export function FlashSaleForm({ products }: FlashSaleFormProps) {
           min="1" 
           max="99" 
           required
+          value={discountPercent}
+          onChange={(e) => setDiscountPercent(e.target.value)}
           placeholder="مثلاً 20"
           className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none"
         />
       </div>
+
+      {selectedProduct && parsedDiscount > 0 && (
+        <div className="bg-violet-500/10 border border-violet-500/20 text-violet-700 dark:text-violet-300 p-4 rounded-xl flex items-center justify-between">
+          <span className="font-medium">قیمت شگفت‌انگیز نهایی:</span>
+          <span className="text-xl font-bold">{finalPrice.toLocaleString('fa-IR')} تومان</span>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="flex flex-col gap-2">

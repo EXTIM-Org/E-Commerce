@@ -72,7 +72,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
     ? product.variants[0].price 
     : product.basePrice;
     
-  const { finalPrice } = getEffectivePrice(basePriceForCalculation - product.discount, product.flashSale);
+  const { finalPrice } = getEffectivePrice(basePriceForCalculation, product.discount, product.flashSale);
 
   // Calculate stock availability for JSON-LD
   let inStock = true;

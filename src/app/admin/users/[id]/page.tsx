@@ -3,7 +3,7 @@ import { getSession } from "@/lib/session";
 import { canManageRoles } from "@/lib/permissions";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, User, ShoppingBag, MessageSquare, Star, MapPin, Smartphone, Mail, Calendar, CreditCard, Clock, CheckCircle2, XCircle, ShoppingCart, PackageX } from "lucide-react";
+import { ArrowRight, User, ShoppingBag, MessageSquare, Star, MapPin, Smartphone, Calendar, CreditCard, CheckCircle2, XCircle, ShoppingCart, PackageX } from "lucide-react";
 import { UserRoleForm } from "../UserRoleForm";
 import { UserCrmControls } from "@/components/admin/UserCrmControls";
 import { e2p } from "@/lib/persian";
