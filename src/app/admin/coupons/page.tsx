@@ -41,8 +41,8 @@ export default async function AdminCouponsPage() {
                     <td className="px-6 py-4 font-mono font-bold text-violet-600 dark:text-violet-400" dir="ltr">{coupon.code}</td>
                     <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
                       {coupon.type === "PERCENTAGE" 
-                        ? `${coupon.value} درصد ${coupon.maxDiscount ? `(تا سقف ${coupon.maxDiscount.toLocaleString()})` : ''}`
-                        : `${coupon.value.toLocaleString()} تومان`}
+                        ? `${coupon.value} درصد ${coupon.maxDiscount ? `(تا سقف ${coupon.maxDiscount.toLocaleString('fa-IR')})` : ''}`
+                        : `${coupon.value.toLocaleString('fa-IR')} تومان`}
                     </td>
                     <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
                       {coupon.usedCount} {coupon.usageLimit ? `/ ${coupon.usageLimit}` : ''}

@@ -169,15 +169,15 @@ export function ReviewFilters() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         {/* Search */}
-        <div className="relative col-span-1 md:col-span-2 lg:col-span-1">
+        <div className="relative col-span-1 md:col-span-2 lg:col-span-2">
           <label className="text-sm text-gray-700 dark:text-gray-400 mb-2 block">جستجو متنی</label>
           <div className="relative">
             <Search className="w-5 h-5 absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="متن، محصول یا کاربر..."
+              placeholder="متن، محصول، نام، ایمیل یا موبایل کاربر..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="w-full bg-white/50 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-2xl py-3 pr-12 pl-4 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50 transition-all"

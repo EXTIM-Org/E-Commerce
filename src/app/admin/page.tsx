@@ -137,7 +137,7 @@ export default async function AdminDashboard() {
                   <tr key={order.id} className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                     <td className="py-4 text-gray-700 dark:text-gray-300 font-mono text-sm">{order.id.slice(0, 8)}...</td>
                     <td className="py-4 text-gray-700 dark:text-gray-300">{order.receiverName}</td>
-                    <td className="py-4 text-gray-900 dark:text-white font-medium">{order.totalAmount.toLocaleString()} تومان</td>
+                    <td className="py-4 text-gray-900 dark:text-white font-medium">{order.totalAmount.toLocaleString('fa-IR')} تومان</td>
                     <td className="py-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium border ${
                         order.status === 'PENDING' ? 'text-yellow-600 dark:text-yellow-400 bg-yellow-500/10 border-yellow-500/20' :

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Vazirmatn } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Header } from "@/components/layout/Header";
 import { CartProvider } from "@/store/CartContext";
@@ -8,12 +7,6 @@ import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
 import { Footer } from "@/components/layout/Footer";
-
-const vazirmatn = Vazirmatn({ 
-  subsets: ["arabic", "latin"], 
-  variable: "--font-vazirmatn",
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
@@ -54,8 +47,8 @@ export default async function RootLayout({
   const session = await getSession();
 
   return (
-    <html lang="fa" dir="rtl" className={vazirmatn.variable} suppressHydrationWarning>
-      <body className="font-vazirmatn antialiased bg-background text-foreground min-h-screen transition-colors duration-300 flex flex-col">
+    <html lang="fa" dir="rtl" suppressHydrationWarning>
+      <body className="font-vazirmatn-fd antialiased bg-background text-foreground min-h-screen transition-colors duration-300 flex flex-col" style={{ fontFamily: '"Vazirmatn FD", system-ui, sans-serif' }}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

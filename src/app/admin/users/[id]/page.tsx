@@ -3,9 +3,10 @@ import { getSession } from "@/lib/session";
 import { canManageRoles } from "@/lib/permissions";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, User, ShoppingBag, MessageSquare, Star, MapPin, Smartphone, Mail, Calendar, CreditCard, Clock, CheckCircle2, XCircle, ShoppingCart } from "lucide-react";
+import { ArrowRight, User, ShoppingBag, MessageSquare, Star, MapPin, Smartphone, Mail, Calendar, CreditCard, Clock, CheckCircle2, XCircle, ShoppingCart, PackageX } from "lucide-react";
 import { UserRoleForm } from "../UserRoleForm";
 import { UserCrmControls } from "@/components/admin/UserCrmControls";
+import { e2p } from "@/lib/persian";
 
 export async function generateMetadata(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -83,9 +84,15 @@ export default async function UserProfilePage(props: { params: Promise<{ id: str
         {/* User Identity Card */}
         <div className="lg:col-span-1 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-3xl backdrop-blur-md p-6">
           <div className="flex flex-col items-center text-center pb-6 border-b border-black/10 dark:border-white/10">
-            <div className="w-24 h-24 bg-gradient-to-tr from-violet-500 to-fuchsia-500 rounded-3xl flex items-center justify-center text-white text-3xl shadow-xl shadow-fuchsia-500/20 mb-4">
-              {user.name ? user.name.charAt(0) : <User />}
-            </div>
+            {user.image ? (
+              <div className="w-24 h-24 rounded-3xl overflow-hidden shadow-xl shadow-fuchsia-500/20 mb-4 border-2 border-white dark:border-gray-800">
+                <img src={user.image} alt={user.name || "User"} className="w-full h-full object-cover" />
+              </div>
+            ) : (
+              <div className="w-24 h-24 bg-gradient-to-tr from-violet-500 to-fuchsia-500 rounded-3xl flex items-center justify-center text-white text-3xl shadow-xl shadow-fuchsia-500/20 mb-4">
+                {user.name ? user.name.charAt(0) : <User />}
+              </div>
+            )}
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{user.name || "کاربر ناشناس"}</h2>
             <span className="text-gray-500 dark:text-gray-400 text-sm dir-ltr">{user.email || "بدون ایمیل"}</span>
           </div>
@@ -93,7 +100,7 @@ export default async function UserProfilePage(props: { params: Promise<{ id: str
           <div className="pt-6 space-y-4">
             <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
               <div className="p-2 bg-black/5 dark:bg-white/10 rounded-lg"><Smartphone className="w-4 h-4" /></div>
-              <span className="dir-ltr flex-1 text-right">{user.phoneNumber || "ثبت نشده"}</span>
+              <span className="dir-ltr flex-1 text-right">{user.phoneNumber ? e2p(user.phoneNumber) : "ثبت نشده"}</span>
               {user.phoneNumber && (
                 user.phoneVerified ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <XCircle className="w-4 h-4 text-gray-400" />
               )}
@@ -109,33 +116,72 @@ export default async function UserProfilePage(props: { params: Promise<{ id: str
         </div>
 
         {/* Stats Grid */}
-        <div className="lg:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="lg:col-span-2 grid grid-cols-2 gap-4">
           <div className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-3xl p-5 flex flex-col justify-center relative overflow-hidden group">
             <div className="absolute -right-4 -top-4 w-16 h-16 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-colors"></div>
             <ShoppingBag className="w-6 h-6 text-blue-500 mb-3" />
-            <span className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{user.stats.ordersCount}</span>
-            <span className="text-sm text-gray-500 dark:text-gray-400">کل سفارشات</span>
+            <span className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{e2p(user.stats.ordersCount)}</span>
+            <Link 
+              href={`/admin/orders?q=${encodeURIComponent(user.email || user.phoneNumber || user.name || "")}`}
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline w-fit"
+            >
+              کل سفارشات
+            </Link>
           </div>
           
           <div className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-3xl p-5 flex flex-col justify-center relative overflow-hidden group">
+            <div className="absolute -right-4 -top-4 w-16 h-16 bg-fuchsia-500/10 rounded-full blur-xl group-hover:bg-fuchsia-500/20 transition-colors"></div>
+            <Star className="w-6 h-6 text-fuchsia-500 mb-3" />
+            <span className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{e2p(user.stats.reviewsCount)}</span>
+            <Link 
+              href={`/admin/reviews?q=${encodeURIComponent(user.email || user.phoneNumber || user.name || "")}`}
+              className="text-sm text-fuchsia-600 dark:text-fuchsia-400 hover:underline w-fit"
+            >
+              نظرات ثبت شده
+            </Link>
+          </div>
+
+          <div className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-3xl p-5 flex flex-col justify-center relative overflow-hidden group">
             <div className="absolute -right-4 -top-4 w-16 h-16 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-colors"></div>
             <CreditCard className="w-6 h-6 text-emerald-500 mb-3" />
-            <span className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{user.stats.totalSpent.toLocaleString()}</span>
+            <span className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{user.stats.totalSpent.toLocaleString('fa-IR')}</span>
             <span className="text-sm text-gray-500 dark:text-gray-400">مجموع خرید (تومان)</span>
           </div>
 
           <div className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-3xl p-5 flex flex-col justify-center relative overflow-hidden group">
             <div className="absolute -right-4 -top-4 w-16 h-16 bg-amber-500/10 rounded-full blur-xl group-hover:bg-amber-500/20 transition-colors"></div>
             <MessageSquare className="w-6 h-6 text-amber-500 mb-3" />
-            <span className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{user.stats.ticketsCount}</span>
-            <span className="text-sm text-gray-500 dark:text-gray-400">تیکت‌های پشتیبانی</span>
+            <span className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{e2p(user.stats.ticketsCount)}</span>
+            <Link 
+              href={`/admin/tickets?q=${encodeURIComponent(user.email || user.phoneNumber || user.name || "")}`}
+              className="text-sm text-amber-600 dark:text-amber-400 hover:underline w-fit"
+            >
+              تیکت‌های پشتیبانی
+            </Link>
+          </div>
+          
+          <div className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-3xl p-5 flex flex-col justify-center relative overflow-hidden group">
+            <div className="absolute -right-4 -top-4 w-16 h-16 bg-rose-500/10 rounded-full blur-xl group-hover:bg-rose-500/20 transition-colors"></div>
+            <PackageX className="w-6 h-6 text-rose-500 mb-3" />
+            <span className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{e2p(user.stats.returnedItemsCount ?? 0)}</span>
+            <Link 
+              href={`/admin/returns?q=${encodeURIComponent(user.email || user.phoneNumber || user.name || "")}`}
+              className="text-sm text-rose-600 dark:text-rose-400 hover:underline w-fit"
+            >
+              کل کالاهای مرجوع شده
+            </Link>
           </div>
 
           <div className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-3xl p-5 flex flex-col justify-center relative overflow-hidden group">
-            <div className="absolute -right-4 -top-4 w-16 h-16 bg-fuchsia-500/10 rounded-full blur-xl group-hover:bg-fuchsia-500/20 transition-colors"></div>
-            <Star className="w-6 h-6 text-fuchsia-500 mb-3" />
-            <span className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{user.stats.reviewsCount}</span>
-            <span className="text-sm text-gray-500 dark:text-gray-400">نظرات ثبت شده</span>
+            <div className="absolute -right-4 -top-4 w-16 h-16 bg-red-500/10 rounded-full blur-xl group-hover:bg-red-500/20 transition-colors"></div>
+            <XCircle className="w-6 h-6 text-red-500 mb-3" />
+            <span className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{e2p(user.stats.cancelledOrdersCount ?? 0)}</span>
+            <Link 
+              href={`/admin/orders?status=CANCELLED&q=${encodeURIComponent(user.email || user.phoneNumber || user.name || "")}`}
+              className="text-sm text-red-600 dark:text-red-400 hover:underline w-fit"
+            >
+              کل سفارشات لغو شده
+            </Link>
           </div>
         </div>
 
@@ -149,7 +195,7 @@ export default async function UserProfilePage(props: { params: Promise<{ id: str
               <ShoppingBag className="w-5 h-5 text-violet-500" />
               آخرین سفارشات
             </h3>
-            <Link href={`/admin/orders?user=${user.id}`} className="text-sm text-violet-600 dark:text-violet-400 hover:underline">
+            <Link href={`/admin/orders?q=${encodeURIComponent(user.email || user.phoneNumber || user.name || "")}`} className="text-sm text-violet-600 dark:text-violet-400 hover:underline">
               همه سفارشات
             </Link>
           </div>
@@ -164,7 +210,7 @@ export default async function UserProfilePage(props: { params: Promise<{ id: str
                 <Link key={order.id} href={`/admin/orders/${order.id}`} className="flex items-center justify-between p-4 hover:bg-black/5 dark:hover:bg-white/5 transition-colors group">
                   <div>
                     <div className="text-sm text-gray-500 dir-ltr text-left mb-1">#{order.id.substring(0, 8).toUpperCase()}</div>
-                    <div className="font-medium text-gray-900 dark:text-white group-hover:text-violet-500 transition-colors">{order.totalAmount.toLocaleString()} تومان</div>
+                    <div className="font-medium text-gray-900 dark:text-white group-hover:text-violet-500 transition-colors">{order.totalAmount.toLocaleString('fa-IR')} تومان</div>
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[order.status]}`}>
@@ -185,7 +231,7 @@ export default async function UserProfilePage(props: { params: Promise<{ id: str
               <MessageSquare className="w-5 h-5 text-amber-500" />
               تیکت‌های اخیر
             </h3>
-            <Link href={`/admin/tickets?user=${user.id}`} className="text-sm text-violet-600 dark:text-violet-400 hover:underline">
+            <Link href={`/admin/tickets?q=${encodeURIComponent(user.email || user.phoneNumber || user.name || "")}`} className="text-sm text-violet-600 dark:text-violet-400 hover:underline">
               همه تیکت‌ها
             </Link>
           </div>
@@ -259,7 +305,7 @@ export default async function UserProfilePage(props: { params: Promise<{ id: str
                         )}
                       </div>
                       <div className="bg-black/5 dark:bg-white/5 px-3 py-1 rounded-lg text-sm font-bold text-gray-700 dark:text-gray-300">
-                        {item.quantity} عدد
+                        {e2p(item.quantity)} عدد
                       </div>
                     </div>
                   ))}
@@ -297,7 +343,7 @@ export default async function UserProfilePage(props: { params: Promise<{ id: str
                       {address.postalCode && (
                         <>
                           <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600"></span>
-                          <span className="dir-ltr">{address.postalCode}</span>
+                          <span className="dir-ltr">{e2p(address.postalCode)}</span>
                         </>
                       )}
                     </div>

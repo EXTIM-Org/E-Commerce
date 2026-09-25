@@ -107,8 +107,9 @@ export async function createReturnRequest(prevState: any, formData: FormData) {
     return { error: "خطایی در ثبت درخواست رخ داد." };
   }
 }
+import { or } from "@prisma/orm-postgres/orm-client";
 
-export async function getAdminReturnRequests() {
+export async function getAdminReturnRequests(page: number = 1, limit: number = 10, q?: string, statusFilter?: string) {
   const session = await getSession();
   if (!session || (session.role !== "ADMIN" && session.role !== "SUPER_ADMIN")) {
     throw new Error("دسترسی غیرمجاز");
@@ -125,19 +126,60 @@ export async function getAdminReturnRequests() {
     ).catch(console.error);
   }
 
-  const requests = await db.orm.public.ReturnRequest
+  const offset = (page - 1) * limit;
+  let query = db.orm.public.ReturnRequest
     .include("user")
-    .include("orderItem", (oi) => oi.include("order").include("variant", (v) => v.include("product")))
+    .include("orderItem", (oi) => oi.include("order").include("variant", (v) => v.include("product")));
+
+  if (statusFilter) {
+    query = query.where({ status: statusFilter as any }) as typeof query;
+  }
+
+  if (q) {
+    const matchingUserIds = (await db.orm.public.User
+      .where(u => or(u.name.ilike(`%${q}%`), u.email.ilike(`%${q}%`), u.phoneNumber.ilike(`%${q}%`)))
+      .select("id")
+      .all()).map(u => u.id);
+      
+    const matchingOrderItemIds = (await db.orm.public.OrderItem
+      .where(oi => oi.orderId.ilike(`%${q}%`))
+      .select("id")
+      .all()).map(oi => oi.id);
+
+    query = query.where((r) => {
+      const conditions = [];
+      if (matchingUserIds.length > 0) conditions.push(r.userId.in(matchingUserIds));
+      if (matchingOrderItemIds.length > 0) conditions.push(r.orderItemId.in(matchingOrderItemIds));
+      
+      if (conditions.length === 0) return r.id.in([]); // impossible condition to return 0 results
+      if (conditions.length === 1) return conditions[0];
+      return or(conditions[0], conditions[1]);
+    });
+  }
+
+  const requests = await query
     .orderBy((r) => r.createdAt.desc())
+    .limit(limit)
+    .offset(offset)
     .all();
-    
+
+  const agg = await query.aggregate(a => ({ total: a.count() }));
+  const totalPages = Math.ceil(agg.total / limit);
+
   // Optimistically return them as PENDING if they were SUBMITTED
-  return requests.map(req => {
+  const processedRequests = requests.map(req => {
     if (req.status === "SUBMITTED") {
       req.status = "PENDING";
     }
     return req;
   });
+
+  return {
+    requests: processedRequests,
+    totalPages,
+    currentPage: page,
+    totalCount: agg.total
+  };
 }
 
 import { sendSms } from "@/lib/sms";

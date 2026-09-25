@@ -8,7 +8,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
       <div className="bg-white dark:bg-[#1a1b26] border border-black/10 dark:border-white/10 p-3 rounded-xl shadow-xl" dir="rtl">
         <p className="text-gray-600 dark:text-gray-400 text-sm mb-1 font-vazirmatn">{label}</p>
         <p className="text-blue-600 dark:text-blue-400 font-bold font-vazirmatn">
-          {payload[0].value.toLocaleString()} عدد فروخته شده
+          {payload[0].value.toLocaleString('fa-IR')} عدد فروخته شده
         </p>
       </div>
     );

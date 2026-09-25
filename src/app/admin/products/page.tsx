@@ -5,6 +5,7 @@ import { deleteProduct } from "@/actions/product";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { ProductFilters } from "@/components/admin/ProductFilters";
 import { BulkImportModal } from "@/components/admin/BulkImportModal";
+import { e2p } from "@/lib/persian";
 
 function SortableHeader({ 
   label, 
@@ -152,17 +153,17 @@ export default async function AdminProductsPage(props: { searchParams: Promise<{
                       </span>
                     </td>
                     <td className="px-6 py-4 text-gray-600 dark:text-gray-300">
-                      {product.basePrice.toLocaleString()} تومان
+                      {product.basePrice.toLocaleString('fa-IR')} تومان
                       {product.discount > 0 && (
                         <span className="block text-xs text-red-600 dark:text-red-400 mt-1">
-                          {product.discount}% تخفیف
+                          {e2p(product.discount)}% تخفیف
                         </span>
                       )}
                     </td>
                     <td className="px-6 py-4 text-gray-600 dark:text-gray-300">
-                      {product.variants?.reduce((acc: number, v: any) => acc + (v.inventory?.stockQuantity || 0), 0) || 0} عدد
+                      {e2p(product.variants?.reduce((acc: number, v: any) => acc + (v.inventory?.stockQuantity || 0), 0) || 0)} عدد
                     </td>
-                    <td className="px-6 py-4 text-gray-600 dark:text-gray-400">{product.salesCount}</td>
+                    <td className="px-6 py-4 text-gray-600 dark:text-gray-400">{e2p(product.salesCount)}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-center gap-3">
                         <Link href={`/admin/products/${product.id}/edit`} className="text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors" title="ویرایش">
@@ -181,7 +182,7 @@ export default async function AdminProductsPage(props: { searchParams: Promise<{
         </div>
         
         <div className="p-4 border-t border-black/10 dark:border-white/10 text-center text-sm text-gray-500">
-          نمایش {products.length} محصول
+          نمایش {e2p(products.length)} محصول
         </div>
       </div>
     </div>

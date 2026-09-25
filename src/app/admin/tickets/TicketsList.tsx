@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Search, Eye, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { Pagination } from "@/components/ui/Pagination";
 
 const SortableHeader = ({ 
   label, 
@@ -43,8 +44,8 @@ const SortableHeader = ({
   );
 };
 
-export function TicketsList({ initialTickets }: { initialTickets: any[] }) {
-  const [searchTerm, setSearchTerm] = useState("");
+export function TicketsList({ initialTickets, initialSearch = "" }: { initialTickets: any[], initialSearch?: string }) {
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [sortField, setSortField] = useState<string>("updatedAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [currentPage, setCurrentPage] = useState(1);
@@ -54,6 +55,7 @@ export function TicketsList({ initialTickets }: { initialTickets: any[] }) {
     ticket.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (ticket.user?.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
     (ticket.user?.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (ticket.user?.phoneNumber || "").includes(searchTerm) ||
     ticket.id.includes(searchTerm)
   );
 
@@ -131,7 +133,7 @@ export function TicketsList({ initialTickets }: { initialTickets: any[] }) {
         <div className="relative w-full sm:w-96">
           <input
             type="text"
-            placeholder="جستجو در موضوع، نام کاربر یا شناسه..."
+            placeholder="شناسه، موضوع، نام، ایمیل یا موبایل کاربر..."
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
@@ -216,46 +218,14 @@ export function TicketsList({ initialTickets }: { initialTickets: any[] }) {
       </div>
 
       {/* Pagination Controls */}
-      {filteredTickets.length > itemsPerPage && (
-        <div className="flex items-center justify-between mt-6 pt-4 border-t border-black/10 dark:border-white/10">
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            نمایش {(currentPage - 1) * itemsPerPage + 1} تا {Math.min(currentPage * itemsPerPage, filteredTickets.length)} از {filteredTickets.length} تیکت
-          </span>
-          <div className="flex items-center gap-2" dir="ltr">
-            <button
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="p-2 rounded-lg border border-black/10 dark:border-white/10 text-gray-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            
-            <div className="flex items-center gap-1 mx-2">
-              {Array.from({ length: Math.ceil(filteredTickets.length / itemsPerPage) }).map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentPage(i + 1)}
-                  className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
-                    currentPage === i + 1
-                      ? 'bg-violet-500 text-white shadow-md shadow-violet-500/20'
-                      : 'text-gray-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/5'
-                  }`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-            </div>
-
-            <button
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredTickets.length / itemsPerPage)))}
-              disabled={currentPage === Math.ceil(filteredTickets.length / itemsPerPage)}
-              className="p-2 rounded-lg border border-black/10 dark:border-white/10 text-gray-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      )}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={Math.ceil(filteredTickets.length / itemsPerPage)}
+        totalCount={filteredTickets.length}
+        limit={itemsPerPage}
+        onPageChange={(page) => setCurrentPage(page)}
+        className="rounded-t-none border-x-0 border-b-0 border-t"
+      />
     </div>
   );
 }

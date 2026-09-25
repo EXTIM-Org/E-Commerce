@@ -32,7 +32,7 @@ export default async function AdminReviewsPage(props: {
 
   if (q) {
     const matchingUserIds = (await db.orm.public.User
-      .where(u => or(u.name.ilike(`%${q}%`), u.email.ilike(`%${q}%`)))
+      .where(u => or(u.name.ilike(`%${q}%`), u.email.ilike(`%${q}%`), u.phoneNumber.ilike(`%${q}%`)))
       .select("id")
       .all()).map(u => u.id);
       

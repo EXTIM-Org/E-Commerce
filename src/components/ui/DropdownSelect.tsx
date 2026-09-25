@@ -45,7 +45,12 @@ export function DropdownSelect({
       if (dropdownRef.current?.contains(event.target as Node)) return;
       setIsOpen(false);
     };
-    const handleScrollOrResize = () => setIsOpen(false);
+    const handleScrollOrResize = (e: Event) => {
+      if (dropdownRef.current && dropdownRef.current.contains(e.target as Node)) {
+        return;
+      }
+      setIsOpen(false);
+    };
     const handleContextMenu = () => setIsOpen(false);
 
     if (isOpen) {
@@ -110,7 +115,7 @@ export function DropdownSelect({
         disabled={disabled || isLoading}
         className={triggerClasses}
       >
-        <span>{selectedOption ? selectedOption.label : placeholder}</span>
+        <span className="whitespace-nowrap overflow-hidden text-ellipsis">{selectedOption ? selectedOption.label : placeholder}</span>
         
         {isLoading ? (
           <div className="w-4 h-4 border-2 border-current opacity-30 border-t-current rounded-full animate-spin ml-1 flex-shrink-0"></div>
@@ -138,7 +143,7 @@ export function DropdownSelect({
                 key={opt.value}
                 type="button"
                 onClick={() => handleSelect(opt.value)}
-                className={`flex items-center justify-between w-full px-3 py-2.5 text-sm font-medium transition-all rounded-lg ${
+                className={`flex items-center justify-between whitespace-nowrap w-full px-3 py-2.5 text-sm font-medium transition-all rounded-lg ${
                   value === opt.value 
                     ? "bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-400" 
                     : "text-gray-700 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/5"

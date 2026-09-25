@@ -8,35 +8,33 @@ export const metadata = {
   title: 'تیکت‌های پشتیبانی | ادمین',
 };
 
-export default async function AdminTicketsPage(props: { searchParams: Promise<{ user?: string }> }) {
+export default async function AdminTicketsPage(props: { searchParams: Promise<{ q?: string }> }) {
   const session = await getSession();
   if (!session || !canManageSupport(session.role as string)) {
     redirect("/admin");
   }
 
   const searchParams = await props.searchParams;
-  const userIdFilter = searchParams.user;
+  const q = searchParams.q || "";
 
   let query = db.orm.public.Ticket
-    .orderBy(t => t.updatedAt.desc())
-    .include("user", u => u.select("name", "email"));
-    
-  if (userIdFilter) {
-    query = query.where({ userId: userIdFilter }) as typeof query;
-  }
+    .orderBy((t: any) => t.updatedAt.desc())
+    .include("user", (u: any) => u.select("name", "email", "phoneNumber"));
 
   const tickets = await query.all();
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">تیکت‌های پشتیبانی</h1>
-        <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
-          مشاهده و پاسخ‌دهی به تیکت‌های کاربران
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">تیکت‌های پشتیبانی</h1>
+          <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+            مشاهده و پاسخ‌دهی به تیکت‌های کاربران
+          </p>
+        </div>
       </div>
 
-      <TicketsList initialTickets={tickets} />
+      <TicketsList initialTickets={tickets} initialSearch={q} />
     </div>
   );
 }

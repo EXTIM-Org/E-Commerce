@@ -10,6 +10,7 @@ import { writeFile, mkdir, unlink } from "fs/promises";
 import { join } from "path";
 import { existsSync } from "fs";
 import sharp from "sharp";
+import { p2e } from "@/lib/persian";
 
 // Helper to ensure category exists (for the "default" category if none exists)
 export async function getOrCreateDefaultCategory() {
@@ -98,8 +99,8 @@ export async function createProduct(prevState: unknown, formData: FormData) {
       return { error: "فیلدهای نام، قیمت پایه و دسته‌بندی الزامی هستند." };
     }
 
-    const basePrice = parseFloat(basePriceStr);
-    const discount = parseFloat(discountStr || "0");
+    const basePrice = parseFloat(p2e(basePriceStr));
+    const discount = parseFloat(p2e(discountStr) || "0");
     
     // Generate slug from name (simple slugification)
     let slug = name.toLowerCase().trim().replace(/[\s\W-]+/g, "-");
@@ -164,12 +165,12 @@ export async function createProduct(prevState: unknown, formData: FormData) {
             productId: product.id,
             name: variant.name || "پیش‌فرض",
             sku: variant.sku,
-            price: variant.price !== "" ? parseFloat(variant.price) : null,
+            price: variant.price !== "" ? parseFloat(p2e(String(variant.price))) : null,
           });
           
           await db.orm.public.Inventory.create({
             variantId: createdVariant.id,
-            stockQuantity: variant.stockQuantity || 0,
+            stockQuantity: variant.stockQuantity ? parseInt(p2e(String(variant.stockQuantity))) : 0,
             reservedStock: 0,
           });
         }
@@ -230,8 +231,8 @@ export async function updateProduct(id: string, prevState: unknown, formData: Fo
       return { error: "فیلدهای نام، قیمت پایه و دسته‌بندی الزامی هستند." };
     }
 
-    const basePrice = parseFloat(basePriceStr);
-    const discount = parseFloat(discountStr || "0");
+    const basePrice = parseFloat(p2e(basePriceStr));
+    const discount = parseFloat(p2e(discountStr) || "0");
     
     // Parse existing images that weren't deleted by user
     let existingImages: string[] = [];
@@ -317,21 +318,21 @@ export async function updateProduct(id: string, prevState: unknown, formData: Fo
               productId: id,
               name: variant.name || "پیش‌فرض",
               sku: variant.sku,
-              price: variant.price !== "" ? parseFloat(variant.price) : null,
+              price: variant.price !== "" ? parseFloat(p2e(String(variant.price))) : null,
             });
             await db.orm.public.Inventory.create({
               variantId: createdVariant.id,
-              stockQuantity: variant.stockQuantity || 0,
+              stockQuantity: variant.stockQuantity ? parseInt(p2e(String(variant.stockQuantity))) : 0,
               reservedStock: 0,
             });
           } else {
             await db.orm.public.ProductVariant.where({ id: variant.id }).update({
               name: variant.name || "پیش‌فرض",
               sku: variant.sku,
-              price: variant.price !== "" ? parseFloat(variant.price) : null,
+              price: variant.price !== "" ? parseFloat(p2e(String(variant.price))) : null,
             });
             await db.orm.public.Inventory.where({ variantId: variant.id }).update({
-              stockQuantity: variant.stockQuantity || 0,
+              stockQuantity: variant.stockQuantity ? parseInt(p2e(String(variant.stockQuantity))) : 0,
             });
           }
         }

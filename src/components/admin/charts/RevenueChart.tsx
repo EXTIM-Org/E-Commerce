@@ -11,7 +11,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
       <div className="bg-white dark:bg-[#1a1b26] border border-black/10 dark:border-white/10 p-3 rounded-xl shadow-xl">
         <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">{label}</p>
         <p className="text-violet-600 dark:text-violet-400 font-bold">
-          {payload[0].value.toLocaleString()} تومان
+          {payload[0].value.toLocaleString('fa-IR')} تومان
         </p>
       </div>
     );
@@ -103,7 +103,7 @@ export function RevenueChart({ initialData }: { initialData: any[] }) {
               tickLine={false}
               tick={{ fontSize: 12 }}
               className="text-gray-500"
-              tickFormatter={(value) => value === 0 ? '0' : `${(value / 1000).toLocaleString()}k`}
+              tickFormatter={(value) => value === 0 ? '0' : `${(value / 1000).toLocaleString('fa-IR')}k`}
               width={60}
             />
             <Tooltip content={<CustomTooltip />} />

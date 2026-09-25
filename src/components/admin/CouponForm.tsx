@@ -57,7 +57,7 @@ export function CouponForm() {
             name="code"
             required
             className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 outline-none uppercase"
-            placeholder="مثال: YALDA1403"
+            placeholder="مثال: YALDA۱۴۰۳"
             dir="ltr"
           />
         </div>
@@ -124,7 +124,7 @@ export function CouponForm() {
             name="value"
             required
             className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 outline-none"
-            placeholder={type === "PERCENTAGE" ? "مثال: 20 (برای 20 درصد)" : "مثال: 50000 (تومان)"}
+            placeholder={type === "PERCENTAGE" ? "مثال: ۲۰ (برای ۲۰ درصد)" : "مثال: ۵۰۰۰۰ (تومان)"}
           />
         </div>
 
@@ -135,7 +135,7 @@ export function CouponForm() {
               type="number"
               name="maxDiscount"
               className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 outline-none"
-              placeholder="مثال: 100000"
+              placeholder="مثال: ۱۰۰۰۰۰"
             />
           </div>
         )}
@@ -146,7 +146,7 @@ export function CouponForm() {
             type="number"
             name="minOrderAmount"
             className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 outline-none"
-            placeholder="مثال: 500000"
+            placeholder="مثال: ۵۰۰۰۰۰"
           />
         </div>
 
@@ -156,7 +156,7 @@ export function CouponForm() {
             type="number"
             name="usageLimit"
             className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 outline-none"
-            placeholder="مثال: 100 (نفر)"
+            placeholder="مثال: ۱۰۰ (نفر)"
           />
         </div>
 

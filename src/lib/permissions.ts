@@ -33,11 +33,11 @@ export function canManageBlog(role?: string | null): boolean {
 }
 
 /**
- * آیا کاربر به بخش مدیریت نقش کاربران دسترسی دارد؟ (فقط سوپر ادمین)
+ * آیا کاربر به بخش مدیریت نقش کاربران دسترسی دارد؟ (ادمین و سوپر ادمین)
  */
 export function canManageRoles(role?: string | null): boolean {
   if (!role) return false;
-  return role === "SUPER_ADMIN";
+  return ["SUPER_ADMIN", "ADMIN"].includes(role);
 }
 
 /**

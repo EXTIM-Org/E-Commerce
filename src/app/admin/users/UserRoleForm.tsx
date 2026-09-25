@@ -15,7 +15,7 @@ const ROLE_OPTIONS = [
   { value: "SUPER_ADMIN", label: "سوپر ادمین", color: "text-red-700 dark:text-red-400 bg-red-100/50 dark:bg-red-900/30 border-red-200 dark:border-red-800" },
 ];
 
-export function UserRoleForm({ userId, currentRole }: { userId: string, currentRole: UserRole }) {
+export function UserRoleForm({ userId, currentRole, sessionRole }: { userId: string, currentRole: UserRole, sessionRole?: string }) {
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownStyle, setDropdownStyle] = useState({ top: 0, left: 0, width: 0 });
@@ -33,7 +33,12 @@ export function UserRoleForm({ userId, currentRole }: { userId: string, currentR
     };
     
     // Close on scroll or resize to prevent floating menu out of sync
-    const handleScrollOrResize = () => setIsOpen(false);
+    const handleScrollOrResize = (e: Event) => {
+      if (dropdownRef.current && dropdownRef.current.contains(e.target as Node)) {
+        return;
+      }
+      setIsOpen(false);
+    };
     // Force close if user right-clicks anywhere
     const handleContextMenu = () => setIsOpen(false);
 
@@ -133,7 +138,12 @@ export function UserRoleForm({ userId, currentRole }: { userId: string, currentR
           }`}
         >
           <div className="flex flex-col py-1">
-            {ROLE_OPTIONS.map(opt => (
+            {ROLE_OPTIONS.filter(opt => {
+              if (sessionRole !== "SUPER_ADMIN" && (opt.value === "SUPER_ADMIN" || opt.value === "ADMIN")) {
+                return false;
+              }
+              return true;
+            }).map(opt => (
               <button
                 key={opt.value}
                 onClick={() => handleRoleSelect(opt.value)}

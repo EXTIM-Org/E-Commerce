@@ -6,7 +6,9 @@ import { revalidatePath } from "next/cache";
 import { canManageRoles } from "@/lib/permissions";
 import { UserRole } from "@/lib/permissions";
 
-export async function getUsers(page: number = 1, limit: number = 10) {
+import { or } from "@prisma/orm-postgres/orm-client";
+
+export async function getUsers(page: number = 1, limit: number = 10, searchQuery: string = "") {
   const session = await getSession();
   if (!session || !canManageRoles(session.role as string)) {
     throw new Error("Unauthorized");
@@ -14,14 +16,26 @@ export async function getUsers(page: number = 1, limit: number = 10) {
 
   const offset = (page - 1) * limit;
 
-  const users = await db.orm.public.User
-    .orderBy(u => u.createdAt.desc())
+  const baseQuery = db.orm.public.User;
+
+  const query = searchQuery
+    ? baseQuery.where((u: any) =>
+      or(
+        u.name.ilike(`%${searchQuery}%`),
+        u.email.ilike(`%${searchQuery}%`),
+        u.phoneNumber.ilike(`%${searchQuery}%`)
+      )
+    )
+    : baseQuery;
+
+  const users = await query
+    .orderBy((u: any) => u.createdAt.desc())
     .limit(limit)
     .offset(offset)
     .all();
 
-  const agg = await db.orm.public.User.aggregate(a => ({ total: a.count() }));
-  const totalUsers = agg.total;
+  const agg = await query.aggregate((a: any) => ({ total: a.count() }));
+  const totalUsers = Number(agg.total || 0);
   const totalPages = Math.ceil(totalUsers / limit);
 
   return {
@@ -39,12 +53,25 @@ export async function updateUserRole(userId: string, newRole: UserRole) {
   }
 
   try {
+    const targetUser = await db.orm.public.User.where({ id: userId }).first();
+    if (targetUser?.role === "SUPER_ADMIN") {
+      return { error: "نقش سوپر ادمین غیرقابل تغییر است." };
+    }
+
+    if (session.role !== "SUPER_ADMIN") {
+      if (targetUser?.role === "ADMIN") {
+        return { error: "شما اجازه تغییر نقش سایر ادمین‌ها را ندارید." };
+      }
+      if (newRole === "ADMIN" || newRole === "SUPER_ADMIN") {
+        return { error: "شما اجازه ارتقای یک کاربر به سطح ادمین یا سوپر ادمین را ندارید." };
+      }
+    }
+
     if (newRole === "SUPER_ADMIN") {
-      // Check if there is already a super admin, and if so, prevent adding another
+      if (session.role !== "SUPER_ADMIN") {
+        return { error: "فقط سوپر ادمین می‌تواند نقش سوپر ادمین را اختصاص دهد." };
+      }
       const existingSuperAdmin = await db.orm.public.User.where({ role: "SUPER_ADMIN" }).first();
-      // If there's an existing SUPER_ADMIN and it's not the current user passing the torch to themselves?
-      // Actually, if a SUPER_ADMIN already exists, and we are setting someone else to SUPER_ADMIN, we should probably throw an error unless we want multiple.
-      // But the user requested: "طبیعتا سیستم فقط میتونه یه دونه سوپر ادمین داشته باشه"
       if (existingSuperAdmin && existingSuperAdmin.id !== userId) {
         return { error: "سیستم فقط می‌تواند یک سوپر ادمین داشته باشد." };
       }
@@ -53,7 +80,7 @@ export async function updateUserRole(userId: string, newRole: UserRole) {
     await db.orm.public.User.where({ id: userId }).update({
       role: newRole,
     });
-    
+
     revalidatePath("/admin/users");
     return { success: true };
   } catch (error) {
@@ -100,7 +127,22 @@ export async function getUserById(userId: string) {
     totalSpent: a.sum("totalAmount")
   }));
 
-  return { ...user, stats: { ...stats, totalSpent: totalSpentStats.totalSpent ?? 0 } };
+  const cancelledOrderStats = await db.orm.public.Order.where({ userId, status: "CANCELLED" }).aggregate(a => ({
+    count: a.count()
+  }));
+
+  const returnedItemsStats = await db.orm.public.ReturnRequest.where({ userId, status: "REFUNDED" }).aggregate(a => ({
+    count: a.count()
+  }));
+
+  return {
+    ...user, stats: {
+      ...stats,
+      totalSpent: totalSpentStats.totalSpent ?? 0,
+      cancelledOrdersCount: cancelledOrderStats.count,
+      returnedItemsCount: returnedItemsStats.count
+    }
+  };
 }
 
 export async function updateUserBanStatus(userId: string, isBanned: boolean, banReason?: string) {
@@ -113,7 +155,7 @@ export async function updateUserBanStatus(userId: string, isBanned: boolean, ban
   if (!targetUser) {
     return { error: "کاربر یافت نشد" };
   }
-  
+
   if (targetUser.role === "SUPER_ADMIN") {
     return { error: "سوپر ادمین غیرقابل مسدود شدن است" };
   }
@@ -147,4 +189,29 @@ export async function updateUserAdminNotes(userId: string, adminNotes: string) {
     console.error("Error updating admin notes:", error);
     return { error: "خطایی رخ داد" };
   }
+}
+
+export async function sendSmsToUser(userId: string, message: string) {
+  const session = await getSession();
+  if (!session || !canManageRoles(session.role as string)) {
+    return { error: "دسترسی غیرمجاز" };
+  }
+
+  const targetUser = await db.orm.public.User.where({ id: userId }).first();
+  if (!targetUser) {
+    return { error: "کاربر یافت نشد" };
+  }
+
+  if (!targetUser.phoneNumber) {
+    return { error: "این کاربر شماره موبایل ثبت نکرده است" };
+  }
+
+  // Simulate sending SMS
+  console.log(`\n========================================`);
+  console.log(`[SMS SENDER SIMULATION]`);
+  console.log(`To: ${targetUser.name || "کاربر"} (${targetUser.phoneNumber})`);
+  console.log(`Message:\n${message}`);
+  console.log(`========================================\n`);
+
+  return { success: true };
 }

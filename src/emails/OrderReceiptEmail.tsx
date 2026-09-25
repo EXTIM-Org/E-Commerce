@@ -115,7 +115,7 @@ export const OrderReceiptEmail = ({
                   </Column>
                   <Column className="w-2/12 text-left">
                     <Text className="text-gray-800 font-bold text-sm m-0">
-                      {(item.price * item.quantity).toLocaleString()}
+                      {(item.price * item.quantity).toLocaleString('fa-IR')}
                     </Text>
                   </Column>
                 </Row>
@@ -128,7 +128,7 @@ export const OrderReceiptEmail = ({
                   <Text className="text-gray-500 text-sm m-0">مبلغ کل اقلام</Text>
                 </Column>
                 <Column className="text-left">
-                  <Text className="text-gray-800 text-sm m-0">{subtotal.toLocaleString()} تومان</Text>
+                  <Text className="text-gray-800 text-sm m-0">{subtotal.toLocaleString('fa-IR')} تومان</Text>
                 </Column>
               </Row>
               <Row className="mb-4">
@@ -137,7 +137,7 @@ export const OrderReceiptEmail = ({
                 </Column>
                 <Column className="text-left">
                   <Text className="text-gray-800 text-sm m-0">
-                    {shipping === 0 ? "رایگان" : `${shipping.toLocaleString()} تومان`}
+                    {shipping === 0 ? "رایگان" : `${shipping.toLocaleString('fa-IR')} تومان`}
                   </Text>
                 </Column>
               </Row>
@@ -146,7 +146,7 @@ export const OrderReceiptEmail = ({
                   <Text className="text-gray-900 font-bold text-base m-0">مبلغ پرداخت شده</Text>
                 </Column>
                 <Column className="text-left">
-                  <Text className="text-violet-600 font-bold text-lg m-0">{total.toLocaleString()} تومان</Text>
+                  <Text className="text-violet-600 font-bold text-lg m-0">{total.toLocaleString('fa-IR')} تومان</Text>
                 </Column>
               </Row>
             </Section>

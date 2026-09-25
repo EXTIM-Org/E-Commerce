@@ -418,11 +418,11 @@ export function ProductForm({
                 قیمت پایه (تومان)
               </label>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 name="basePrice"
                 defaultValue={product?.basePrice}
                 required
-                min={0}
                 className="w-full bg-white/50 dark:bg-black/50 border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all text-gray-900 dark:text-white"
               />
             </div>
@@ -431,11 +431,10 @@ export function ProductForm({
                 تخفیف (درصد)
               </label>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 name="discount"
                 defaultValue={product?.discount || 0}
-                min={0}
-                max={100}
                 className="w-full bg-white/50 dark:bg-black/50 border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all text-gray-900 dark:text-white"
               />
             </div>
@@ -579,16 +578,16 @@ export function ProductForm({
                   موجودی انبار
                 </label>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   value={variant.stockQuantity}
                   onChange={(e) =>
                     updateVariant(
                       index,
                       "stockQuantity",
-                      parseInt(e.target.value) || 0,
+                      e.target.value
                     )
                   }
-                  min={0}
                   required
                   className="w-full bg-white/50 dark:bg-black/50 border border-black/10 dark:border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
                 />
@@ -599,17 +598,17 @@ export function ProductForm({
                   قیمت اختصاصی
                 </label>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   value={variant.price}
                   onChange={(e) =>
                     updateVariant(
                       index,
                       "price",
-                      e.target.value ? parseInt(e.target.value) : "",
+                      e.target.value
                     )
                   }
                   placeholder="بدون تغییر"
-                  min={0}
                   className="w-full bg-white/50 dark:bg-black/50 border border-black/10 dark:border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
                 />
               </div>

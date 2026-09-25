@@ -1,46 +1,62 @@
 import { db } from "@/prisma/db";
-import { PackageOpen, MapPin, Clock, Eye, ChevronLeft } from "lucide-react";
+import { or } from "@prisma/orm-postgres/orm-client";
+import { PackageOpen, MapPin, Clock, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { StatusUpdater } from "@/components/admin/StatusUpdater";
 import Link from "next/link";
 import { AdminOrdersFilter } from "@/components/admin/AdminOrdersFilter";
+import { Pagination } from "@/components/ui/Pagination";
 
-export default async function AdminOrdersPage(props: { searchParams: Promise<{ user?: string, q?: string, status?: string }> }) {
+export default async function AdminOrdersPage(props: { searchParams: Promise<{ user?: string, q?: string, status?: string, page?: string }> }) {
   const searchParams = await props.searchParams;
-  const userIdFilter = searchParams.user;
   const q = searchParams.q?.toLowerCase();
   const status = searchParams.status;
+  const page = searchParams.page ? parseInt(searchParams.page) : 1;
+  const limit = 10;
+  const offset = (page - 1) * limit;
 
   let query = db.orm.public.Order
     .include("user")
-    .include("items", (i) => i.include("variant", (v) => v.include("product")).include("returnRequest"))
-    .orderBy((o) => o.createdAt.desc());
+    .include("items", (i) => i.include("variant", (v) => v.include("product")).include("returnRequest"));
     
-  if (userIdFilter) {
-    query = query.where({ userId: userIdFilter }) as typeof query;
-  }
-  
   if (status) {
     query = query.where({ status: status as any }) as typeof query;
   }
 
-  let orders = await query.all();
-  
   if (q) {
-    orders = orders.filter(o => 
-      o.id.toLowerCase().includes(q) || 
-      o.user?.name?.toLowerCase().includes(q) || 
-      o.user?.email?.toLowerCase().includes(q) ||
-      o.receiverName?.toLowerCase().includes(q) ||
-      o.phone?.includes(q)
-    );
+    const matchingUserIds = (await db.orm.public.User
+      .where(u => or(u.name.ilike(`%${q}%`), u.email.ilike(`%${q}%`), u.phoneNumber.ilike(`%${q}%`)))
+      .select("id")
+      .all()).map(u => u.id);
+
+    query = query.where((o) => {
+      const baseCond = or(
+        o.id.ilike(`%${q}%`),
+        o.receiverName.ilike(`%${q}%`),
+        o.phone.ilike(`%${q}%`)
+      );
+      if (matchingUserIds.length > 0) {
+        return or(baseCond, o.userId.in(matchingUserIds));
+      }
+      return baseCond;
+    });
   }
+
+  const agg = await query.aggregate(a => ({ total: a.count() }));
+  const totalCount = agg.total;
+  const totalPages = Math.ceil(totalCount / limit);
+
+  const orders = await query
+    .orderBy((o) => o.createdAt.desc())
+    .limit(limit)
+    .offset(offset)
+    .all();
 
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-3xl p-6 backdrop-blur-md">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">مدیریت سفارشات</h1>
-          <p className="text-gray-500 text-sm mt-1">تعداد کل سفارشات ثبت شده: {orders.length}</p>
+          <p className="text-gray-500 text-sm mt-1">تعداد کل سفارشات ثبت شده: {totalCount}</p>
         </div>
       </div>
       
@@ -161,6 +177,15 @@ export default async function AdminOrdersPage(props: { searchParams: Promise<{ u
 
             </div>
           ))}
+
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            totalCount={totalCount}
+            limit={limit}
+            buildHrefPattern={`?page=__PAGE__${q ? `&q=${q}` : ''}${status ? `&status=${status}` : ''}`}
+            className="mt-2"
+          />
         </div>
       )}
     </div>

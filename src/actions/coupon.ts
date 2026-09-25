@@ -121,7 +121,7 @@ export async function validateCoupon(code: string, cartTotal: number) {
     }
 
     if (coupon.minOrderAmount && cartTotal < coupon.minOrderAmount) {
-      return { success: false, error: `حداقل مبلغ خرید برای این کد تخفیف ${coupon.minOrderAmount.toLocaleString()} تومان است.` };
+      return { success: false, error: `حداقل مبلغ خرید برای این کد تخفیف ${coupon.minOrderAmount.toLocaleString('fa-IR')} تومان است.` };
     }
 
     let discountAmount = 0;

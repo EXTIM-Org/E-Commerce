@@ -1,16 +1,18 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Ban, Edit3, MessageSquare, AlertTriangle, MessageCircle } from "lucide-react";
-import { updateUserBanStatus, updateUserAdminNotes } from "@/actions/users";
+import { Ban, Edit3, MessageSquare, AlertTriangle, MessageCircle, Send } from "lucide-react";
+import { updateUserBanStatus, updateUserAdminNotes, sendSmsToUser } from "@/actions/users";
 import toast from "react-hot-toast";
 
 export function UserCrmControls({ user }: { user: any }) {
   const [isPending, startTransition] = useTransition();
   const [showBanModal, setShowBanModal] = useState(false);
   const [showNotesModal, setShowNotesModal] = useState(false);
+  const [showSmsModal, setShowSmsModal] = useState(false);
   const [banReason, setBanReason] = useState(user.banReason || "");
   const [adminNotes, setAdminNotes] = useState(user.adminNotes || "");
+  const [smsMessage, setSmsMessage] = useState("");
 
   const handleBanToggle = () => {
     startTransition(async () => {
@@ -32,6 +34,23 @@ export function UserCrmControls({ user }: { user: any }) {
       } else {
         toast.success("یادداشت ذخیره شد");
         setShowNotesModal(false);
+      }
+    });
+  };
+
+  const handleSendSms = () => {
+    if (!smsMessage.trim()) {
+      toast.error("متن پیامک نمی‌تواند خالی باشد");
+      return;
+    }
+    startTransition(async () => {
+      const res = await sendSmsToUser(user.id, smsMessage);
+      if (res?.error) {
+        toast.error(res.error);
+      } else {
+        toast.success("پیامک با موفقیت ارسال شد (شبیه‌سازی در کنسول)");
+        setShowSmsModal(false);
+        setSmsMessage("");
       }
     });
   };
@@ -62,7 +81,13 @@ export function UserCrmControls({ user }: { user: any }) {
         </button>
 
         <button
-          onClick={() => toast("این قابلیت در اتصال با پنل پیامکی فعال می‌شود", { icon: "📱" })}
+          onClick={() => {
+            if (!user.phoneNumber) {
+              toast.error("این کاربر شماره موبایل ثبت نکرده است");
+              return;
+            }
+            setShowSmsModal(true);
+          }}
           className="flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-600 hover:bg-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:hover:bg-amber-900/40 rounded-xl text-sm font-medium transition-colors"
         >
           <MessageCircle className="w-4 h-4" />
@@ -137,6 +162,43 @@ export function UserCrmControls({ user }: { user: any }) {
                 {user.isBanned ? "تایید رفع مسدودی" : "اعمال مسدودی"}
               </button>
               <button disabled={isPending} onClick={() => setShowBanModal(false)} className="px-4 py-2 bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20 rounded-xl text-sm font-medium transition-colors">انصراف</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showSmsModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => !isPending && setShowSmsModal(false)}></div>
+          <div className="relative bg-white dark:bg-[#1a1b26] rounded-3xl w-full max-w-lg p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-500 flex items-center justify-center">
+                <MessageCircle className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold dark:text-white">ارسال پیامک به کاربر</h3>
+                <p className="text-sm text-gray-500 dir-ltr text-right">{user.phoneNumber}</p>
+              </div>
+            </div>
+            
+            <textarea
+              className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl p-3 h-32 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:text-white mb-2"
+              placeholder="متن پیامک خود را اینجا بنویسید..."
+              value={smsMessage}
+              onChange={(e) => setSmsMessage(e.target.value)}
+              dir="rtl"
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 flex justify-between">
+              <span>هزینه هر پیامک بر اساس تعرفه اپراتور محاسبه می‌شود.</span>
+              <span className="dir-ltr">{smsMessage.length} chars</span>
+            </p>
+
+            <div className="flex gap-3">
+              <button disabled={isPending} onClick={handleSendSms} className="flex-1 flex justify-center items-center gap-2 py-2.5 bg-amber-500 text-white rounded-xl text-sm font-bold hover:bg-amber-600 transition-colors disabled:opacity-50">
+                <Send className="w-4 h-4" />
+                ارسال پیامک
+              </button>
+              <button disabled={isPending} onClick={() => setShowSmsModal(false)} className="px-6 py-2.5 bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20 rounded-xl text-sm font-medium transition-colors">انصراف</button>
             </div>
           </div>
         </div>
