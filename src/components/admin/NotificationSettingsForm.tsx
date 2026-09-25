@@ -67,7 +67,7 @@ export function NotificationSettingsForm({ initialSettings }: { initialSettings:
           </div>
         </div>
         
-        <div className="divide-y divide-gray-100 dark:divide-white/5">
+        <div className="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x rtl:divide-x-reverse divide-gray-100 dark:divide-white/5">
           <SettingRow 
             icon={<Smartphone className="w-5 h-5" />}
             title="ارسال پیامک (SMS) در کل سایت"
@@ -89,8 +89,9 @@ export function NotificationSettingsForm({ initialSettings }: { initialSettings:
         </div>
       </div>
 
-      {/* Returns Toggles */}
-      <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-white/5 overflow-hidden">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
+        {/* Returns Toggles */}
+        <div className="order-2 bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-white/5 overflow-hidden">
         <div className="p-6 border-b border-gray-100 dark:border-white/5 flex flex-col items-center justify-center text-center gap-3">
           <div className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-500/20 flex items-center justify-center text-rose-600 dark:text-rose-400">
             <RefreshCcw className="w-5 h-5" />
@@ -113,7 +114,7 @@ export function NotificationSettingsForm({ initialSettings }: { initialSettings:
             <tbody className="divide-y divide-gray-100 dark:divide-white/5">
               <ToggleTableRow 
                 label="ثبت شده (Submitted)"
-                icon={<RefreshCcw className="w-4 h-4 text-indigo-500" />}
+                icon={<RefreshCcw className="w-4 h-4 text-teal-500" />}
                 smsEnabled={settings.returns_submitted_sms}
                 emailEnabled={settings.returns_submitted_email}
                 smsLoading={loadingKey === "returns_submitted_sms"}
@@ -172,7 +173,7 @@ export function NotificationSettingsForm({ initialSettings }: { initialSettings:
       </div>
 
       {/* Orders Toggles */}
-      <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-white/5 overflow-hidden">
+      <div className="order-1 bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-white/5 overflow-hidden">
         <div className="p-6 border-b border-gray-100 dark:border-white/5 flex flex-col items-center justify-center text-center gap-3">
           <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
             <ShoppingCart className="w-5 h-5" />
@@ -206,7 +207,7 @@ export function NotificationSettingsForm({ initialSettings }: { initialSettings:
               />
               <ToggleTableRow 
                 label="در حال پردازش (Processing)"
-                icon={<Package className="w-4 h-4 text-blue-500" />}
+                icon={<Package className="w-4 h-4 text-yellow-500" />}
                 smsEnabled={settings.orders_processing_sms}
                 emailEnabled={settings.orders_processing_email}
                 smsLoading={loadingKey === "orders_processing_sms"}
@@ -217,24 +218,13 @@ export function NotificationSettingsForm({ initialSettings }: { initialSettings:
               />
               <ToggleTableRow 
                 label="ارسال شده (Shipped)"
-                icon={<Truck className="w-4 h-4 text-purple-500" />}
+                icon={<Truck className="w-4 h-4 text-blue-500" />}
                 smsEnabled={settings.orders_shipped_sms}
                 emailEnabled={settings.orders_shipped_email}
                 smsLoading={loadingKey === "orders_shipped_sms"}
                 emailLoading={loadingKey === "orders_shipped_email"}
                 onSmsToggle={() => toggleSetting("orders_shipped_sms")}
                 onEmailToggle={() => toggleSetting("orders_shipped_email")}
-                disabled={!settings.globalSms && !settings.globalEmail}
-              />
-              <ToggleTableRow 
-                label="تحویل داده شده (Delivered)"
-                icon={<Home className="w-4 h-4 text-emerald-500" />}
-                smsEnabled={settings.orders_delivered_sms}
-                emailEnabled={settings.orders_delivered_email}
-                smsLoading={loadingKey === "orders_delivered_sms"}
-                emailLoading={loadingKey === "orders_delivered_email"}
-                onSmsToggle={() => toggleSetting("orders_delivered_sms")}
-                onEmailToggle={() => toggleSetting("orders_delivered_email")}
                 disabled={!settings.globalSms && !settings.globalEmail}
               />
               <ToggleTableRow 
@@ -248,11 +238,23 @@ export function NotificationSettingsForm({ initialSettings }: { initialSettings:
                 onEmailToggle={() => toggleSetting("orders_cancelled_email")}
                 disabled={!settings.globalSms && !settings.globalEmail}
               />
+              <ToggleTableRow 
+                label="تحویل داده شده (Delivered)"
+                icon={<Home className="w-4 h-4 text-emerald-500" />}
+                smsEnabled={settings.orders_delivered_sms}
+                emailEnabled={settings.orders_delivered_email}
+                smsLoading={loadingKey === "orders_delivered_sms"}
+                emailLoading={loadingKey === "orders_delivered_email"}
+                onSmsToggle={() => toggleSetting("orders_delivered_sms")}
+                onEmailToggle={() => toggleSetting("orders_delivered_email")}
+                disabled={!settings.globalSms && !settings.globalEmail}
+              />
             </tbody>
           </table>
         </div>
       </div>
       
+      </div>
     </div>
   );
 }

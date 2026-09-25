@@ -5,8 +5,9 @@
   "private": true,
   "scripts": {
     "dev": "concurrently \"next dev\" \"npm run worker\"",
+    "dev:clean": "node -e \"require('fs').rmSync('.next', {recursive:true, force:true})\" && npm run dev",
     "worker": "tsx src/worker-server.ts",
-    "build": "next build",
+    "build": "node -e \"require('fs').rmSync('.next', {recursive:true, force:true})\" && next build",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma skills sync || exit 0",

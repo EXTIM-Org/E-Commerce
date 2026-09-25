@@ -8,16 +8,24 @@ export const metadata = {
   title: 'تیکت‌های پشتیبانی | ادمین',
 };
 
-export default async function AdminTicketsPage() {
+export default async function AdminTicketsPage(props: { searchParams: Promise<{ user?: string }> }) {
   const session = await getSession();
   if (!session || !canManageSupport(session.role as string)) {
     redirect("/admin");
   }
 
-  const tickets = await db.orm.public.Ticket
+  const searchParams = await props.searchParams;
+  const userIdFilter = searchParams.user;
+
+  let query = db.orm.public.Ticket
     .orderBy(t => t.updatedAt.desc())
-    .include("user", u => u.select("name", "email"))
-    .all();
+    .include("user", u => u.select("name", "email"));
+    
+  if (userIdFilter) {
+    query = query.where({ userId: userIdFilter }) as typeof query;
+  }
+
+  const tickets = await query.all();
 
   return (
     <div className="space-y-6">

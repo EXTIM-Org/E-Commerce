@@ -20,10 +20,10 @@ export async function getNotificationSettings() {
     globalEmail: getBool("globalEmail"),
     
     // Returns
-    returns_submitted_sms: getBool("returns_submitted_sms", false),
-    returns_submitted_email: getBool("returns_submitted_email", false),
-    returns_pending_sms: getBool("returns_pending_sms", false),
-    returns_pending_email: getBool("returns_pending_email", false),
+    returns_submitted_sms: getBool("returns_submitted_sms"),
+    returns_submitted_email: getBool("returns_submitted_email"),
+    returns_pending_sms: getBool("returns_pending_sms"),
+    returns_pending_email: getBool("returns_pending_email"),
     returns_approved_sms: getBool("returns_approved_sms"),
     returns_approved_email: getBool("returns_approved_email"),
     returns_rejected_sms: getBool("returns_rejected_sms"),

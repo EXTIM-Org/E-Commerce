@@ -46,6 +46,10 @@ model User {
   createdAt     TimestamptzString @default(now())
   updatedAt     temporal.updatedAtString()
   
+  isBanned      Boolean   @default(false)
+  banReason     String?
+  adminNotes    String?
+  
   addresses     Address[]
   orders        Order[]
   cart          Cart?

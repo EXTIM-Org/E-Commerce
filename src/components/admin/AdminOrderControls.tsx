@@ -1,8 +1,9 @@
 "use client";
 
 import { updateOrderStatus, updateTrackingCode } from "@/actions/order";
-import { useState, useRef, useEffect } from "react";
-import { Loader2, ChevronDown, Check } from "lucide-react";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import { DropdownSelect } from "@/components/ui/DropdownSelect";
 
 type OrderStatus = "PENDING" | "PAID" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "RETURNED";
 
@@ -19,32 +20,20 @@ export function AdminOrderControls({
   const [trackingCode, setTrackingCode] = useState(initialTrackingCode || "");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [isStatusOpen, setIsStatusOpen] = useState(false);
-  const statusDropdownRef = useRef<HTMLDivElement>(null);
 
   const STATUS_OPTIONS = [
     { value: "PENDING", label: "در انتظار پرداخت (PENDING)" },
     { value: "PAID", label: "تایید شده - پرداخت موفق (PAID)" },
     { value: "PROCESSING", label: "در حال پردازش (PROCESSING)" },
     { value: "SHIPPED", label: "ارسال شده (SHIPPED)" },
-    { value: "DELIVERED", label: "تحویل شده (DELIVERED)" },
     { value: "CANCELLED", label: "لغو شده (CANCELLED)" },
+    { value: "DELIVERED", label: "تحویل شده (DELIVERED)" },
   ];
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (statusDropdownRef.current && !statusDropdownRef.current.contains(event.target as Node)) {
-        setIsStatusOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+
 
   const handleStatusChange = async (newStatus: OrderStatus) => {
     setStatus(newStatus);
-    setIsStatusOpen(false);
     setIsLoading(true);
     setMessage("");
     
@@ -89,45 +78,18 @@ export function AdminOrderControls({
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="flex flex-col gap-2" ref={statusDropdownRef}>
+        <div className="flex flex-col gap-2">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             تغییر وضعیت سفارش
           </label>
-          <div className="relative w-full">
-            {/* Trigger Button */}
-            <button
-              type="button"
-              disabled={isLoading}
-              onClick={() => setIsStatusOpen(!isStatusOpen)}
-              className="w-full flex items-center justify-between bg-white/50 dark:bg-black/50 border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all text-gray-900 dark:text-white shadow-sm disabled:opacity-50"
-            >
-              <span>{STATUS_OPTIONS.find(o => o.value === status)?.label}</span>
-              <ChevronDown className={`w-4 h-4 opacity-70 transition-transform duration-200 ${isStatusOpen ? "rotate-180" : ""}`} />
-            </button>
-
-            {/* Dropdown Menu */}
-            {isStatusOpen && (
-              <div className="absolute left-0 right-0 top-full mt-2 z-50 overflow-hidden bg-white/95 dark:bg-[#1a1b26]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-xl shadow-2xl duration-200 animate-in fade-in zoom-in-95 max-h-60 overflow-y-auto">
-                <div className="flex flex-col py-1">
-                  {STATUS_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => handleStatusChange(opt.value as OrderStatus)}
-                      className={`flex items-center justify-between w-full px-4 py-3 text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/10 ${
-                        status === opt.value 
-                          ? "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-500/10" 
-                          : "text-gray-700 dark:text-gray-200"
-                      }`}
-                    >
-                      {opt.label}
-                      {status === opt.value && <Check className="w-4 h-4 text-violet-500" />}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          <DropdownSelect
+            options={STATUS_OPTIONS}
+            value={status}
+            onChange={(val) => handleStatusChange(val as OrderStatus)}
+            variant="neutral"
+            isLoading={isLoading}
+            className="w-full text-right"
+          />
           <p className="text-xs text-gray-500 mt-2">
             با تغییر وضعیت، ایمیل اطلاع‌رسانی برای مشتری ارسال می‌شود.
           </p>

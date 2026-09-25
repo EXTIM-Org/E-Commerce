@@ -21,7 +21,7 @@ export default async function AdminLayout({
   const isSupportAdmin = canManageSupport(session.role as string);
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-7xl min-h-[80vh]">
+    <div className="container mx-auto px-4 py-12 max-w-screen-2xl min-h-[80vh]">
       <div className="flex flex-col md:flex-row gap-8">
         
         {/* Sidebar */}
@@ -69,11 +69,11 @@ export default async function AdminLayout({
                     <span>مرجوعی‌ها</span>
                   </Link>
                   <Link href="/admin/products" className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-                    <Package className="w-5 h-5" />
+                    <Package className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     <span>محصولات</span>
                   </Link>
                   <Link href="/admin/categories" className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-                    <LayoutList className="w-5 h-5" />
+                    <LayoutList className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
                     <span>دسته‌بندی‌ها</span>
                   </Link>
                   <Link href="/admin/flash-sales" className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">

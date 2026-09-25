@@ -2,14 +2,38 @@ import { db } from "@/prisma/db";
 import { PackageOpen, MapPin, Clock, Eye, ChevronLeft } from "lucide-react";
 import { StatusUpdater } from "@/components/admin/StatusUpdater";
 import Link from "next/link";
+import { AdminOrdersFilter } from "@/components/admin/AdminOrdersFilter";
 
-export default async function AdminOrdersPage() {
-  // Fetch all orders with user and items
-  const orders = await db.orm.public.Order
+export default async function AdminOrdersPage(props: { searchParams: Promise<{ user?: string, q?: string, status?: string }> }) {
+  const searchParams = await props.searchParams;
+  const userIdFilter = searchParams.user;
+  const q = searchParams.q?.toLowerCase();
+  const status = searchParams.status;
+
+  let query = db.orm.public.Order
     .include("user")
     .include("items", (i) => i.include("variant", (v) => v.include("product")).include("returnRequest"))
-    .orderBy((o) => o.createdAt.desc())
-    .all();
+    .orderBy((o) => o.createdAt.desc());
+    
+  if (userIdFilter) {
+    query = query.where({ userId: userIdFilter }) as typeof query;
+  }
+  
+  if (status) {
+    query = query.where({ status: status as any }) as typeof query;
+  }
+
+  let orders = await query.all();
+  
+  if (q) {
+    orders = orders.filter(o => 
+      o.id.toLowerCase().includes(q) || 
+      o.user?.name?.toLowerCase().includes(q) || 
+      o.user?.email?.toLowerCase().includes(q) ||
+      o.receiverName?.toLowerCase().includes(q) ||
+      o.phone?.includes(q)
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -19,6 +43,8 @@ export default async function AdminOrdersPage() {
           <p className="text-gray-500 text-sm mt-1">تعداد کل سفارشات ثبت شده: {orders.length}</p>
         </div>
       </div>
+      
+      <AdminOrdersFilter />
 
       {orders.length === 0 ? (
         <div className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-3xl p-16 flex flex-col items-center justify-center gap-4 text-center">

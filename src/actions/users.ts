@@ -6,13 +6,30 @@ import { revalidatePath } from "next/cache";
 import { canManageRoles } from "@/lib/permissions";
 import { UserRole } from "@/lib/permissions";
 
-export async function getUsers() {
+export async function getUsers(page: number = 1, limit: number = 10) {
   const session = await getSession();
   if (!session || !canManageRoles(session.role as string)) {
     throw new Error("Unauthorized");
   }
 
-  return await db.orm.public.User.orderBy(u => u.createdAt.desc()).all();
+  const offset = (page - 1) * limit;
+
+  const users = await db.orm.public.User
+    .orderBy(u => u.createdAt.desc())
+    .limit(limit)
+    .offset(offset)
+    .all();
+
+  const agg = await db.orm.public.User.aggregate(a => ({ total: a.count() }));
+  const totalUsers = agg.total;
+  const totalPages = Math.ceil(totalUsers / limit);
+
+  return {
+    users,
+    totalUsers,
+    totalPages,
+    currentPage: page
+  };
 }
 
 export async function updateUserRole(userId: string, newRole: UserRole) {
@@ -41,6 +58,93 @@ export async function updateUserRole(userId: string, newRole: UserRole) {
     return { success: true };
   } catch (error) {
     console.error("Error updating user role:", error);
+    return { error: "خطایی رخ داد" };
+  }
+}
+
+export async function getUserById(userId: string) {
+  const session = await getSession();
+  if (!session || !canManageRoles(session.role as string)) {
+    throw new Error("Unauthorized");
+  }
+
+  const user = await db.orm.public.User
+    .where({ id: userId })
+    .include("orders", (q) => q.orderBy(o => o.createdAt.desc()).limit(5))
+    .include("tickets", (q) => q.orderBy(t => t.createdAt.desc()).limit(5))
+    .include("addresses")
+    .include("cart", c => c.include("items", i => i.include("variant", v => v.include("product"))))
+    .first();
+
+  if (!user) return null;
+
+  const orderStats = await db.orm.public.Order.where({ userId }).aggregate(a => ({
+    count: a.count()
+  }));
+
+  const ticketStats = await db.orm.public.Ticket.where({ userId }).aggregate(a => ({
+    count: a.count()
+  }));
+
+  const reviewStats = await db.orm.public.Review.where({ userId }).aggregate(a => ({
+    count: a.count()
+  }));
+
+  const stats = {
+    ordersCount: orderStats.count,
+    ticketsCount: ticketStats.count,
+    reviewsCount: reviewStats.count
+  };
+
+  const totalSpentStats = await db.orm.public.Order.where({ userId, status: "DELIVERED" }).aggregate(a => ({
+    totalSpent: a.sum("totalAmount")
+  }));
+
+  return { ...user, stats: { ...stats, totalSpent: totalSpentStats.totalSpent ?? 0 } };
+}
+
+export async function updateUserBanStatus(userId: string, isBanned: boolean, banReason?: string) {
+  const session = await getSession();
+  if (!session || !canManageRoles(session.role as string)) {
+    return { error: "دسترسی غیرمجاز" };
+  }
+
+  const targetUser = await db.orm.public.User.where({ id: userId }).first();
+  if (!targetUser) {
+    return { error: "کاربر یافت نشد" };
+  }
+  
+  if (targetUser.role === "SUPER_ADMIN") {
+    return { error: "سوپر ادمین غیرقابل مسدود شدن است" };
+  }
+
+  try {
+    await db.orm.public.User.where({ id: userId }).update({
+      isBanned,
+      banReason: isBanned ? (banReason || "بدون دلیل") : null,
+    });
+    revalidatePath(`/admin/users/${userId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating ban status:", error);
+    return { error: "خطایی رخ داد" };
+  }
+}
+
+export async function updateUserAdminNotes(userId: string, adminNotes: string) {
+  const session = await getSession();
+  if (!session || !canManageRoles(session.role as string)) {
+    return { error: "دسترسی غیرمجاز" };
+  }
+
+  try {
+    await db.orm.public.User.where({ id: userId }).update({
+      adminNotes,
+    });
+    revalidatePath(`/admin/users/${userId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating admin notes:", error);
     return { error: "خطایی رخ داد" };
   }
 }

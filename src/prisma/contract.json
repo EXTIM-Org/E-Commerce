@@ -3200,6 +3200,20 @@
           },
           "User": {
             "fields": {
+              "adminNotes": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "banReason": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "createdAt": {
                 "nullable": false,
                 "type": {
@@ -3225,6 +3239,13 @@
                 "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "isBanned": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
                   "kind": "scalar"
                 }
               },
@@ -3491,6 +3512,12 @@
             },
             "storage": {
               "fields": {
+                "adminNotes": {
+                  "column": "adminNotes"
+                },
+                "banReason": {
+                  "column": "banReason"
+                },
                 "createdAt": {
                   "column": "createdAt"
                 },
@@ -3502,6 +3529,9 @@
                 },
                 "image": {
                   "column": "image"
+                },
+                "isBanned": {
+                  "column": "isBanned"
                 },
                 "name": {
                   "column": "name"
@@ -5997,6 +6027,16 @@
                 }
               ],
               "columns": {
+                "adminNotes": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "banReason": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
                 "createdAt": {
                   "codecId": "pg/timestamptz-string@1",
                   "default": {
@@ -6020,6 +6060,15 @@
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": true
+                },
+                "isBanned": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
                 },
                 "name": {
                   "codecId": "pg/text@1",
@@ -6352,7 +6401,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "bbee69b289ec7fc092072686e3faf73aa4647fc387acb132e69d4875adbd1d46"
+    "storageHash": "d84a7ea808b0907cd73d342038a129283ce58140795057983d9f675f8416148e"
   },
   "execution": {
     "executionHash": "3dfcc150f9690fa5f6ee206cb98e32c158b0e5f09fd1d063e65b876d1e342b7a",

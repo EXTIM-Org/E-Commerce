@@ -1,58 +1,23 @@
 "use client";
 
-import { useState, useRef, useEffect, useTransition } from "react";
-import { createPortal } from "react-dom";
+import { useState, useTransition } from "react";
 import { updateOrderStatus } from "@/actions/admin-orders";
 import toast from "react-hot-toast";
-import { ChevronDown, Check } from "lucide-react";
+import { DropdownSelect } from "@/components/ui/DropdownSelect";
 
 const STATUS_OPTIONS = [
-  { value: "PENDING", label: "در انتظار پرداخت", color: "text-yellow-600 dark:text-yellow-400 bg-yellow-500/10 border-yellow-500/20" },
+  { value: "PENDING", label: "در انتظار پرداخت", color: "text-orange-600 dark:text-orange-400 bg-orange-500/10 border-orange-500/20" },
   { value: "PAID", label: "پرداخت شده", color: "text-teal-600 dark:text-teal-400 bg-teal-500/10 border-teal-500/20" },
-  { value: "PROCESSING", label: "در حال پردازش", color: "text-blue-600 dark:text-blue-400 bg-blue-500/10 border-blue-500/20" },
-  { value: "SHIPPED", label: "ارسال شده", color: "text-purple-600 dark:text-purple-400 bg-purple-500/10 border-purple-500/20" },
-  { value: "DELIVERED", label: "تحویل داده شده", color: "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
+  { value: "PROCESSING", label: "در حال پردازش", color: "text-yellow-600 dark:text-yellow-400 bg-yellow-500/10 border-yellow-500/20" },
+  { value: "SHIPPED", label: "ارسال شده", color: "text-blue-600 dark:text-blue-400 bg-blue-500/10 border-blue-500/20" },
   { value: "CANCELLED", label: "لغو شده", color: "text-red-600 dark:text-red-400 bg-red-500/10 border-red-500/20" },
+  { value: "DELIVERED", label: "تحویل داده شده", color: "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
 ];
 
 export function StatusUpdater({ orderId, currentStatus }: { orderId: string, currentStatus: string }) {
   const [isPending, startTransition] = useTransition();
-  const [isOpen, setIsOpen] = useState(false);
-  const [dropdownStyle, setDropdownStyle] = useState({ top: 0, left: 0, width: 0 });
-  const [position, setPosition] = useState<"bottom" | "top">("bottom");
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
-      if (buttonRef.current?.contains(event.target as Node)) return;
-      if (dropdownRef.current?.contains(event.target as Node)) return;
-      setIsOpen(false);
-    };
-    
-    // Close on scroll or resize to prevent floating menu out of sync
-    const handleScrollOrResize = () => setIsOpen(false);
-    // Force close if user right-clicks anywhere
-    const handleContextMenu = () => setIsOpen(false);
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("touchstart", handleClickOutside);
-      document.addEventListener("contextmenu", handleContextMenu);
-      window.addEventListener("scroll", handleScrollOrResize, true);
-      window.addEventListener("resize", handleScrollOrResize);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("touchstart", handleClickOutside);
-      document.removeEventListener("contextmenu", handleContextMenu);
-      window.removeEventListener("scroll", handleScrollOrResize, true);
-      window.removeEventListener("resize", handleScrollOrResize);
-    };
-  }, [isOpen]);
 
   const handleStatusChange = (newStatus: string) => {
-    setIsOpen(false);
     if (newStatus === currentStatus) return;
 
     startTransition(async () => {
@@ -65,82 +30,16 @@ export function StatusUpdater({ orderId, currentStatus }: { orderId: string, cur
     });
   };
 
-  const toggleDropdown = () => {
-    if (isPending) return;
-    
-    if (!isOpen && buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      const spaceBelow = window.innerHeight - rect.bottom;
-      
-      const openTop = spaceBelow < 250;
-      setPosition(openTop ? "top" : "bottom");
-      
-      setDropdownStyle({
-        top: openTop ? rect.top + window.scrollY - 6 : rect.bottom + window.scrollY + 6,
-        left: rect.left + window.scrollX,
-        width: rect.width
-      });
-    }
-    setIsOpen(!isOpen);
-  };
-
-  const currentOption = STATUS_OPTIONS.find(o => o.value === currentStatus);
-  const currentColor = currentOption?.color || "text-gray-900 dark:text-white bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10";
-
   return (
-    <div className="relative w-[76%] min-w-[160px]">
-      
-      {/* Trigger Button */}
-      <button
-        ref={buttonRef}
-        type="button"
-        onClick={toggleDropdown}
-        disabled={isPending}
-        className={`w-full flex items-center justify-between border rounded-lg px-3 py-1.5 text-sm font-medium ${currentColor} focus:outline-none focus:ring-1 focus:ring-violet-500 disabled:opacity-50 transition-all shadow-sm`}
-      >
-        <span>{currentOption?.label || "نامشخص"}</span>
-        
-        {isPending ? (
-          <div className="w-3.5 h-3.5 border-2 border-current opacity-30 border-t-current rounded-full animate-spin ml-1 flex-shrink-0"></div>
-        ) : (
-          <ChevronDown className={`w-3.5 h-3.5 opacity-70 transition-transform duration-200 flex-shrink-0 ${isOpen ? "rotate-180" : ""}`} />
-        )}
-      </button>
-
-      {/* Dropdown Menu (Rendered in Portal) */}
-      {isOpen && typeof window !== "undefined" && createPortal(
-        <div 
-          ref={dropdownRef}
-          style={{ 
-            top: dropdownStyle.top, 
-            left: dropdownStyle.left, 
-            width: dropdownStyle.width 
-          }}
-          className={`absolute z-[9999] overflow-hidden bg-white/95 dark:bg-[#1a1b26]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-xl shadow-2xl duration-200 p-2 ${
-            position === "top" ? "-translate-y-full origin-bottom animate-in fade-in zoom-in-95" : "origin-top animate-in fade-in zoom-in-95"
-          }`}
-        >
-          <div className="flex flex-col gap-1">
-            {STATUS_OPTIONS.map(opt => (
-              <button
-                key={opt.value}
-                onClick={() => handleStatusChange(opt.value)}
-                className={`flex items-center justify-between w-full px-3 py-2 text-sm font-medium transition-all rounded-lg border ${opt.color} ${
-                  currentStatus === opt.value 
-                    ? "ring-1 ring-current shadow-sm" 
-                    : "opacity-70 hover:opacity-100"
-                }`}
-              >
-                {opt.label}
-                {currentStatus === opt.value && <Check className="w-4 h-4" />}
-              </button>
-            ))}
-          </div>
-        </div>,
-        document.body
-      )}
-      
+    <div className="w-[76%] min-w-[160px]">
+      <DropdownSelect
+        options={STATUS_OPTIONS}
+        value={currentStatus}
+        onChange={handleStatusChange}
+        variant="colored"
+        isLoading={isPending}
+        className="w-full !px-3 !py-1.5 !h-auto"
+      />
     </div>
-
   );
 }
