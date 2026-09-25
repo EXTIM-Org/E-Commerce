@@ -34,7 +34,7 @@ async function getSecrets() {
       fetchedAt: now,
     };
     return cachedSecrets;
-  } catch (error) {
+  } catch (_error) {
     console.error('Failed to fetch JWT secrets from Redis, falling back to env', error);
     if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET is missing");
     
@@ -63,14 +63,14 @@ export async function decrypt(session: string | undefined = '') {
       algorithms: ['HS256'],
     });
     return payload;
-  } catch (error) {
+  } catch (_error) {
     if (secrets.previous) {
       try {
         const { payload } = await jwtVerify(session, secrets.previous, {
           algorithms: ['HS256'],
         });
         return payload;
-      } catch (innerError) {
+      } catch (_innerError) {
         return null;
       }
     }

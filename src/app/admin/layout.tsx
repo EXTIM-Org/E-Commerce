@@ -3,6 +3,7 @@ import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { LayoutDashboard, Package, Tags, ShoppingCart, HelpCircle, MessageSquare, LayoutList, Users, PackageMinus, BellRing } from "lucide-react";
 import { hasAdminPanelAccess, canManageStore, canManageBlog, canManageRoles, canManageSupport } from "@/lib/permissions";
+import { AdminSidebarWrapper } from "@/components/admin/layout/AdminSidebarWrapper";
 
 export default async function AdminLayout({
   children,
@@ -26,9 +27,10 @@ export default async function AdminLayout({
         
         {/* Sidebar */}
         <aside className="w-full md:w-72 flex-shrink-0">
-          <div className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-3xl p-6 backdrop-blur-md sticky top-24">
-            
-            <div className="flex flex-col items-center gap-3 mb-8">
+          <AdminSidebarWrapper>
+            <div className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-3xl p-6 backdrop-blur-md sticky top-24">
+              
+              <div className="flex flex-col items-center gap-3 mb-8">
               <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 p-[2px]">
                 <div className="w-full h-full bg-background rounded-full overflow-hidden flex items-center justify-center">
                   {session.image ? (
@@ -134,7 +136,8 @@ export default async function AdminLayout({
               )}
             </nav>
             
-          </div>
+            </div>
+          </AdminSidebarWrapper>
         </aside>
 
         {/* Main Content */}

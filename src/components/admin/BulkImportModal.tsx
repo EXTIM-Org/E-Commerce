@@ -72,7 +72,7 @@ export function BulkImportModal() {
         toast.error(res.error || "خطا در آپلود فایل.");
         setIsUploading(false);
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("خطای شبکه یا سرور رخ داد.");
       setIsUploading(false);
     }

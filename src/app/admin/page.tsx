@@ -71,19 +71,19 @@ export default async function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
           title="کل محصولات" 
-          value={productsCount} 
+          value={productsCount.toLocaleString('fa-IR')} 
           icon={<Package className="w-6 h-6 text-blue-600 dark:text-blue-400" />} 
           bg="bg-blue-500/10"
         />
         <StatCard 
           title="تعداد سفارشات" 
-          value={ordersCount} 
+          value={ordersCount.toLocaleString('fa-IR')} 
           icon={<ShoppingCart className="w-6 h-6 text-green-600 dark:text-green-400" />} 
           bg="bg-green-500/10"
         />
         <StatCard 
           title="تعداد کاربران" 
-          value={usersCount} 
+          value={usersCount.toLocaleString('fa-IR')} 
           icon={<Users className="w-6 h-6 text-purple-600 dark:text-purple-400" />} 
           bg="bg-purple-500/10"
         />

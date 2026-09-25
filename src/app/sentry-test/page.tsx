@@ -15,7 +15,7 @@ export default function SentryTestPage() {
     try {
       await fetch("/api/sentry-test-api");
       setErrorStatus("Server error triggered! Check your terminal or Sentry dashboard.");
-    } catch (e) {
+    } catch (_e) {
       setErrorStatus("Failed to call API.");
     }
   };

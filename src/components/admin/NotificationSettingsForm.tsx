@@ -44,7 +44,7 @@ export function NotificationSettingsForm({ initialSettings }: { initialSettings:
     try {
       await updateNotificationSetting(key, newValue);
       toast.success("تنظیمات با موفقیت بروزرسانی شد");
-    } catch (error) {
+    } catch (_error) {
       toast.error("خطا در بروزرسانی تنظیمات");
       setSettings(prev => ({ ...prev, [key]: !newValue })); // revert
     } finally {

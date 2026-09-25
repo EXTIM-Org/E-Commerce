@@ -17,7 +17,7 @@ export default async function AdminTicketsPage(props: { searchParams: Promise<{ 
   const searchParams = await props.searchParams;
   const q = searchParams.q || "";
 
-  let query = db.orm.public.Ticket
+  const query= db.orm.public.Ticket
     .orderBy((t: any) => t.updatedAt.desc())
     .include("user", (u: any) => u.select("name", "email", "phoneNumber"));
 

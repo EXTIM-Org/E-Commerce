@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart, User } from "lucide-react";
+import { ShoppingCart, User, Menu, X } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useCart } from "@/store/CartContext";
 import { useEffect, useState } from "react";
@@ -21,6 +21,7 @@ export function Header({ session }: { session: any }) {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const isAdminPage = pathname.startsWith("/admin");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -31,8 +32,16 @@ export function Header({ session }: { session: any }) {
     <header className="sticky top-0 z-50 w-full border-b border-black/5 dark:border-white/10 bg-background/70 backdrop-blur-lg transition-colors duration-300">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         
-        {/* Right Section: Logo */}
-        <div className="flex items-center gap-8">
+        {/* Right Section: Logo & Mobile Menu */}
+        <div className="flex items-center gap-3 md:gap-8">
+          <button 
+            className="md:hidden p-1 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="منوی موبایل"
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+
           <Link href="/" className="flex items-center gap-2">
             <span className="text-2xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-600 dark:from-violet-400 dark:to-fuchsia-400">
               EXTIM
@@ -103,6 +112,24 @@ export function Header({ session }: { session: any }) {
         </div>
         
       </div>
+
+      {/* Mobile Navigation Dropdown */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t border-black/5 dark:border-white/10 bg-background shadow-lg absolute top-16 left-0 w-full z-50 pb-4">
+          <nav className="flex flex-col px-4 pt-2">
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                href={link.href}
+                className="py-3 border-b border-black/5 dark:border-white/5 text-gray-700 dark:text-gray-300 font-medium hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {link.name}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

@@ -3,7 +3,6 @@
 import { bulkImportQueue } from '../jobs/queues';
 import fs from 'fs';
 import path from 'path';
-import { z } from 'zod';
 
 import { getSession } from '../lib/session';
 
@@ -63,7 +62,7 @@ export async function checkBulkImportProgress(jobId: string) {
       failedReason: job.failedReason,
       result: job.returnvalue,
     };
-  } catch (error) {
+  } catch (_error) {
     return { success: false, error: 'Failed to check progress.' };
   }
 }

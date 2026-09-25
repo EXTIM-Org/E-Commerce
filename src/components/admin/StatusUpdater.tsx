@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { updateOrderStatus } from "@/actions/admin-orders";
 import toast from "react-hot-toast";
 import { DropdownSelect } from "@/components/ui/DropdownSelect";

@@ -3,6 +3,10 @@
 ## [Unreleased]
 
 ### Added
+- **Mobile Responsiveness Enhancements**:
+  - Implemented a responsive mobile hamburger menu in the global `Header.tsx` for accessible mobile navigation.
+  - Developed a toggleable `AdminSidebarWrapper` for the Admin Dashboard to prevent the sidebar from taking up full vertical space on mobile devices.
+  - Applied Persian digit localization to Admin Dashboard statistics (Total Products, Orders, Users).
 - **Global Pagination System**: Implemented a reusable, server-side compatible `<Pagination>` component (`src/components/ui/Pagination.tsx`).
   - Added support for query preservation during pagination.
   - Pagination applied to Admin Orders, User Profile Orders, Admin Returns, Admin Tickets, and Admin Users pages.
@@ -20,5 +24,9 @@
   - Added a "تاریخ و ساعت" (Date & Time) column to the Returns management table for better chronological tracking.
 
 ### Fixed
+- Resolved a critical `react-hooks/static-components` error in `Pagination.tsx` by extracting the `PageWrapper` component outside the render loop, optimizing performance and state retention.
+- Fixed a TypeScript syntax error (`TS1003`) in `src/actions/bulk-import.ts`'s catch block.
+- Executed a comprehensive ESLint cleanup across the codebase, removing over 17 unused imports and variables to achieve a 100% warning-free state.
+- Updated `eslint.config.mjs` to properly ignore unused variables prefixed with an underscore (`_`), aligning with standard TypeScript practices.
 - Fixed an issue in `src/app/admin/users/page.tsx` where a runtime exception (`ReferenceError: searchQuery is not defined`) occurred during search pagination.
 - Fixed an issue where `.toLocaleString()` would fallback to English digits by explicitly passing `'fa-IR'`.
