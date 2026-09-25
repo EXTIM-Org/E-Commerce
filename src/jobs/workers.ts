@@ -2,7 +2,7 @@ import { Worker, Job } from 'bullmq';
 import { redis } from '../lib/redis';
 import { db } from '../prisma/db';
 import crypto from 'crypto';
-import { keyRotationQueue } from './queues';
+import { keyRotationQueue, ticketAutoCloseQueue } from './queues';
 import { invalidateCachePattern } from '../lib/cache';
 import { sendEmail } from '../lib/email';
 import { sendSms } from '../lib/sms';
@@ -78,6 +78,27 @@ export function setupWorkers() {
   keyRotationWorker.on('failed', (job, err) => console.error(`KeyRotation Job ${job?.id} failed:`, err));
   notificationWorker.on('failed', (job, err) => console.error(`Notification Job ${job?.id} failed:`, err));
 
+  const ticketAutoCloseWorker = new Worker('ticket-auto-close-queue', async (job: Job) => {
+    console.log('[BullMQ] Checking for inactive tickets to auto-close...');
+    const seventyTwoHoursAgo = Date.now() - 72 * 60 * 60 * 1000;
+    
+    const pendingTickets = await db.orm.public.Ticket
+        .where({ status: 'WAITING_FOR_USER' })
+        .all();
+    
+    const inactiveTickets = pendingTickets.filter(t => new Date(t.updatedAt).getTime() < seventyTwoHoursAgo);
+        
+    if (inactiveTickets.length > 0) {
+      console.log(`[BullMQ] Found ${inactiveTickets.length} tickets to auto-close.`);
+      for (const ticket of inactiveTickets) {
+          await db.orm.public.Ticket.where({ id: ticket.id }).update({ status: 'CLOSED' });
+          console.log(`[BullMQ] Auto-closed ticket ${ticket.id}`);
+      }
+    }
+  }, { connection: redis });
+
+  ticketAutoCloseWorker.on('failed', (job, err) => console.error(`TicketAutoClose Job ${job?.id} failed:`, err));
+
   // Schedule monthly key rotation (Runs at 00:00 on day-of-month 1)
   keyRotationQueue.upsertJobScheduler('monthly-rotation', {
     pattern: '0 0 1 * *',
@@ -86,5 +107,13 @@ export function setupWorkers() {
     data: {},
   });
 
-  return { cartWorker, flashSaleWorker, keyRotationWorker, notificationWorker };
+  // Schedule ticket auto-close check (Runs every hour)
+  ticketAutoCloseQueue.upsertJobScheduler('hourly-ticket-check', {
+    pattern: '0 * * * *',
+  }, {
+    name: 'auto-close-tickets',
+    data: {},
+  });
+
+  return { cartWorker, flashSaleWorker, keyRotationWorker, notificationWorker, ticketAutoCloseWorker };
 }

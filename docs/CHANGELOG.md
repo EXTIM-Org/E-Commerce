@@ -22,8 +22,14 @@
   - Added a simulated "ارسال پیامک" (Send SMS) feature in the User Profile CRM controls, with character counting and console logging for simulation.
 - **Return Management**:
   - Added a "تاریخ و ساعت" (Date & Time) column to the Returns management table for better chronological tracking.
+- **Support Tickets**:
+  - Implemented an automatic cron job (via BullMQ) that automatically changes ticket status to `CLOSED` if a ticket has been `WAITING_FOR_USER` for over 72 hours.
+  - Added a robust Ticket Feedback system: Users are now presented with an interactive survey (Star Rating with hover effects, Like/Dislike, Text Comment) when their ticket is Closed or Resolved. (Added `TicketFeedback` Prisma model).
+  - Admins can now view customer feedback directly within the Admin Ticket Details page with dynamic color-coded UI based on the feedback score.
+  - Updated descriptive texts in the user profile ticket list to clarify automatic closing rules.
 
 ### Fixed
+- Fixed an `Unauthorized` error when managing blog categories by updating the permissions check in `createArticleCategory` to properly utilize the `canManageBlog` utility, allowing `SUPER_ADMIN` and `BLOG_ADMIN` to create categories.
 - Resolved a critical `react-hooks/static-components` error in `Pagination.tsx` by extracting the `PageWrapper` component outside the render loop, optimizing performance and state retention.
 - Fixed a TypeScript syntax error (`TS1003`) in `src/actions/bulk-import.ts`'s catch block.
 - Executed a comprehensive ESLint cleanup across the codebase, removing over 17 unused imports and variables to achieve a 100% warning-free state.

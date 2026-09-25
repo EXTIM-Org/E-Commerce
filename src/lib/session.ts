@@ -35,7 +35,7 @@ async function getSecrets() {
     };
     return cachedSecrets;
   } catch (_error) {
-    console.error('Failed to fetch JWT secrets from Redis, falling back to env', error);
+    console.error('Failed to fetch JWT secrets from Redis, falling back to env', _error);
     if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET is missing");
     
     return {

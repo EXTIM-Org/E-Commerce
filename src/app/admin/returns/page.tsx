@@ -61,9 +61,9 @@ export default async function AdminReturnsPage(props: { searchParams: Promise<{ 
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
-                        <Link href={`/products/${req.orderItem?.variant?.product?.slug}`} target="_blank" className="font-medium text-violet-600 dark:text-violet-400 hover:underline">
+                        <span className="font-medium text-gray-900 dark:text-white">
                           {req.orderItem?.variant?.product?.name}
-                        </Link>
+                        </span>
                         <Link href={`/admin/orders/${req.orderItem?.orderId}`} target="_blank" className="text-xs text-gray-500 hover:text-violet-600 dark:hover:text-violet-400 transition-colors flex items-center gap-1">
                           سفارش: <span className="font-mono">{req.orderItem?.orderId.slice(0,8)}</span>
                         </Link>

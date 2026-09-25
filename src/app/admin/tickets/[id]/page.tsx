@@ -23,6 +23,7 @@ export default async function AdminTicketDetailsPage({ params }: { params: Promi
     .include("messages", m => m.orderBy(msg => msg.createdAt.asc()).include("user"))
     .include("user")
     .include("order")
+    .include("feedback")
     .first();
 
   if (!ticket) {
@@ -36,6 +37,54 @@ export default async function AdminTicketDetailsPage({ params }: { params: Promi
       case "HIGH": return "زیاد";
       case "URGENT": return "اورژانسی";
       default: return priority;
+    }
+  };
+
+  const getFeedbackColors = (feedback: any) => {
+    let score = 3; // Default neutral
+    if (feedback.rating) {
+      score = feedback.rating;
+    } else if (feedback.isLike !== null) {
+      score = feedback.isLike ? 5 : 1;
+    }
+
+    switch (score) {
+      case 1:
+        return {
+          bg: "bg-rose-50 dark:bg-rose-900/10 border-rose-200 dark:border-rose-800",
+          text: "text-rose-800 dark:text-rose-500",
+          val: "text-rose-700 dark:text-rose-400"
+        };
+      case 2:
+        return {
+          bg: "bg-orange-50 dark:bg-orange-900/10 border-orange-200 dark:border-orange-800",
+          text: "text-orange-800 dark:text-orange-500",
+          val: "text-orange-700 dark:text-orange-400"
+        };
+      case 3:
+        return {
+          bg: "bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-800",
+          text: "text-amber-800 dark:text-amber-500",
+          val: "text-amber-700 dark:text-amber-400"
+        };
+      case 4:
+        return {
+          bg: "bg-lime-50 dark:bg-lime-900/10 border-lime-200 dark:border-lime-800",
+          text: "text-lime-800 dark:text-lime-500",
+          val: "text-lime-700 dark:text-lime-400"
+        };
+      case 5:
+        return {
+          bg: "bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800",
+          text: "text-emerald-800 dark:text-emerald-500",
+          val: "text-emerald-700 dark:text-emerald-400"
+        };
+      default:
+        return {
+          bg: "bg-gray-50 dark:bg-gray-900/10 border-gray-200 dark:border-gray-800",
+          text: "text-gray-800 dark:text-gray-400",
+          val: "text-gray-700 dark:text-gray-400"
+        };
     }
   };
 
@@ -81,6 +130,30 @@ export default async function AdminTicketDetailsPage({ params }: { params: Promi
         
         <TicketStatusUpdater ticketId={ticket.id} initialStatus={ticket.status} />
       </div>
+
+      {ticket.feedback && (
+        <div className={`mb-8 p-5 border rounded-2xl ${getFeedbackColors(ticket.feedback).bg}`}>
+          <h3 className={`font-bold mb-3 text-sm ${getFeedbackColors(ticket.feedback).text}`}>بازخورد ثبت شده کاربر</h3>
+          <div className="flex flex-wrap items-center gap-6">
+            {ticket.feedback.isLike !== null && (
+              <div className={`flex items-center gap-2 text-sm font-medium ${getFeedbackColors(ticket.feedback).val}`}>
+                وضعیت: {ticket.feedback.isLike ? "رضایت (لایک)" : "عدم رضایت (دیسلایک)"}
+              </div>
+            )}
+            {ticket.feedback.rating && (
+              <div className={`flex items-center gap-2 text-sm font-medium ${getFeedbackColors(ticket.feedback).val}`} dir="ltr">
+                امتیاز: {ticket.feedback.rating} / 5
+              </div>
+            )}
+          </div>
+          {ticket.feedback.comment && (
+            <div className="mt-3 bg-white/60 dark:bg-black/20 p-3 rounded-lg border border-black/5 dark:border-white/5 text-sm text-gray-700 dark:text-gray-300">
+              <strong className="block mb-1 text-xs text-gray-500 dark:text-gray-400">توضیحات کاربر:</strong>
+              <p>{ticket.feedback.comment}</p>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="space-y-6 mb-8">
         {ticket.messages.map((msg) => {

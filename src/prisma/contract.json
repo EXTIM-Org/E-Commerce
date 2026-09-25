@@ -88,6 +88,10 @@
       "model": "Ticket",
       "namespace": "public"
     },
+    "ticketFeedback": {
+      "model": "TicketFeedback",
+      "namespace": "public"
+    },
     "ticketMessage": {
       "model": "TicketMessage",
       "namespace": "public"
@@ -2982,6 +2986,22 @@
               }
             },
             "relations": {
+              "feedback": {
+                "cardinality": "1:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "ticketId"
+                  ]
+                },
+                "to": {
+                  "model": "TicketFeedback",
+                  "namespace": "public"
+                }
+              },
               "messages": {
                 "cardinality": "1:N",
                 "on": {
@@ -3081,6 +3101,94 @@
               },
               "namespaceId": "public",
               "table": "ticket"
+            }
+          },
+          "TicketFeedback": {
+            "fields": {
+              "comment": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "isLike": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "rating": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "ticketId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "ticket": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "ticketId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Ticket",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "comment": {
+                  "column": "comment"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "isLike": {
+                  "column": "isLike"
+                },
+                "rating": {
+                  "column": "rating"
+                },
+                "ticketId": {
+                  "column": "ticketId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "ticketFeedback"
             }
           },
           "TicketMessage": {
@@ -5899,6 +6007,76 @@
               },
               "uniques": []
             },
+            "ticketFeedback": {
+              "columns": {
+                "comment": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "isLike": {
+                  "codecId": "pg/bool@1",
+                  "nativeType": "bool",
+                  "nullable": true
+                },
+                "rating": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "ticketId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "ticketId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "ticketFeedback"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "ticket"
+                  }
+                }
+              ],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "ticketId"
+                  ]
+                }
+              ]
+            },
             "ticketMessage": {
               "checks": [
                 {
@@ -6401,10 +6579,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "d84a7ea808b0907cd73d342038a129283ce58140795057983d9f675f8416148e"
+    "storageHash": "b49f2c443e6ac5e574e1a7f5bbfe8ee9e5bfe650005b93dd88e050feee88b3c7"
   },
   "execution": {
-    "executionHash": "3dfcc150f9690fa5f6ee206cb98e32c158b0e5f09fd1d063e65b876d1e342b7a",
+    "executionHash": "d1e202ffb29e4d1bb0f99a7c2c02afb17e20e0d21c1737b0ca78bf1a2169cbf3",
     "mutations": {
       "defaults": [
         {
@@ -6816,6 +6994,17 @@
             "column": "updatedAt",
             "namespace": "public",
             "table": "ticket"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "ticketFeedback"
           }
         },
         {

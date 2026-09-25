@@ -217,3 +217,46 @@ export async function closeUserTicket(ticketId: string) {
     return { success: false };
   }
 }
+
+export async function submitTicketFeedback(ticketId: string, formData: FormData) {
+  try {
+    const session = await getSession();
+    if (!session || !session.userId) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const ticket = await db.orm.public.Ticket.where({ id: ticketId }).first();
+    if (!ticket) return { success: false, error: "تیکت یافت نشد" };
+    if (ticket.userId !== session.userId) return { success: false, error: "Unauthorized" };
+    if (ticket.status !== "CLOSED" && ticket.status !== "RESOLVED") {
+      return { success: false, error: "امکان ثبت نظر برای تیکت باز وجود ندارد" };
+    }
+
+    const isLike = formData.get("isLike") ? formData.get("isLike") === "true" : null;
+    const rating = formData.get("rating") ? parseInt(formData.get("rating") as string, 10) : null;
+    const comment = formData.get("comment") as string | null;
+
+    const existing = await db.orm.public.TicketFeedback.where({ ticketId }).first();
+    if (existing) {
+      await db.orm.public.TicketFeedback.where({ id: existing.id }).update({
+        isLike,
+        rating,
+        comment
+      });
+    } else {
+      await db.orm.public.TicketFeedback.create({
+        ticketId,
+        isLike,
+        rating,
+        comment
+      });
+    }
+
+    revalidatePath(`/profile/tickets/${ticketId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to submit ticket feedback:", error);
+    return { success: false, error: "خطایی رخ داد" };
+  }
+}
+

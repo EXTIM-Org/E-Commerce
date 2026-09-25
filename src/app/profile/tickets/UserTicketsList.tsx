@@ -36,10 +36,14 @@ export function UserTicketsList({ initialTickets }: { initialTickets: any[] }) {
 
   return (
     <div className="bg-white/50 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-3xl p-6 md:p-8 backdrop-blur-sm">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div>
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-8">
+        <div className="flex-1">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">تیکت‌های پشتیبانی</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">مشاهده و پیگیری درخواست‌های پشتیبانی شما</p>
+          <div className="text-gray-600 dark:text-gray-400 mt-3 space-y-2 text-sm leading-relaxed text-justify max-w-4xl">
+            <p>حداکثر تا ۲۴ ساعت پس از ارسال تیکت، پاسخ آن برای شما ارسال خواهد شد.</p>
+            <p>تمام تیکتهای ارسالی، توسط کارشناسان واحد امور مشتریان ما پاسخدهی میشوند، بنابراین جهت پیگیری وضعیت تیکت نیازی به برقراری تماس تلفنی نیست.</p>
+            <p>پس دریافت پاسخ پشتیبان، در صورتی که تا ۷۲ ساعت پاسخ جدیدی از سمت شما ارسال نشود، تیکت بصورت خودکار بسته خواهد شد و امکان ارسال پاسخ وجود نخواهد داشت.</p>
+          </div>
         </div>
         <Link 
           href="/profile/tickets/new" 

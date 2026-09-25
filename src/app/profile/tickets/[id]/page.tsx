@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronRight, Clock, Info } from "lucide-react";
 import { TicketReplyForm } from "./TicketReplyForm";
 import { CloseTicketButton } from "./CloseTicketButton";
+import { TicketFeedbackForm } from "./TicketFeedbackForm";
 
 export const metadata = {
   title: "جزئیات تیکت | پروفایل",
@@ -17,6 +18,7 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
   const ticket = await db.orm.public.Ticket
     .where({ id, userId: session?.userId as string })
     .include("messages", m => m.orderBy(msg => msg.createdAt.asc()).include("user"))
+    .include("feedback")
     .first();
 
   if (!ticket) {
@@ -103,10 +105,13 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
       {ticket.status !== "CLOSED" && ticket.status !== "RESOLVED" ? (
         <TicketReplyForm ticketId={ticket.id} />
       ) : (
-        <div className="bg-gray-100 dark:bg-white/5 border border-black/5 dark:border-white/5 p-6 rounded-2xl flex items-center gap-4 text-gray-600 dark:text-gray-400">
-          <Info className="w-6 h-6 text-gray-400" />
-          <p>این تیکت بسته شده است و امکان ارسال پیام جدید وجود ندارد.</p>
-        </div>
+        <>
+          <div className="bg-gray-100 dark:bg-white/5 border border-black/5 dark:border-white/5 p-6 rounded-2xl flex items-center gap-4 text-gray-600 dark:text-gray-400">
+            <Info className="w-6 h-6 text-gray-400" />
+            <p>این تیکت بسته شده است و امکان ارسال پیام جدید وجود ندارد.</p>
+          </div>
+          <TicketFeedbackForm ticketId={ticket.id} existingFeedback={ticket.feedback} />
+        </>
       )}
     </div>
   );

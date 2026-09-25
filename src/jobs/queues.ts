@@ -51,3 +51,12 @@ export const bulkImportQueue = new Queue('bulk-import-queue', {
   },
 });
 
+// Setup Ticket Auto-Close Queue
+export const ticketAutoCloseQueue = new Queue('ticket-auto-close-queue', {
+  connection: redis,
+  defaultJobOptions: {
+    removeOnComplete: true,
+    removeOnFail: 10,
+  },
+});
+

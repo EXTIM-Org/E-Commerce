@@ -13,7 +13,7 @@ export async function getArticleCategories() {
 
 export async function createArticleCategory(data: { name: string; slug: string }) {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") throw new Error("Unauthorized");
+  if (!session || !canManageBlog(session.role as string)) throw new Error("Unauthorized");
   
   await db.orm.public.ArticleCategory.create({
     name: data.name,

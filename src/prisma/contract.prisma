@@ -430,6 +430,7 @@ model Ticket {
   product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
   
   messages    TicketMessage[]
+  feedback    TicketFeedback?
   
   createdAt   TimestamptzString @default(now())
   updatedAt   temporal.updatedAtString()
@@ -448,6 +449,18 @@ model TicketMessage {
   isInternal  Boolean  @default(false)
   
   createdAt   TimestamptzString @default(now())
+}
+
+model TicketFeedback {
+  id        String   @id @default(uuid())
+  ticketId  String   @unique
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  
+  isLike    Boolean? // true = like, false = dislike
+  rating    Int?     // 1 to 5
+  comment   String?
+  
+  createdAt TimestamptzString @default(now())
 }
 
 enum ReturnStatus {
