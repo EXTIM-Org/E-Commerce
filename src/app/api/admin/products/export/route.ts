@@ -30,6 +30,8 @@ export async function GET() {
       { header: 'Length\nطول', key: 'length', width: 15 },
       { header: 'Width\nعرض', key: 'width', width: 15 },
       { header: 'Height\nارتفاع', key: 'height', width: 15 },
+      { header: 'Description\nتوضیحات محصول', key: 'description', width: 35 },
+      { header: 'Introduction\nمعرفی محصول', key: 'introduction', width: 35 },
     ];
 
     // Style the header row
@@ -67,6 +69,8 @@ export async function GET() {
           length,
           width,
           height,
+          description: product.description || '',
+          introduction: product.introduction || '',
         });
       } else {
         product.variants.forEach((variant: any) => {
@@ -84,6 +88,8 @@ export async function GET() {
             length,
             width,
             height,
+            description: product.description || '',
+            introduction: product.introduction || '',
           });
         });
       }

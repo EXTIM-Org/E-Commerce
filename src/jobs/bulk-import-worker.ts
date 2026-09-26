@@ -88,6 +88,8 @@ export const bulkImportWorker = new Worker('bulk-import-queue', async (job: Job)
       const length = row.getCell(11).text || '';
       const width = row.getCell(12).text || '';
       const height = row.getCell(13).text || '';
+      const description = row.getCell(14).text || '';
+      const introduction = row.getCell(15).text || '';
 
       // Ensure Category exists
       let category = await db.orm.public.Category.where(c => c.slug.eq(categorySlug || 'uncategorized')).first();
@@ -137,6 +139,8 @@ export const bulkImportWorker = new Worker('bulk-import-queue', async (job: Job)
           basePrice: basePrice || product.basePrice,
           discount: discount !== undefined ? discount : product.discount,
           categoryId: category.id,
+          description: description || product.description,
+          introduction: introduction || product.introduction,
           // Append new images if any
           images: imageUrls.length > 0 ? [...product.images, ...imageUrls] : product.images,
         });
@@ -149,7 +153,8 @@ export const bulkImportWorker = new Worker('bulk-import-queue', async (job: Job)
           discount,
           categoryId: category.id,
           images: imageUrls,
-          description: '',
+          description: description,
+          introduction: introduction,
         });
       }
 
