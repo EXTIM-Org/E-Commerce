@@ -84,12 +84,12 @@ export const bulkImportWorker = new Worker('bulk-import-queue', async (job: Job)
 
       const { sku, productSlug, productName, categorySlug, basePrice, discount, variantName, variantPrice, stockQuantity } = parsed.data;
 
-      const weight = row.getCell(10).text || '';
-      const length = row.getCell(11).text || '';
-      const width = row.getCell(12).text || '';
-      const height = row.getCell(13).text || '';
-      const description = row.getCell(14).text || '';
-      const introduction = row.getCell(15).text || '';
+      const description = row.getCell(10).text || '';
+      const introduction = row.getCell(11).text || '';
+      const weight = row.getCell(12).text || '';
+      const length = row.getCell(13).text || '';
+      const width = row.getCell(14).text || '';
+      const height = row.getCell(15).text || '';
 
       // Ensure Category exists
       let category = await db.orm.public.Category.where(c => c.slug.eq(categorySlug || 'uncategorized')).first();

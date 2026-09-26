@@ -26,12 +26,12 @@ export async function GET() {
       { header: 'VariantName\nنام تنوع', key: 'variantName', width: 20 },
       { header: 'VariantPrice\nقیمت تنوع', key: 'variantPrice', width: 15 },
       { header: 'StockQuantity\nموجودی', key: 'stockQuantity', width: 15 },
+      { header: 'Description\nتوضیحات محصول', key: 'description', width: 35 },
+      { header: 'Introduction\nمعرفی محصول', key: 'introduction', width: 35 },
       { header: 'Weight\nوزن', key: 'weight', width: 15 },
       { header: 'Length\nطول', key: 'length', width: 15 },
       { header: 'Width\nعرض', key: 'width', width: 15 },
       { header: 'Height\nارتفاع', key: 'height', width: 15 },
-      { header: 'Description\nتوضیحات محصول', key: 'description', width: 35 },
-      { header: 'Introduction\nمعرفی محصول', key: 'introduction', width: 35 },
     ];
 
     // Style the header row
@@ -65,12 +65,12 @@ export async function GET() {
           variantName: '',
           variantPrice: '',
           stockQuantity: 0,
+          description: product.description || '',
+          introduction: product.introduction || '',
           weight,
           length,
           width,
           height,
-          description: product.description || '',
-          introduction: product.introduction || '',
         });
       } else {
         product.variants.forEach((variant: any) => {
@@ -84,12 +84,12 @@ export async function GET() {
             variantName: variant.name || '',
             variantPrice: variant.price || '',
             stockQuantity: variant.inventory?.stockQuantity || 0,
+            description: product.description || '',
+            introduction: product.introduction || '',
             weight,
             length,
             width,
             height,
-            description: product.description || '',
-            introduction: product.introduction || '',
           });
         });
       }
