@@ -99,6 +99,7 @@ model Product {
   name          String
   slug          String    @unique
   description   String?
+  introduction  String?
   categoryId    String
   category      Category  @relation(fields: [categoryId], references: [id])
   tickets       Ticket[]

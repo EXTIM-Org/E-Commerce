@@ -90,6 +90,7 @@ export async function createProduct(prevState: unknown, formData: FormData) {
 
   try {
     const name = formData.get("name") as string;
+    const introduction = formData.get("introduction") as string;
     const description = formData.get("description") as string;
     const basePriceStr = formData.get("basePrice") as string;
     const discountStr = formData.get("discount") as string;
@@ -148,6 +149,7 @@ export async function createProduct(prevState: unknown, formData: FormData) {
     const product = await db.orm.public.Product.create({
       name,
       slug,
+      introduction,
       description,
       basePrice,
       discount,
@@ -216,6 +218,7 @@ export async function updateProduct(id: string, prevState: unknown, formData: Fo
 
   try {
     const name = formData.get("name") as string;
+    const introduction = formData.get("introduction") as string;
     const description = formData.get("description") as string;
     const basePriceStr = formData.get("basePrice") as string;
     const discountStr = formData.get("discount") as string;
@@ -287,6 +290,7 @@ export async function updateProduct(id: string, prevState: unknown, formData: Fo
 
     await db.orm.public.Product.where({ id }).update({
       name,
+      introduction,
       description,
       basePrice,
       discount,

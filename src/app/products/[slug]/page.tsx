@@ -235,6 +235,21 @@ export default async function ProductDetailPage({ params }: PageProps) {
       <InteractionTabs 
         reviewsCount={product.reviews?.length || 0}
         qaCount={product.questions?.length || 0}
+        introductionContent={
+          <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-3xl p-8">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">معرفی محصول</h3>
+            {product.introduction ? (
+              <div 
+                className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 leading-loose"
+                dangerouslySetInnerHTML={{ __html: product.introduction }}
+              />
+            ) : (
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+                معرفی محصول برای این کالا ثبت نشده است.
+              </p>
+            )}
+          </div>
+        }
         reviewsContent={
           <div className="w-full">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -265,7 +280,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
         }
         specificationsContent={
           <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-3xl p-8">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">مشخصات فنی</h3>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">مشخصات</h3>
             {product.specifications && product.specifications.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {product.specifications.map((spec) => (
@@ -276,7 +291,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 dark:text-gray-400 text-center py-8">مشخصات فنی برای این محصول ثبت نشده است.</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">مشخصات برای این محصول ثبت نشده است.</p>
             )}
           </div>
         }

@@ -176,7 +176,7 @@ export function ProductClient({ product, initialIsLiked }: ProductClientProps) {
       </div>
 
       {/* Left Column: Product Details */}
-      <div className="flex flex-col gap-6 pt-4">
+      <div className="flex flex-col gap-6 pt-4 h-full">
         
         {/* Breadcrumb / Category */}
         <div className="flex items-center justify-between">
@@ -203,12 +203,9 @@ export function ProductClient({ product, initialIsLiked }: ProductClientProps) {
             ))}
           </div>
           <span className="text-sm font-bold text-yellow-400">{averageRating > 0 ? averageRating.toFixed(1) : ""}</span>
-          <button 
-            onClick={() => document.getElementById('interaction')?.scrollIntoView({ behavior: 'smooth' })} 
-            className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors cursor-pointer"
-          >
+          <span className="text-sm text-gray-500 dark:text-gray-400">
             ({reviewCount} دیدگاه)
-          </button>
+          </span>
         </div>
         
         <div className="flex items-center gap-4 text-sm font-medium">
@@ -337,10 +334,11 @@ export function ProductClient({ product, initialIsLiked }: ProductClientProps) {
           )
         )}
 
-        <div className="h-px w-full bg-gradient-to-r from-transparent via-gray-300 dark:via-white/10 to-transparent my-6"></div>
+        <div className="mt-auto w-full">
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-gray-300 dark:via-white/10 to-transparent my-6"></div>
 
-        {/* Pricing & Add to Cart */}
-        <div className="flex flex-col gap-6 bg-white dark:bg-white/5 rounded-3xl p-8 border border-gray-200 dark:border-white/10 backdrop-blur-sm shadow-sm dark:shadow-xl">
+          {/* Pricing & Add to Cart */}
+          <div className="flex flex-col gap-6 bg-white dark:bg-white/5 rounded-3xl p-8 border border-gray-200 dark:border-white/10 backdrop-blur-sm shadow-sm dark:shadow-xl">
           <div className="flex justify-between items-end">
             <div className="flex flex-col gap-1">
               {(product.discount > 0 || hasDiscount) && (
@@ -375,6 +373,7 @@ export function ProductClient({ product, initialIsLiked }: ProductClientProps) {
             <Truck className="w-4 h-4" />
             ارسال رایگان برای سفارش‌های بالای ۲ میلیون تومان
           </div>
+        </div>
         </div>
         
       </div>

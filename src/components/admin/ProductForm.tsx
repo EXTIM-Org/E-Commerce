@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { createProduct, updateProduct } from "@/actions/product";
 import { p2e } from "@/lib/persian";
+import { RichTextEditor } from "./RichTextEditor";
 
 export function ProductForm({
   categories,
@@ -28,6 +29,7 @@ export function ProductForm({
 
   const [basePrice, setBasePrice] = useState(product?.basePrice?.toString() || "");
   const [discount, setDiscount] = useState(product?.discount?.toString() || "0");
+  const [introduction, setIntroduction] = useState(product?.introduction || "");
   
   const parsedBasePrice = parseFloat(p2e(basePrice)) || 0;
   const parsedDiscount = parseFloat(p2e(discount)) || 0;
@@ -326,8 +328,7 @@ export function ProductForm({
         value={JSON.stringify(specifications)}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Basic Info */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -404,21 +405,7 @@ export function ProductForm({
             )}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              توضیحات محصول
-            </label>
-            <textarea
-              name="description"
-              defaultValue={product?.description || ""}
-              rows={5}
-              className="w-full bg-white/50 dark:bg-black/50 border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all text-gray-900 dark:text-white resize-none"
-              placeholder="توضیحات و ویژگی‌های محصول..."
-            ></textarea>
-          </div>
         </div>
-
-        {/* Pricing & Media */}
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -450,12 +437,33 @@ export function ProductForm({
             </div>
           </div>
           
-          <div className="bg-violet-500/10 border border-violet-500/20 text-violet-700 dark:text-violet-300 p-4 rounded-xl flex items-center justify-between">
-            <span className="font-medium">قیمت نهایی پس از تخفیف:</span>
-            <span className="text-xl font-bold">{finalPrice.toLocaleString('fa-IR')} تومان</span>
+          <div>
+            <label className="block text-sm font-medium text-transparent mb-2 select-none" aria-hidden="true">
+              تراز
+            </label>
+            <div className="bg-violet-500/10 border border-violet-500/20 text-violet-700 dark:text-violet-300 p-4 rounded-xl flex items-center justify-between">
+              <span className="font-medium">قیمت نهایی پس از تخفیف:</span>
+              <span className="text-xl font-bold">{finalPrice.toLocaleString('fa-IR')} تومان</span>
+            </div>
           </div>
 
-          <div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div className="flex flex-col h-full">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            توضیحات محصول
+          </label>
+          <textarea
+            name="description"
+            defaultValue={product?.description || ""}
+            className="w-full flex-1 bg-white/50 dark:bg-black/50 border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all text-gray-900 dark:text-white resize-none"
+            placeholder="توضیحات و ویژگی‌های محصول..."
+          ></textarea>
+        </div>
+        <div className="flex flex-col h-full">
+          <div className="flex flex-col h-full">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               تصاویر محصول
             </label>
@@ -463,7 +471,7 @@ export function ProductForm({
             {media.length < 5 && (
               <>
                 <div
-                  className="border-2 border-dashed border-black/10 dark:border-white/20 rounded-xl p-8 text-center cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                  className="flex-1 border-2 border-dashed border-black/10 dark:border-white/20 rounded-xl p-8 text-center cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex flex-col justify-center items-center min-h-[140px]"
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <Upload className="w-8 h-8 text-violet-500 mx-auto mb-3" />
@@ -537,9 +545,21 @@ export function ProductForm({
             )}
           </div>
         </div>
+
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            معرفی محصول
+          </label>
+          <input type="hidden" name="introduction" value={introduction} />
+          <RichTextEditor 
+            content={introduction} 
+            onChange={setIntroduction} 
+            placeholder="معرفی محصول..." 
+          />
+        </div>
       </div>
 
-      {/* Variants */}
+            {/* Variants */}
       <div className="border-t border-black/10 dark:border-white/10 pt-6 mt-6">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-bold text-gray-900 dark:text-white">
@@ -649,7 +669,7 @@ export function ProductForm({
       <div className="pt-8 border-t border-black/10 dark:border-white/10 mt-8 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-            مشخصات فنی
+            مشخصات
           </h3>
           <button
             type="button"
@@ -664,7 +684,7 @@ export function ProductForm({
         <div className="space-y-3">
           {specifications.length === 0 ? (
             <div className="text-sm text-gray-500 dark:text-gray-400 text-center py-4 bg-black/5 dark:bg-white/5 rounded-2xl">
-              هیچ مشخصه فنی اضافه نشده است. (مانند وزن، ابعاد، رنگ، جنس و ...)
+              هیچ مشخصه‌ای اضافه نشده است. (مانند وزن، ابعاد، رنگ، جنس و ...)
             </div>
           ) : (
             specifications.map((spec, index) => (
